@@ -26,7 +26,7 @@
           <SSIS:Property SSIS:Name="CreatorComputerName">DESKTOP-4VHN986</SSIS:Property>
           <SSIS:Property SSIS:Name="Description">
           </SSIS:Property>
-          <SSIS:Property SSIS:Name="PasswordVerifier" SSIS:Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAACAAAAAAAQZgAAAAEAACAAAAB6rWSKjxWmc2UyAK+xUJRhxyyFeXkzjNZs67yUg4xzcAAAAAAOgAAAAAIAACAAAABurF+h2ubnOiZ2UdMUhYSQ1WAKcCh7uWBy4AFaup/9EJAAAAD0p3R4rQ1nLxGUzV1tN7hHnNKBb4286iD7FKmJ3zWeEfoO+k1B0N4Q54trgj5SynuqGN2rWeKa3fdQW1BnN8TbUz43O7hDCvHCo4V+h66R3vahAwpYg34p30aP5sw1qFo/h1ejPHHaeG+FXl1lodJ559wpelrsjqKvXqgLZmk/M6KJ0wQCD0Lc3v4JhHTQbx9AAAAAn5P2Mh7d8yNFqye94E5iltzDvHEmPLYNASHzcoeQimj9zwTdOXcWPb501OQQlWYgRXvcmz+1n/0VVZ2jPbMYAw==</SSIS:Property>
+          <SSIS:Property SSIS:Name="PasswordVerifier" SSIS:Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAACAAAAAAAQZgAAAAEAACAAAACKspDcwFJ6eF1oB2l9YT642nE4rXKfj3TtUeLDlSt+xgAAAAAOgAAAAAIAACAAAAA4CQVA1lAy8eVbb+LvuogS9XYjQFWD3/X83NzbeGDZiJAAAAA1WDIbR797xpHFL9zULOZ4yyIA1LvG1pI5OJj2iacj7XPJ/5PspH3r4CDICR2BJ+5nuEUyKwOgy6oKfDbFFVVIu9z2nqCA5gFs8uuOA4aDJGdKH+vBTa/0nm6PtCjwe8Ixm7Lp+x6kk546PQuuHFDdRvgtoLB6Mu85iIQwJruBL60zyLyymLveFsITnG+LLApAAAAAmySLSSxnH118g5YzcAwtERHhyXmejR7ZcmCjj10NB5ERsLX5eC8bfjNv200R2yCCfPrlR/5uTf+ghaehObXUmw==</SSIS:Property>
           <SSIS:Property SSIS:Name="FormatVersion">1</SSIS:Property>
         </SSIS:Properties>
         <SSIS:Packages>
@@ -42,10 +42,10 @@
                 <SSIS:Property SSIS:Name="Name">Load_Staging_Area</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionBuild">62</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">69</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionComments">
                 </SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionGUID">{531AEC36-0673-4A0D-AD93-D2D0AFE56D68}</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{30383D26-AD2A-4B0E-BC7A-3FE58BD9F25A}</SSIS:Property>
                 <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
                 <SSIS:Property SSIS:Name="Description">
                 </SSIS:Property>
@@ -1004,6 +1004,8 @@
                     <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">
+                    </SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>
@@ -1063,7 +1065,7 @@
                     <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
-                    <SSIS:Property SSIS:Name="Value">Initial Catalog=RH_Staging_Area;Provider=MSOLEDBSQL.1;Integrated Security=SSPI;Auto Translate=False;Application Name=SSIS-Load_Staging_Area-{49652383-4959-43BF-9C50-25F5D0A71054}Data Connection;</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">Data Source=tcp:100.102.67.72,61301;User ID=BI;Initial Catalog=RH_Staging_Area;Provider=MSOLEDBSQL.1;Persist Security Info=True;Auto Translate=False;Application Name=SSIS-Load_Staging_Area-{49652383-4959-43BF-9C50-25F5D0A71054}Data Connection;</SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>
@@ -1167,6 +1169,7 @@
                     <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">tcp:100.102.67.72,61301</SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>
@@ -1181,6 +1184,7 @@
                     <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">BI</SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>
