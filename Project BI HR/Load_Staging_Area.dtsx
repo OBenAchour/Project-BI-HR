@@ -21,6 +21,8 @@
       DTS:CreationName="EXCEL"
       DTS:DTSID="{9CBE13FC-6FD6-4398-A9DF-6D1A3224DEA6}"
       DTS:ObjectName="administration_attendance.xlsx">
+      <DTS:PropertyExpression
+        DTS:Name="ExcelFilePath">@[$Project::DossierSources] + &quot;\\Administration_attendance.xlsx&quot;</DTS:PropertyExpression>
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
@@ -33,6 +35,8 @@
       DTS:CreationName="EXCEL"
       DTS:DTSID="{AD446D15-D0E4-422C-95EE-004FBCE87604}"
       DTS:ObjectName="administration_data.xlsx">
+      <DTS:PropertyExpression
+        DTS:Name="ExcelFilePath">@[$Project::DossierSources] + &quot;\\administration_data.xlsx&quot;</DTS:PropertyExpression>
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
@@ -45,6 +49,8 @@
       DTS:CreationName="FLATFILE"
       DTS:DTSID="{E62328FA-B277-414E-BBFA-0557AC8D9327}"
       DTS:ObjectName="Coursera_trainings.csv">
+      <DTS:PropertyExpression
+        DTS:Name="ConnectionString">@[$Project::DossierSources] + &quot;\\Coursera_trainings.csv&quot;</DTS:PropertyExpression>
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:Format="Delimited"
@@ -145,6 +151,8 @@
       DTS:CreationName="EXCEL"
       DTS:DTSID="{12629CD2-AAC7-4513-B70E-562E302C57E1}"
       DTS:ObjectName="emp_data.xlsx">
+      <DTS:PropertyExpression
+        DTS:Name="ExcelFilePath">@[$Project::DossierSources] + &quot;\\emp_data.xlsx&quot;</DTS:PropertyExpression>
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
@@ -157,6 +165,8 @@
       DTS:CreationName="FLATFILE"
       DTS:DTSID="{D126EC74-CF58-4AE7-8399-AB5CCD17ED41}"
       DTS:ObjectName="FF_attendance_tech">
+      <DTS:PropertyExpression
+        DTS:Name="ConnectionString">@[$Project::DossierSources] + &quot;\\attendance_dataset_2023.csv&quot;</DTS:PropertyExpression>
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:Format="Delimited"
@@ -231,6 +241,8 @@
       DTS:CreationName="FLATFILE"
       DTS:DTSID="{E00B6AE3-DDA7-41A2-B7BF-D71E7F30742E}"
       DTS:ObjectName="FF_extrainfos">
+      <DTS:PropertyExpression
+        DTS:Name="ConnectionString">@[$Project::DossierSources] + &quot;\\extrainfos.txt&quot;</DTS:PropertyExpression>
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:Format="Delimited"
@@ -295,6 +307,8 @@
       DTS:CreationName=""
       DTS:DTSID="{F53A0E43-098C-4765-B833-4F877E296403}"
       DTS:IncludeInDebugDump="2345"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="@[$Project::DossierSources] + &quot;\\departments.ods&quot;"
       DTS:Namespace="User"
       DTS:ObjectName="OdsPath">
       <DTS:VariableValue
