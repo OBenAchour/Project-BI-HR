@@ -1,0 +1,14 @@
+# Fichiers propres à chaque poste Visual Studio / SSDT
+.vs/
+bin/
+obj/
+*.user
+*.suo
+
+# Fichiers de verrouillage Office (fichier ouvert)
+~$*
+
+# Caches Python / Jupyter
+__pycache__/
+.ipynb_checkpoints/
+*.pkl
