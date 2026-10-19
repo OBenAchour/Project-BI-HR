@@ -11,8 +11,8 @@
   DTS:LastModifiedProductVersion="17.0.1008.3"
   DTS:LocaleID="1036"
   DTS:ObjectName="Load_data_warehouse"
-  DTS:VersionBuild="2"
-  DTS:VersionGUID="{87E55584-F903-46B6-BFBC-88C5645CAF4B}">
+  DTS:VersionBuild="4"
+  DTS:VersionGUID="{16EE1B60-FA86-4AAE-9CA7-6362AB141CFA}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -25,11 +25,11 @@
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="1"
           DTS:ConnectRetryInterval="5"
-          DTS:ConnectionString="Data Source=tcp:100.102.67.72,61301;User ID=BI;Initial Catalog=RH_Data_Warehouse;Provider=MSOLEDBSQL.1;Auto Translate=False;Application Name=SSIS-Load_data_warehouse-{7186E69B-4145-4297-BC0B-066F953FF763}OLEDB DW connection;">
+          DTS:ConnectionString="Data Source=tcp:100.102.67.72,61301;User ID=BI;Initial Catalog=RH_Data_Warehouse;Provider=MSOLEDBSQL.1;Persist Security Info=True;Auto Translate=False;Application Name=SSIS-Load_data_warehouse-{7186E69B-4145-4297-BC0B-066F953FF763}OLEDB DW connection;">
           <DTS:Password
             DTS:Name="Password"
             Sensitive="1"
-            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAAAqyPZvxZlbrmITDUstS5MFF0QGMDaiC0Nv4n16hSeyfgAAAAAOgAAAAAIAACAAAAD1uFQHM5ACXutQXW92LMplydKvLe+Rc/SdyIOUPXVyHCAAAADKq3qbbWVBQ5YYxFPkEGZWdwPnr+Eh4+n1++iRXnDRZEAAAACNS+uS17hiKts7iE3spde2cW8oXehCUkDrnTwgBTCDpDgvUEfK+tOu6zzpwIN5et1/35Y5aSIBnYt2ShdOUy8O</DTS:Password>
+            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAADvFa4PkCubqCqgKWpRgLXxGiB6+MeQPi50D8Eckd2ZxQAAAAAOgAAAAAIAACAAAABj+HkLt/dSha36SXyETEa7emfxlRXp5w6NBSmCz1aMYSAAAAAP6H1MMAegvCQUgQG/jBEHYnhFy7SgVMDM6vloL5yeS0AAAACi4x3ABQn86Nqcf3198MthCaVMj9bml2X+39UAjp+WN+8OxQ6D78sS9vzWkD1AT7OcyXVw6MSkWYoiGK3sffOX</DTS:Password>
         </DTS:ConnectionManager>
       </DTS:ObjectData>
     </DTS:ConnectionManager>
@@ -46,7 +46,7 @@
           <DTS:Password
             DTS:Name="Password"
             Sensitive="1"
-            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAACke+d6jIiFzPh+oLcGDRn1friqD2yE4A/w0gW58P8hMwAAAAAOgAAAAAIAACAAAADpnEpX4/Hy+/oPNRuHGxLOEnpASV10rYKCOdwMT5l2RyAAAAAdVLXTq/9/BDG170ly1C5sy9eyqIjtwsdmiuA4ro1QXEAAAACcCSxizZ3b6sDMuPK5F8ZefTGyECK+USoyDxBfnCkjWztnUUcF/3dKUnni17p9LkjIxZsYCuRPWJAsgkLhc95d</DTS:Password>
+            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAACQTH1faU4DcbQ550QGLE3x0AudyBf9rDMBcZMVfuoDzgAAAAAOgAAAAAIAACAAAACoeKYa+sU9I9hIQ/MyZv7RMxxfEg0i4Gbpq1psHuy7pyAAAAACWClN/jZorq5ceGF32iHsN03NS1faLVYhkiV6zgPFoEAAAAB/JdJ1PhCn+nYtUsU/Bt8VNW39viikdyLVUHgkppRJ4MA9MdXbAqmmV9fldQA/H3HCeYPWuTjJsms+VUR8eQk3</DTS:Password>
         </DTS:ConnectionManager>
       </DTS:ObjectData>
     </DTS:ConnectionManager>
@@ -62,7 +62,7 @@
       DTS:Namespace="User"
       DTS:ObjectName="SnapshotDate">
       <DTS:VariableValue
-        DTS:DataType="7">10/15/2026</DTS:VariableValue>
+        DTS:DataType="7">10/17/2026</DTS:VariableValue>
     </DTS:Variable>
     <DTS:Variable
       DTS:CreationName=""
@@ -74,7 +74,7 @@
       DTS:Namespace="User"
       DTS:ObjectName="SnapshotDateKey">
       <DTS:VariableValue
-        DTS:DataType="3">20261015</DTS:VariableValue>
+        DTS:DataType="3">20261017</DTS:VariableValue>
     </DTS:Variable>
     <DTS:Variable
       DTS:CreationName=""
@@ -15558,7 +15558,7 @@ WHERE NULLIF(p.employe_bk, N'') IS NOT NULL
           <DTS:ObjectData>
             <SQLTask:SqlTaskData
               SQLTask:Connection="{7186E69B-4145-4297-BC0B-066F953FF763}"
-              SQLTask:SqlStatementSource="DELETE FROM dw.fact_effectif_snapshot WHERE snapshot_date_key = 20261015" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+              SQLTask:SqlStatementSource="DELETE FROM dw.fact_effectif_snapshot WHERE snapshot_date_key = 20261017" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
           </DTS:ObjectData>
         </DTS:Executable>
         <DTS:Executable
@@ -15575,7 +15575,7 @@ WHERE NULLIF(p.employe_bk, N'') IS NOT NULL
           <DTS:ObjectData>
             <SQLTask:SqlTaskData
               SQLTask:Connection="{7186E69B-4145-4297-BC0B-066F953FF763}"
-              SQLTask:SqlStatementSource="DELETE FROM dw.fact_formation WHERE snapshot_date_key = 20261015" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+              SQLTask:SqlStatementSource="DELETE FROM dw.fact_formation WHERE snapshot_date_key = 20261017" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
           </DTS:ObjectData>
         </DTS:Executable>
         <DTS:Executable
@@ -17416,66 +17416,66 @@ GROUP BY k.employe_bk, LOWER(LEFT(k.libelle, 255))</property>
       <GraphLayout
         Capacity="64" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
-          Size="210,42"
+          Size="209.6,41.6"
           Id="Package\SEQ_Dimensions\DFT_DIM_COMPETENCE"
           TopLeft="5.5,5.5" />
         <NodeLayout
-          Size="186,42"
+          Size="185.6,41.6"
           Id="Package\SEQ_Dimensions\DFT_DIM_CONTRAT"
           TopLeft="276.5,5.5" />
         <NodeLayout
-          Size="172,42"
+          Size="172,41.6"
           Id="Package\SEQ_Dimensions\DFT_DIM_COURS"
           TopLeft="523.5,5.49999999999989" />
         <NodeLayout
-          Size="216,42"
+          Size="216,41.6"
           Id="Package\SEQ_Dimensions\DFT_DIM_DEPARTEMENT"
           TopLeft="756.5,5.49999999999989" />
         <NodeLayout
-          Size="186,42"
+          Size="185.6,41.6"
           Id="Package\SEQ_Dimensions\DFT_DIM_EMPLOYE"
           TopLeft="1033.5,5.49999999999989" />
         <NodeLayout
-          Size="170,42"
+          Size="169.6,41.6"
           Id="Package\SEQ_Dimensions\DFT_DIM_POSTE"
           TopLeft="1280.5,5.49999999999989" />
         <NodeLayout
-          Size="218,42"
+          Size="217.6,41.6"
           Id="Package\SEQ_Dimensions\DFT_DIM_TAUX_HORAIRE"
           TopLeft="1511.5,5.49999999999977" />
         <NodeLayout
-          Size="208,42"
+          Size="208,41.6"
           Id="Package\SEQ_Dimensions\DFT_DIM_TYPE_CONGE"
           TopLeft="1790.5,5.49999999999977" />
         <ContainerLayout
           HeaderHeight="43"
           IsExpanded="True"
-          PanelSize="2004,102"
-          Size="2004,146"
+          PanelSize="2004,103.2"
+          Size="2004,145.6"
           Id="Package\SEQ_Dimensions"
           TopLeft="5.50000000000011,517.5" />
         <NodeLayout
-          Size="260,42"
+          Size="260,41.6"
           Id="Package\SEQ_Faits\DFT_FACT_EFFECTIF_SNAPSHOT"
           TopLeft="5.5,107.5" />
         <NodeLayout
-          Size="207,42"
+          Size="207.2,41.6"
           Id="Package\SEQ_Faits\DFT_FACT_FORMATION"
           TopLeft="332,107.5" />
         <NodeLayout
-          Size="198,42"
+          Size="198.4,41.6"
           Id="Package\SEQ_Faits\DFT_FACT_POINTAGE"
           TopLeft="634.5,107.5" />
         <NodeLayout
-          Size="231,42"
+          Size="231.2,41.6"
           Id="Package\SEQ_Faits\SQL_Delete_Snapshot_Effectif"
           TopLeft="20,5.5" />
         <NodeLayout
-          Size="247,42"
+          Size="247.2,41.6"
           Id="Package\SEQ_Faits\SQL_Delete_Snapshot_Formation"
           TopLeft="312,5.49999999999989" />
         <NodeLayout
-          Size="228,42"
+          Size="228,41.6"
           Id="Package\SEQ_Faits\SQL_Truncate_Fact_Pointage"
           TopLeft="619.5,5.49999999999989" />
         <EdgeLayout
@@ -17547,24 +17547,24 @@ GROUP BY k.employe_bk, LOWER(LEFT(k.libelle, 255))</property>
         <ContainerLayout
           HeaderHeight="43"
           IsExpanded="True"
-          PanelSize="853,204"
-          Size="853,248"
+          PanelSize="852.8,204.8"
+          Size="852.8,248"
           Id="Package\SEQ_Faits"
           TopLeft="581,1030.5" />
         <NodeLayout
-          Size="202,42"
+          Size="201.6,41.6"
           Id="Package\SEQ_Initialisation\SQL_Generer_Dim_Date"
           TopLeft="24.5,107.5" />
         <NodeLayout
-          Size="209,42"
+          Size="208.8,41.6"
           Id="Package\SEQ_Initialisation\SQL_Generer_Dim_Heure"
           TopLeft="21,209.5" />
         <NodeLayout
-          Size="240,42"
+          Size="240,41.6"
           Id="Package\SEQ_Initialisation\SQL_Generer_Junk_Dimensions"
           TopLeft="5.50000000000003,311.5" />
         <NodeLayout
-          Size="224,42"
+          Size="224,41.6"
           Id="Package\SEQ_Initialisation\SQL_Init_Membres_Inconnus"
           TopLeft="13.5,5.5" />
         <EdgeLayout
@@ -17636,20 +17636,20 @@ GROUP BY k.employe_bk, LOWER(LEFT(k.libelle, 255))</property>
         <ContainerLayout
           HeaderHeight="43"
           IsExpanded="True"
-          PanelSize="251,408"
-          Size="251,452"
+          PanelSize="251.2,408.8"
+          Size="251.2,452"
           Id="Package\SEQ_Initialisation"
           TopLeft="882,5.49999999999977" />
         <NodeLayout
-          Size="278,42"
+          Size="278.4,41.6"
           Id="Package\SEQ_Ponts\DFT_BRIDGE_COURS_COMPETENCE"
           TopLeft="360.5,107.5" />
         <NodeLayout
-          Size="294,42"
+          Size="294.4,41.6"
           Id="Package\SEQ_Ponts\DFT_BRIDGE_EMPLOYE_TECHNOLOGIE"
           TopLeft="5.5,107.5" />
         <NodeLayout
-          Size="194,42"
+          Size="193.6,41.6"
           Id="Package\SEQ_Ponts\SQL_Truncate_Bridges"
           TopLeft="402.5,5.49999999999989" />
         <EdgeLayout
@@ -17724,23 +17724,23 @@ GROUP BY k.employe_bk, LOWER(LEFT(k.libelle, 255))</property>
           HeaderHeight="43"
           IsExpanded="True"
           PanelSize="644,204"
-          Size="644,247"
+          Size="644,247.2"
           Id="Package\SEQ_Ponts"
-          TopLeft="685.5,723.5" />
+          TopLeft="688.530302864734,708.5303031344" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[{309126D1-7675-43E2-91E3-A378C8BB1FD4\}]"
-          TopLeft="1007.5,663.5">
+          TopLeft="1009.01515143237,663.1">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,60.0000000000002"
+              EndConnector="0,45.4303031344004"
               Start="0,0"
-              End="0,52.5000000000002">
+              End="0,37.9303031344004">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,52.5000000000002" />
+                    End="0,37.9303031344004" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -17751,18 +17751,18 @@ GROUP BY k.employe_bk, LOWER(LEFT(k.libelle, 255))</property>
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[{91190428-6795-428F-B641-12E1C44D583E\}]"
-          TopLeft="1007.5,970.5">
+          TopLeft="1008.96515143237,955.7303031344">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,60"
+              EndConnector="0,74.7696968655996"
               Start="0,0"
-              End="0,52.5">
+              End="0,67.2696968655996">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,52.5" />
+                    End="0,67.2696968655996" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
