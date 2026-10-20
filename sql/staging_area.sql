@@ -19,6 +19,10 @@
 
 IF CAST(SERVERPROPERTY('ProductMajorVersion') AS int) < 15
     THROW 50000, N'SQL Server 2019 ou plus récent est nécessaire (collation UTF-8).', 1;
+-- Vérifier les droits AVANT toute suppression : sinon une table peut être supprimée sans pouvoir être recréée.
+IF HAS_PERMS_BY_NAME(DB_NAME(), 'DATABASE', 'CREATE TABLE') = 0
+   OR HAS_PERMS_BY_NAME(N'stg', 'SCHEMA', 'ALTER') = 0
+    THROW 50001, N'Droits insuffisants : il faut CREATE TABLE sur la base et ALTER sur le schéma stg (ex. rôle db_ddladmin). Aucune table n''a été modifiée.', 1;
 GO
 
 IF SCHEMA_ID(N'stg') IS NULL EXEC (N'CREATE SCHEMA stg');
