@@ -38,6 +38,7 @@ In **both** packages, double-click each connection manager → login `BI` → pa
 
 ## 5. Run
 
+0. **Only once per server** (or after a change to the `stg` tables): run `sql/staging_area.sql` in SSMS on `RH_Staging_Area`. It recreates the 7 `stg` tables (SQL Server 2019+).
 1. `Load_Staging_Area.dtsx` → F5
 2. `Load_data_warehouse.dtsx` → F5
 3. All boxes green = done ✅

@@ -19,10 +19,17 @@
 | `eda_audit_pipeline.py` | Data quality audit of the 7 files (read-only) |
 | `eda_audit_report.html` | Audit report it generates: 42 anomalies, impact, proposed fix |
 | `Projet_EDA_BI_RH.pptx` | EDA presentation: business objectives OM1–OM6 and KPIs |
+| `sql/staging_area.sql` | Creates the 7 `stg` tables: file columns only, typed as SSIS reads them |
 | `Project BI HR/` | SSIS project (Visual Studio 2022) |
 | `Dossier_Conception_DW_RH.docx` | Data Warehouse design (17 tables) |
 | `Rapport SSIS — ….pdf` | Full explanation of every SSIS component |
 | `docs/` | Setup guide + team conventions |
+
+## The staging area (schema `stg`)
+
+- **Raw copy of the files:** no added column, no transformation in SSIS or in the files.
+- **Type differences are handled in the database:** each `stg` column has the type SSIS reads (`float` for Excel numbers, `datetime` for Excel dates, UTF-8 `varchar` for UTF-8 text).
+- **All cleaning happens in the DW load.**
 
 ## The Data Warehouse (schema `dw`)
 
