@@ -3,884 +3,609 @@
 """
 eda_audit_pipeline.py
 =====================
-Audit qualité RH en lecture seule, destiné à préparer un futur pipeline SSIS/DW.
+Audit qualité des 7 fichiers RH, en lecture seule, avant le chargement SSIS / DW.
 
-IMPORTANT
-- Ce programme ne modifie jamais les fichiers sources.
-- Toutes les colonnes sont chargées comme chaînes (dtype=str).
-- Les conversions numériques/dates sont réalisées sur des séries temporaires uniquement.
-- Le rapport HTML contient les anomalies détaillées, les valeurs/identifiants concernés,
-  leur explication, une recommandation et une piste de règle SSIS.
-- Les données sources doivent être placées dans --input-dir (par défaut : ./data).
-- Les noms de colonnes peuvent varier : le script cherche des variantes courantes.
+- Aucun fichier source n'est modifié.
+- Chaque fichier est lu avec son format réel (pas de détection automatique ambiguë) :
+    emp_data.xlsx / administration_data.xlsx     dates ISO (AAAA-MM-JJ)
+    attendance_dataset_2023.csv                  date M/J/AAAA, heures H:MM:SS
+    Administration_attendance.xlsx               date AAAA-MM-JJ, heures HH:MM
+- Les contrôles portent sur trois niveaux :
+    1. cohérence entre fichiers (mêmes notions décrites différemment) ;
+    2. qualité intrinsèque (vides, doublons, clés, références) ;
+    3. règles métier (contrats, ancienneté, congés, pointages, capacités, catalogue).
+- Le rapport HTML est autonome (CSS et graphiques intégrés).
+
+Usage : python eda_audit_pipeline.py [--input-dir DataSet] [--output eda_audit_report.html]
 """
 
 from __future__ import annotations
 
 import argparse
 import base64
-import csv
 import io
-import os
+import json
 import re
 import sys
-import warnings
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
 
-import numpy as np
+import matplotlib
 import pandas as pd
 
-# Matplotlib est utilisé sans imposer de palette de couleurs.
-import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-try:
-    import missingno as msno
-except ImportError:
-    msno = None
-
-try:
-    from odf.opendocument import load as load_ods
-    from odf.table import Table, TableRow, TableCell
-    from odf.text import P
-    from odf.teletype import extractText
-except ImportError:
-    load_ods = None
-
-
-FILES = {
-    "emp": "emp_data.xlsx",
-    "admin": "administration_data.xlsx",
-    "admin_att": "Administration_attendance.xlsx",
-    "attendance": "attendance_dataset_2023.csv",
-    "courses": "Coursera_trainings.csv",
-    "departments": "departments.ods",
-    "params": "extrainfos.txt",
+# Date de référence des contrôles : début de la période de pointage observée.
+REF_DATE = pd.Timestamp("2023-01-01")
+# Fêtes nationales tunisiennes à date fixe comprises dans la période de pointage (janv.-juin 2023).
+FIXED_HOLIDAYS_2023 = {
+    pd.Timestamp("2023-03-20"): "Fête de l'Indépendance",
+    pd.Timestamp("2023-04-09"): "Journée des Martyrs",
+    pd.Timestamp("2023-05-01"): "Fête du Travail",
 }
-FALSE_EMPTY = {"NULL", "null", "N/A", "na", "NaN", " ", "", "-", "?", "."}
-NUMERIC_COLS = [
-    "SALARY", "EXP_YEARS", "HOURS", "extra_hour", "LEAVE_CONSUMED",
-    "LEAVE_BALANCE", "TENURE", "CAPACITY", "Course Rating",
-]
-DATE_COLS = [
-    "STARTING_DATE", "CONTRACT_START", "CONTRACT_END", "Date",
-    "StartTime", "BreakTime", "ResumeTime", "EndTime",
-]
-CATEGORY_COLS = [
-    "GENDER", "TYPE_CONTRACT", "TYPE_DIPLOMA", "LANGUAGE",
-    "MARITAL_STATUS", "Difficulty Level", "SOURCE_of_employment",
-    "LAST_LEAVE_TYPE", "LEAVE_TYPE", "GRADE", "RANK",
-]
-MISSING_TOKENS_NORMALIZED = {x.strip().casefold() for x in FALSE_EMPTY}
+SEVERITY_ORDER = {"Critique": 0, "Avertissement": 1, "Info": 2}
 
 
-def safe_text(value: Any) -> str:
-    """Convertit une valeur en texte affichable sans faire de conversion source."""
-    if pd.isna(value):
-        return ""
-    return str(value)
+# ----------------------------------------------------------------------------- chargement
+
+def load_sources(root: Path) -> dict:
+    """Charge les 7 sources en conservant les valeurs brutes."""
+    def need(name):
+        path = root / name
+        if not path.exists():
+            sys.exit(f"ERREUR : fichier introuvable : {path}")
+        return path
+
+    src = {
+        "emp": pd.read_excel(need("emp_data.xlsx"), dtype=str),
+        "adm": pd.read_excel(need("administration_data.xlsx"), dtype=str),
+        "att_tech": pd.read_csv(need("attendance_dataset_2023.csv"), dtype=str, keep_default_na=False),
+        "att_adm": pd.read_excel(need("Administration_attendance.xlsx"), dtype=str),
+        "courses": pd.read_csv(need("Coursera_trainings.csv"), dtype=str, keep_default_na=False),
+        "dep": pd.read_excel(need("departments.ods"), engine="odf", dtype=str),
+        "params_raw": need("extrainfos.txt").read_text(encoding="utf-8"),
+        "courses_raw": need("Coursera_trainings.csv").read_bytes(),
+    }
+    return src
 
 
-def norm_col(name: Any) -> str:
-    """Normalisation uniquement pour retrouver une colonne, pas pour modifier les données."""
-    return re.sub(r"[^a-z0-9]+", "", str(name).casefold())
+def num(s: pd.Series) -> pd.Series:
+    return pd.to_numeric(s, errors="coerce")
 
 
-def find_col(df: pd.DataFrame, candidates: list[str]) -> Optional[str]:
-    """Retourne le nom réel d'une colonne correspondant à l'une des variantes."""
-    lookup = {norm_col(c): c for c in df.columns}
-    for candidate in candidates:
-        if norm_col(candidate) in lookup:
-            return lookup[norm_col(candidate)]
-    # Recherche moins stricte, utile pour des noms de colonnes préfixés.
-    for candidate in candidates:
-        key = norm_col(candidate)
-        for actual_norm, actual in lookup.items():
-            if key and (key in actual_norm or actual_norm in key):
-                return actual
-    return None
+def iso_date(s: pd.Series) -> pd.Series:
+    """Dates des fiches : texte ISO (admin) ou date Excel exportée en 'AAAA-MM-JJ hh:mm:ss' (tech)."""
+    return pd.to_datetime(s.str.slice(0, 10), format="%Y-%m-%d", errors="coerce")
 
 
-def html_escape(value: Any) -> str:
-    s = safe_text(value)
-    return (s.replace("&", "&amp;").replace("<", "&lt;")
-             .replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#39;"))
+def minutes(s: pd.Series, fmt: str) -> pd.Series:
+    t = pd.to_datetime(s.str.strip(), format=fmt, errors="coerce")
+    return t.dt.hour * 60 + t.dt.minute
 
 
-def read_csv_robust(path: Path) -> tuple[pd.DataFrame, str, str]:
-    """Détecte séparateur et encodage par essais; toutes les colonnes restent en str."""
-    encodings = ["utf-8-sig", "utf-8", "cp1252", "latin1"]
-    last_error = None
-    for enc in encodings:
-        try:
-            sample = path.read_text(encoding=enc, errors="strict")[:100_000]
-            try:
-                dialect = csv.Sniffer().sniff(sample, delimiters=",;\\t|")
-                sep = dialect.delimiter
-            except csv.Error:
-                counts = {d: sample.count(d) for d in [",", ";", "\\t", "|"]}
-                sep = max(counts, key=counts.get)
-                if counts[sep] == 0:
-                    sep = ","
-            df = pd.read_csv(path, sep=sep, encoding=enc, dtype=str, keep_default_na=False,
-                             na_filter=False, engine="python", on_bad_lines="warn")
-            return df, enc, repr(sep).strip("'")
-        except Exception as exc:
-            last_error = exc
-    raise RuntimeError(f"Impossible de lire {path.name}: {last_error}")
+def prepare(src: dict) -> dict:
+    """Ajoute des colonnes typées (préfixe _) sur des copies, sans toucher aux sources."""
+    emp, adm = src["emp"].copy(), src["adm"].copy()
+    for df in (emp, adm):
+        for c in ["STARTING_DATE", "CONTRACT_START", "CONTRACT_END"]:
+            df["_" + c] = iso_date(df[c])
+        for c in ["SALARY", "EXP_YEARS", "LEAVE_CONSUMED", "LEAVE_BALANCE", "TENURE"]:
+            df["_" + c] = num(df[c])
+    emp["_HOURS"] = num(emp["HOURS"])
+    adm["_extra_hour"] = num(adm["extra_hour"])
+    emp["_ID"], adm["_ID"] = emp["CODE"], adm["ID_Employee"]
+    adm_rows = adm[adm["_ID"].notna()]  # la ligne entièrement vide est signalée à part
+
+    att = []
+    for key, date_fmt, time_fmt, label in [("att_tech", "%m/%d/%Y", "%H:%M:%S", "Technique"),
+                                           ("att_adm", "%Y-%m-%d", "%H:%M", "Admin")]:
+        df = src[key].copy()
+        df["_date"] = pd.to_datetime(df["Date"].str.strip(), format=date_fmt, errors="coerce")
+        for c in ["StartTime", "BreakTime", "ResumeTime", "EndTime"]:
+            df["_" + c] = minutes(df[c], time_fmt)
+        df["_pause"] = df["_ResumeTime"] - df["_BreakTime"]
+        df["_worked_h"] = (df["_EndTime"] - df["_StartTime"] - df["_pause"]) / 60
+        df["_source"] = label
+        src[key + "_p"] = df
+        att.append(df)
+    src.update(emp_p=emp, adm_p=adm_rows, adm_all=adm)
+    return src
 
 
-def read_ods_all_sheets(path: Path) -> dict[str, pd.DataFrame]:
-    """Lit les onglets ODS via pandas/odf; les valeurs sont conservées en chaînes."""
-    try:
-        book = pd.ExcelFile(path, engine="odf")
-        return {sheet: pd.read_excel(path, sheet_name=sheet, engine="odf", dtype=str,
-                                     keep_default_na=False) for sheet in book.sheet_names}
-    except Exception as exc:
-        raise RuntimeError(f"Lecture ODS impossible ({path.name}): {exc}") from exc
+# ----------------------------------------------------------------------------- anomalies
+
+class Audit:
+    def __init__(self):
+        self.items, self.passed = [], []
+
+    def add(self, theme, fichier, colonnes, titre, n, severite, constat, impact, action, exemples=None):
+        if n == 0:
+            self.passed.append(f"{fichier} — {titre}")
+            return
+        ex = exemples if exemples is not None else pd.DataFrame()
+        self.items.append(dict(theme=theme, fichier=fichier, colonnes=colonnes, titre=titre, n=int(n),
+                               severite=severite, constat=constat, impact=impact, action=action,
+                               exemples=ex.head(15)))
+
+    def ok(self, label):
+        self.passed.append(label)
 
 
-def load_workbook(path: Path) -> dict[str, pd.DataFrame]:
-    """Charge tous les onglets Excel, sans inférence de types."""
-    book = pd.ExcelFile(path, engine="openpyxl")
-    return {sheet: pd.read_excel(path, sheet_name=sheet, dtype=str, keep_default_na=False)
-            for sheet in book.sheet_names}
+def sample(df: pd.DataFrame, mask, cols) -> pd.DataFrame:
+    return df.loc[mask, cols]
 
 
-def parse_param_file(path: Path) -> tuple[str, dict[str, str]]:
-    """Lit les paramètres en texte brut et extrait les taux reconnaissables."""
-    raw = path.read_text(encoding="utf-8", errors="replace")
-    params = {}
-    for line in raw.splitlines():
-        m = re.search(r"(.+?)\\s*[:=]\\s*([-+]?[0-9]+(?:[.,][0-9]+)?)", line)
-        if m:
-            params[re.sub(r"[^a-z0-9]+", "_", m.group(1).strip().casefold()).strip("_")] = m.group(2).replace(",", ".")
-    return raw, params
+# 1. Cohérence entre emp_data et administration_data ----------------------------------------
+
+def check_cross_file(a: Audit, s: dict):
+    emp, adm = s["emp_p"], s["adm_p"]
+    T = "1. Cohérence entre fichiers"
+
+    a.add(T, "emp_data + administration_data", "CODE / ID_Employee, ADRESS / ADDRESS, LEAVE_TYPE / LAST_LEAVE_TYPE, GRADE / Grade",
+          "Mêmes informations sous des noms de colonnes différents", 4, "Avertissement",
+          "La clé employé s'appelle CODE d'un côté et ID_Employee de l'autre ; l'adresse ADRESS / ADDRESS ; "
+          "le congé LEAVE_TYPE / LAST_LEAVE_TYPE ; le grade GRADE / Grade.",
+          "Une union des deux fichiers sans mapping explicite perd ou décale des colonnes.",
+          "Définir un schéma cible unique (employe_bk, adresse, type_conge, …) et mapper chaque source vers lui.",
+          pd.DataFrame({"emp_data": ["CODE", "ADRESS", "LEAVE_TYPE", "GRADE"],
+                        "administration_data": ["ID_Employee", "ADDRESS", "LAST_LEAVE_TYPE", "Grade"]}))
+
+    pos_emp, pos_adm = emp["POSITION"].value_counts().to_dict(), adm["POSITION"].value_counts().to_dict()
+    a.add(T, "emp_data + administration_data", "POSITION", "POSITION n'a pas le même sens dans les deux fichiers",
+          len(adm), "Critique",
+          f"emp_data : statut d'emploi {pos_emp}. administration_data : {pos_adm}, c'est-à-dire la population, pas un statut. "
+          "Le type de contrat (TYPE_CONTRACT = CDD / CDI / CIVP) est, lui, identique dans les deux fichiers.",
+          "Un axe « statut » mélangerait Permanent, Vacataire et Administration : impossible de comparer permanents et vacataires "
+          "entre populations, et les administratifs (tous salariés) n'ont pas de statut.",
+          "Séparer deux attributs : population (Technique / Administratif) et statut d'emploi (Permanent / Vacataire). "
+          "Statut des administratifs à faire valider (ils ont tous un salaire, donc a priori Permanent).",
+          pd.DataFrame({"fichier": ["emp_data"] * len(pos_emp) + ["administration_data"] * len(pos_adm),
+                        "POSITION": list(pos_emp) + list(pos_adm),
+                        "lignes": list(pos_emp.values()) + list(pos_adm.values())}))
+
+    d_emp, d_adm = emp["TYPE_DIPLOMA"].value_counts().to_dict(), adm["TYPE_DIPLOMA"].value_counts().to_dict()
+    a.add(T, "emp_data + administration_data", "TYPE_DIPLOMA", "Référentiel de diplômes différent (et faute de frappe)",
+          int(emp["TYPE_DIPLOMA"].eq("Ingeneering").sum() + adm["TYPE_DIPLOMA"].eq("Engineer").sum()), "Avertissement",
+          f"emp_data : {d_emp}. administration_data : {d_adm}. « Ingeneering » (faute) et « Engineer » désignent le même diplôme ; "
+          "Doctoral n'existe que côté technique, Licence que côté administratif.",
+          "Deux libellés pour un même diplôme faussent toute répartition par diplôme.",
+          "Table de correspondance : Ingeneering, Engineer → Ingénieur ; Doctoral → Doctorat ; Licence ; Master.")
+
+    a.add(T, "emp_data + administration_data", "GRADE / Grade", "GRADE ne désigne pas la même chose",
+          emp["GRADE"].nunique() + adm["Grade"].nunique(), "Avertissement",
+          f"emp_data.GRADE contient {emp['GRADE'].nunique()} intitulés de métier libres (ex. « {emp['GRADE'].dropna().iloc[1]} », "
+          f"« {emp['GRADE'].dropna().iloc[6]} »). administration_data.Grade contient 5 fonctions : {sorted(adm['Grade'].unique())}. "
+          "RANK (1 à 10) n'existe que côté technique.",
+          "Une même colonne « grade » mélangerait métiers et fonctions administratives.",
+          "Deux attributs distincts : intitulé de métier (technique) et fonction administrative ; rang technique à part.")
+
+    for col_emp, col_adm, label in [("LEAVE_TYPE", "LAST_LEAVE_TYPE", "Types de congé"),
+                                    ("SOURCE_of_employment", "SOURCE_of_employment", "Canaux de recrutement"),
+                                    ("LANGUAGE", "LANGUAGE", "Langues")]:
+        ve = sorted({t.strip() for v in emp[col_emp].dropna() for t in v.split(",")})
+        va = sorted({t.strip() for v in adm[col_adm].dropna() for t in v.split(",")})
+        a.add(T, "emp_data + administration_data", f"{col_emp} / {col_adm}", f"{label} : libellés écrits différemment",
+              len(set(ve) ^ set(va)), "Avertissement",
+              f"emp_data : {ve}. administration_data : {va}.",
+              "Sans normalisation, une même catégorie apparaît deux fois (ex. « sick » et « Sick »).",
+              "Normaliser : minuscules, espaces remplacés par « _ » ; « ex-vacataire » n'existe que côté technique.")
+
+    a.add(T, "emp_data + administration_data", "LEAVE_CONSUMED, LEAVE_BALANCE", "Congés : jours décimaux d'un côté, entiers de l'autre",
+          int((emp["_LEAVE_CONSUMED"] % 1 != 0).sum()), "Info",
+          f"emp_data : valeurs décimales (ex. {emp['LEAVE_CONSUMED'].iloc[0]}). administration_data : entiers (ex. {adm['LEAVE_CONSUMED'].iloc[0]}).",
+          "Les jours de congé techniques ne sont pas arrondis : unité ou précision différente selon la source.",
+          "Arrondir à 0,5 jour au chargement, ou confirmer l'unité auprès de la source.")
 
 
-def dataframe_to_html(df: pd.DataFrame, max_rows: int = 30) -> str:
-    if df.empty:
-        return '<p class="muted">Aucun enregistrement à afficher.</p>'
-    shown = df.head(max_rows).copy()
-    return shown.to_html(index=False, escape=True, border=0, classes="data-table")
+# 2. Qualité intrinsèque --------------------------------------------------------------------
+
+def check_quality(a: Audit, s: dict):
+    emp, adm_all = s["emp_p"], s["adm_all"]
+    T = "2. Qualité des données"
+
+    empty_adm = adm_all.drop(columns=[c for c in adm_all if c.startswith("_")]).isna().all(axis=1)
+    a.add(T, "administration_data", "toutes", "Ligne entièrement vide", int(empty_adm.sum()), "Avertissement",
+          "Une ligne ne contient aucune valeur.", "Elle crée un employé vide si elle est chargée.",
+          "Filtrer les lignes sans identifiant.")
+
+    structural = {"SALARY": "vide pour les vacataires (payés à l'heure)", "HOURS": "vide pour les permanents (salariés)",
+                  "CONTRACT_END": "vide = contrat sans date de fin", "ADRESSE_MISSION": "vide = pas de mission"}
+    rows = []
+    for name, df in [("emp_data", emp), ("administration_data", s["adm_p"])]:
+        for c, v in df.drop(columns=[c for c in df if c.startswith("_")]).isna().sum().items():
+            if v:
+                rows.append({"fichier": name, "colonne": c, "vides": int(v), "nature": structural.get(c, "vide réel")})
+    miss = pd.DataFrame(rows)
+    real = miss[miss["nature"] == "vide réel"]
+    a.add(T, "emp_data", ", ".join(real["colonne"]), "Valeurs réellement manquantes", int(real["vides"].sum()), "Avertissement",
+          "Valeurs absentes sans explication métier (les vides attendus, comme SALARY des vacataires, sont exclus du total).",
+          "Lignes incomplètes : membre « Inconnu » dans le DW ou KPI faussés (ex. 4 employés sans département).",
+          "Remonter les cas à la source ; au chargement, rattacher à « Inconnu ».", miss)
+
+    for name, df, key in [("emp_data", emp, "CODE"), ("administration_data", s["adm_p"], "ID_Employee")]:
+        a.add(T, name, key, "Identifiant employé en double", int(df[key].duplicated().sum()), "Critique",
+              "Plusieurs lignes ont le même identifiant.", "Clé métier non unique.", "Dédoublonner à la source.")
+        a.add(T, name, "REGISTRATION_NUMBER", "Matricule en double", int(df["REGISTRATION_NUMBER"].dropna().duplicated().sum()),
+              "Avertissement", "Matricule partagé.", "Matricule non fiable.", "Vérifier à la source.")
+        dup = df["EMAIL"].notna() & df["EMAIL"].duplicated(keep=False)
+        a.add(T, name, "EMAIL", "E-mail partagé par plusieurs employés", int(dup.sum()), "Info",
+              f"{int(dup.sum())} lignes partagent un e-mail avec un autre employé (identifiants différents).",
+              "L'e-mail ne peut pas servir de clé.", "Utiliser l'identifiant comme seule clé.",
+              sample(df, dup, [key, "NAME_EMP", "EMAIL"]).sort_values("EMAIL"))
+
+    common = set(emp["CODE"]) & set(s["adm_p"]["ID_Employee"])
+    a.add(T, "emp_data + administration_data", "CODE / ID_Employee", "Employé présent dans les deux fichiers", len(common),
+          "Critique", "Un même identifiant dans les deux populations.", "Double comptage.", "Arbitrer la population.")
+
+    for key, label, fmt in [("att_tech_p", "attendance_dataset_2023.csv", "%H:%M:%S"),
+                            ("att_adm_p", "Administration_attendance.xlsx", "%H:%M")]:
+        df = s[key]
+        bad_date = df["_date"].isna()
+        a.add(T, label, "Date", "Date de pointage illisible", int(bad_date.sum()), "Avertissement",
+              f"Format attendu : {'M/J/AAAA' if 'tech' in key else 'AAAA-MM-JJ'}.", "Ligne non rattachable à un jour.",
+              "Rejeter la ligne ou la corriger à la source.", sample(df, bad_date, ["ID_Employee", "Date"]))
+        bad_t = df[["_StartTime", "_BreakTime", "_ResumeTime", "_EndTime"]].isna().any(axis=1) & ~bad_date
+        a.add(T, label, "StartTime, BreakTime, ResumeTime, EndTime", "Heure manquante ou illisible", int(bad_t.sum()),
+              "Avertissement", f"Au moins une des 4 heures est vide ou hors format {fmt}.",
+              "Durée travaillée incalculable pour ces journées.", "Indicateur « heure illisible » ; mesures à NULL.",
+              sample(df, bad_t, ["ID_Employee", "Date", "StartTime", "BreakTime", "ResumeTime", "EndTime"]))
+        a.add(T, label, "ID_Employee + Date", "Pointage en double le même jour",
+              int(df.duplicated(["ID_Employee", "_date"]).sum()), "Critique", "Deux pointages pour un même jour.",
+              "Heures comptées deux fois.", "Dédoublonner.")
+
+    att_adm = s["att_adm_p"]
+    orphan = ~att_adm["ID_Employee"].isin(s["adm_p"]["ID_Employee"])
+    a.add(T, "Administration_attendance.xlsx", "ID_Employee", "Pointages d'un employé absent des fiches",
+          int(orphan.sum()), "Critique",
+          f"{att_adm.loc[orphan, 'ID_Employee'].nunique()} identifiant(s) pointe(nt) sans fiche dans administration_data : "
+          f"{sorted(att_adm.loc[orphan, 'ID_Employee'].unique())}.",
+          "Ces heures ne sont rattachées à aucun employé ni département connu.", "Membre « Inconnu » dans le DW et signalement à la source.")
+    orphan_t = ~s["att_tech_p"]["ID_Employee"].isin(emp["CODE"])
+    a.add(T, "attendance_dataset_2023.csv", "ID_Employee", "Pointages d'un employé absent des fiches", int(orphan_t.sum()),
+          "Critique", "Identifiant sans fiche.", "Heures non rattachées.", "Signaler à la source.")
+    no_att = ~emp["CODE"].isin(s["att_tech_p"]["ID_Employee"])
+    a.add(T, "emp_data", "CODE", "Employé technique sans aucun pointage", int(no_att.sum()), "Info",
+          "Employé présent dans les fiches mais absent des pointages.", "Assiduité non mesurable pour lui.",
+          "Vérifier s'il est sorti ou en absence longue.", sample(emp, no_att, ["CODE", "NAME_EMP", "POSITION", "TYPE_CONTRACT"]))
+
+    deps = set(s["dep"]["ID_DEP"])
+    for name, df in [("emp_data", emp), ("administration_data", s["adm_p"])]:
+        bad = df["DEP_ID"].notna() & ~df["DEP_ID"].isin(deps)
+        a.add(T, name, "DEP_ID", "Département inexistant dans departments.ods", int(bad.sum()), "Critique",
+              "Code département absent du référentiel.", "Employé non rattachable.", "Corriger le code.")
 
 
-def make_chart_bytes(fig) -> str:
-    buffer = io.BytesIO()
+# 3. Règles métier ---------------------------------------------------------------------------
+
+def check_contracts(a: Audit, s: dict):
+    T = "3. Règles métier : contrats et carrière"
+    emp, adm = s["emp_p"], s["adm_p"]
+    both = pd.concat([emp.assign(_file="emp_data"), adm.assign(_file="administration_data")], ignore_index=True)
+    cols = ["_file", "_ID", "TYPE_CONTRACT", "POSITION", "CONTRACT_START", "CONTRACT_END"]
+
+    m = both["TYPE_CONTRACT"].isna()
+    a.add(T, "emp_data", "TYPE_CONTRACT", "Type de contrat manquant", int(m.sum()), "Avertissement",
+          "Employés sans type de contrat.", "Exclus des KPI par type de contrat.", "Compléter à la source.", sample(both, m, cols))
+
+    m = both["TYPE_CONTRACT"].eq("CDI") & both["_CONTRACT_END"].notna()
+    a.add(T, "emp_data + administration_data", "TYPE_CONTRACT / CONTRACT_END", "CDI avec une date de fin", int(m.sum()), "Critique",
+          f"{int(m.sum())} CDI portent une date de fin (emp_data {int(m[both._file == 'emp_data'].sum())}, "
+          f"administration_data {int(m[both._file == 'administration_data'].sum())}). Un CDI n'a pas de terme.",
+          "Échéances de contrat faussées ; risque de compter des départs inexistants.",
+          "Indicateur d'anomalie ; correction à la source (soit le type, soit la date est fausse).", sample(both, m, cols))
+
+    m = both["TYPE_CONTRACT"].isin(["CDD", "CIVP"]) & both["_CONTRACT_END"].isna()
+    a.add(T, "emp_data + administration_data", "TYPE_CONTRACT / CONTRACT_END", "CDD ou CIVP sans date de fin", int(m.sum()),
+          "Critique", f"{int(m.sum())} contrats à durée déterminée n'ont pas de date de fin.",
+          "Impossible d'anticiper ces échéances (OM6).", "Compléter la date de fin à la source.", sample(both, m, cols))
+
+    m = emp["POSITION"].eq("Vacataire") & emp["TYPE_CONTRACT"].eq("CDI")
+    a.add(T, "emp_data", "POSITION / TYPE_CONTRACT", "Vacataire déclaré en CDI", int(m.sum()), "Critique",
+          "Un vacataire (payé à l'heure, sans salaire) est déclaré en CDI.", "Statut et contrat contradictoires.",
+          "Faire valider la règle par les RH ; indicateur d'anomalie en attendant.",
+          sample(emp, m, ["CODE", "POSITION", "TYPE_CONTRACT", "HOURS", "SALARY"]))
+
+    m = emp["POSITION"].eq("Vacataire") & (emp["_SALARY"].notna() | emp["_HOURS"].isna())
+    m |= emp["POSITION"].eq("Permanent") & (emp["_HOURS"].notna() | emp["_SALARY"].isna())
+    a.add(T, "emp_data", "POSITION / SALARY / HOURS", "Rémunération incohérente avec le statut", int(m.sum()), "Critique",
+          "Vacataire avec salaire ou sans heures, permanent avec heures ou sans salaire.", "Coût faux.", "Corriger à la source.")
+
+    for name, df in [("emp_data", emp), ("administration_data", adm)]:
+        m = df["_CONTRACT_END"] < df["_CONTRACT_START"]
+        a.add(T, name, "CONTRACT_START / CONTRACT_END", "Contrat qui finit avant de commencer", int(m.sum()), "Critique",
+              "Date de fin antérieure au début.", "Durée négative.", "Corriger les dates.")
+        m = df["_CONTRACT_START"] < df["_STARTING_DATE"]
+        a.add(T, name, "STARTING_DATE / CONTRACT_START", "Contrat commencé avant l'entrée dans l'entreprise", int(m.sum()),
+              "Avertissement", "Début de contrat antérieur à la date d'entrée.", "Chronologie incohérente.", "Corriger les dates.")
+
+    seniority = (REF_DATE - both["_STARTING_DATE"]).dt.days / 365.25
+    m = both["_EXP_YEARS"] < (seniority - 1)
+    a.add(T, "emp_data + administration_data", "EXP_YEARS / STARTING_DATE", "Expérience inférieure à l'ancienneté", int(m.sum()),
+          "Avertissement",
+          f"{int(m.sum())} employés ont moins d'années d'expérience que d'années passées dans l'entreprise au 01/01/2023 "
+          "(tolérance d'un an).",
+          "EXP_YEARS n'est pas l'expérience totale, ou les dates d'entrée sont fausses : la variable n'est pas exploitable telle quelle.",
+          "Faire préciser la définition d'EXP_YEARS ; utiliser STARTING_DATE pour l'ancienneté.",
+          both.loc[m, ["_file", "_ID", "STARTING_DATE", "EXP_YEARS"]].assign(anciennete=seniority[m].round(1)))
+
+    by_tenure = both.groupby("TENURE")["_STARTING_DATE"].apply(lambda d: round(((REF_DATE - d).dt.days / 365.25).mean(), 1)).to_dict()
+    a.add(T, "emp_data + administration_data", "TENURE", "Signification de TENURE inconnue", int(both["TENURE"].notna().sum()), "Info",
+          f"TENURE vaut 0 ou 1 ; l'ancienneté moyenne est quasi identique dans les deux groupes {by_tenure}. "
+          "Ce n'est donc ni « moins d'un an d'ancienneté » ni une ancienneté calculée.",
+          "Toute interprétation (titularisation, ancienneté) est une hypothèse non démontrée.",
+          "Faire confirmer le sens de TENURE ; ne pas l'utiliser comme mesure d'ancienneté.")
+
+    total = both["_LEAVE_CONSUMED"] + both["_LEAVE_BALANCE"]
+    a.add(T, "emp_data + administration_data", "LEAVE_CONSUMED + LEAVE_BALANCE", "Droits à congé non constants",
+          int(total.notna().sum()), "Info",
+          f"Consommé + solde varie de {total.min():.1f} à {total.max():.1f} jours (moyenne {total.mean():.1f}).",
+          "Le taux de consommation « sur 30 jours » est une hypothèse.", "Obtenir le droit annuel de chaque employé.")
+
+
+def check_attendance(a: Audit, s: dict):
+    T = "4. Règles métier : pointages"
+    contracts = pd.concat([s["emp_p"][["_ID", "_CONTRACT_END", "_STARTING_DATE"]],
+                           s["adm_p"][["_ID", "_CONTRACT_END", "_STARTING_DATE"]]])
+    for key, label in [("att_tech_p", "attendance_dataset_2023.csv"), ("att_adm_p", "Administration_attendance.xlsx")]:
+        df = s[key]
+        cols = ["ID_Employee", "Date", "StartTime", "BreakTime", "ResumeTime", "EndTime"]
+        m = df["_EndTime"] < df["_ResumeTime"]
+        a.add(T, label, "ResumeTime / EndTime", "Fin de journée avant la reprise de l'après-midi", int(m.sum()), "Critique",
+              "EndTime est antérieur à ResumeTime.", "Durée de l'après-midi négative.", "Indicateur d'anomalie.",
+              sample(df, m, cols))
+        m = (df["_BreakTime"] < df["_StartTime"]) | (df["_ResumeTime"] < df["_BreakTime"])
+        a.add(T, label, "StartTime / BreakTime / ResumeTime", "Heures du matin dans le désordre", int(m.sum()), "Critique",
+              "Pause avant l'arrivée ou reprise avant la pause.", "Durée faussée.", "Indicateur d'anomalie.")
+        m = df["_worked_h"] < 0
+        a.add(T, label, "durée calculée", "Durée travaillée négative", int(m.sum()), "Critique",
+              "(fin − début) − pause < 0.", "Heures négatives dans les totaux.", "Exclure des mesures ; indicateur.",
+              sample(df, m, cols).assign(heures=df.loc[m, "_worked_h"].round(2)))
+        m = df["_pause"] > 180
+        a.add(T, label, "BreakTime / ResumeTime", "Pause de plus de 3 heures", int(m.sum()), "Avertissement",
+              f"{int(m.sum())} journées ({m.mean():.1%}) ont une pause de plus de 3 h (max {df['_pause'].max() / 60:.1f} h).",
+              "Pause irréaliste : les heures de pause ou de reprise ne sont pas fiables.",
+              "Indicateur d'anomalie ; seuil à valider par les RH.", sample(df, m, cols))
+        m = df["_worked_h"].between(0, 1, inclusive="left")
+        a.add(T, label, "durée calculée", "Journée de moins d'une heure", int(m.sum()), "Avertissement",
+              "Moins d'une heure travaillée.", "Journées quasi vides.", "Indicateur d'anomalie.")
+        m = df["_worked_h"] > 10
+        a.add(T, label, "durée calculée", "Journée de plus de 10 heures", int(m.sum()), "Avertissement",
+              f"Plus de 10 h travaillées (max {df['_worked_h'].max():.1f} h).", "Charge excessive ou erreur de saisie.",
+              "Vérifier ; indicateur.")
+        m = df["_date"].dt.dayofweek >= 5
+        a.add(T, label, "Date", "Pointage le week-end", int(m.sum()), "Info", "Pointage un samedi ou un dimanche.", "—", "—")
+        hol = df["_date"].isin(FIXED_HOLIDAYS_2023)
+        detail = df.loc[hol, "_date"].map(FIXED_HOLIDAYS_2023).value_counts().to_dict()
+        a.add(T, label, "Date", "Pointage un jour férié", int(hol.sum()), "Avertissement",
+              f"Pointages lors de fêtes nationales tunisiennes à date fixe : {detail}.",
+              "Soit le calendrier n'est pas tunisien, soit les données sont générées sans calendrier.",
+              "Confirmer le calendrier de référence.")
+
+        mg = df[["ID_Employee", "_date"]].merge(contracts, left_on="ID_Employee", right_on="_ID", how="left")
+        m = (mg["_date"] > mg["_CONTRACT_END"]).to_numpy()
+        a.add(T, label, "Date / CONTRACT_END", "Pointage après la fin du contrat", int(m.sum()), "Critique",
+              f"{int(m.sum())} pointages de {mg.loc[m, 'ID_Employee'].nunique()} employés sont postérieurs à leur date de fin de contrat.",
+              "Soit les dates de fin sont fausses, soit des personnes sorties pointent encore.",
+              "Indicateur « pointage hors contrat » ; arbitrage RH sur les dates de fin.",
+              mg.loc[m, ["ID_Employee", "_date", "_CONTRACT_END"]].rename(columns={"_date": "Date", "_CONTRACT_END": "fin_contrat"}))
+        m = (mg["_date"] < mg["_STARTING_DATE"]).to_numpy()
+        a.add(T, label, "Date / STARTING_DATE", "Pointage avant l'entrée dans l'entreprise", int(m.sum()), "Critique",
+              "Pointage antérieur à la date d'entrée.", "Chronologie impossible.", "Corriger.")
+
+    tech, adm = s["att_tech_p"], s["att_adm_p"]
+    a.add(T, "attendance_dataset_2023.csv + Administration_attendance.xlsx", "Date", "Périodes de pointage différentes", 1, "Info",
+          f"Techniques : {tech['_date'].min():%d/%m/%Y} au {tech['_date'].max():%d/%m/%Y}. "
+          f"Administratifs : {adm['_date'].min():%d/%m/%Y} au {adm['_date'].max():%d/%m/%Y}.",
+          "Toute comparaison entre populations sur des cumuls est biaisée.", "Comparer sur janvier-mars ou sur des moyennes journalières.")
+    a.add(T, "attendance_dataset_2023.csv + Administration_attendance.xlsx", "Date, heures", "Formats de date et d'heure différents", 1, "Info",
+          f"Techniques : « {tech['Date'].iloc[0]} » et « {tech['StartTime'].iloc[0]} ». Administratifs : « {adm['Date'].iloc[0]} » et « {adm['StartTime'].iloc[0]} ».",
+          "Un parseur unique « automatique » inverse jour et mois (1/2/2023 lu comme le 1er février).",
+          "Format explicite par fichier : M/J/AAAA + H:MM:SS d'un côté, AAAA-MM-JJ + HH:MM de l'autre.")
+
+
+def check_departments_courses(a: Audit, s: dict):
+    T = "5. Référentiels : départements, catalogue, taux"
+    dep = s["dep"].copy()
+    dep["_cap"] = num(dep["CAPACITY"])
+    hc = pd.concat([s["emp_p"]["DEP_ID"], s["adm_p"]["DEP_ID"]]).value_counts()
+    dep["effectif"] = dep["ID_DEP"].map(hc).fillna(0).astype(int)
+    dep["occupation"] = (dep["effectif"] / dep["_cap"] * 100).round(0).astype(int).astype(str) + " %"
+    over = dep["effectif"] > dep["_cap"]
+    a.add(T, "departments.ods", "CAPACITY", "Effectif supérieur à la capacité", int(over.sum()), "Avertissement",
+          "Départements dont l'effectif dépasse la capacité déclarée.",
+          "Le taux d'occupation (OM1) dépasse 100 % ; la capacité de l'Administration semble obsolète.",
+          "Faire valider les capacités.", dep[["ID_DEP", "DEP", "CAPACITY", "effectif", "occupation"]])
+
+    c, raw = s["courses"], s["courses_raw"]
+    fffd = raw.count(b"\xef\xbf\xbd")
+    a.add(T, "Coursera_trainings.csv", "Course Name, Course Description, Skills", "Caractères perdus (�) dans le fichier source",
+          fffd, "Avertissement",
+          f"Le fichier contient {fffd} caractères de remplacement « � » (octets EF BF BD), surtout à la place des apostrophes (« You�ll »).",
+          "Le caractère d'origine est perdu avant même le chargement ; le texte affiché est altéré.",
+          "Remplacer « � » par « ' » au chargement (hypothèse), ou récupérer un export propre.",
+          c.loc[c["Course Name"].str.contains("�") | c["Course Description"].str.contains("�"), ["course_id", "Course Name"]])
+    empty = c.drop(columns=["id_course"]).eq("").all(axis=1)
+    a.add(T, "Coursera_trainings.csv", "toutes", "Lignes entièrement vides", int(empty.sum()), "Avertissement",
+          "Lignes sans aucune valeur.", "Cours vides si chargées.", "Filtrer les lignes sans course_id.")
+    a.add(T, "Coursera_trainings.csv", "id_course", "Colonne id_course toujours vide", int(c["id_course"].eq("").sum()), "Info",
+          "id_course n'est jamais renseignée ; la vraie clé est course_id.",
+          "Un contrôle qui utilise id_course déclare toutes les formations orphelines.", "Utiliser course_id ; ignorer id_course.")
+    real = c[~empty]
+    dup = real["Course Name"].duplicated(keep=False)
+    a.add(T, "Coursera_trainings.csv", "Course Name", "Même cours sous plusieurs course_id", int(dup.sum()), "Avertissement",
+          f"{int(dup.sum())} lignes partagent un intitulé avec un autre course_id ({real.loc[dup, 'Course Name'].nunique()} intitulés).",
+          "Les inscriptions à un même cours sont dispersées ; le « cours le plus suivi » est sous-estimé.",
+          "Regrouper par intitulé + université pour les analyses de popularité.",
+          real.loc[dup, ["course_id", "Course Name", "University"]].sort_values("Course Name"))
+    lvl = real["Difficulty Level"].value_counts().to_dict()
+    odd = ~real["Difficulty Level"].isin(["Beginner", "Intermediate", "Advanced"])
+    a.add(T, "Coursera_trainings.csv", "Difficulty Level", "Niveaux de difficulté hors échelle", int(odd.sum()), "Info",
+          f"Répartition : {lvl}. « Conversant » et « Not Calibrated » sortent de l'échelle Beginner / Intermediate / Advanced.",
+          "Les répartitions par niveau doivent les traiter à part.", "Les garder comme catégories distinctes, documentées.")
+    nr = real["Course Rating"].ne("") & num(real["Course Rating"]).isna()
+    a.add(T, "Coursera_trainings.csv", "Course Rating", "Note non numérique", int(nr.sum()), "Info",
+          f"Valeurs : {real.loc[nr, 'Course Rating'].value_counts().to_dict()}.", "Note inutilisable.", "Mettre à NULL.")
+
+    known = set(real["course_id"])
+    ids = [(r.CODE, str(x)) for r in s["emp_p"][["CODE", "ID_TRAINING"]].dropna().itertuples() for x in json.loads(r.ID_TRAINING)]
+    unknown = [(e, x) for e, x in ids if x not in known]
+    a.add(T, "emp_data → Coursera_trainings.csv", "ID_TRAINING → course_id", "Inscription à un cours absent du catalogue",
+          len(unknown), "Avertissement",
+          f"{len(unknown)} inscriptions sur {len(ids)} visent un identifiant absent : {sorted({x for _, x in unknown})}.",
+          "Inscriptions non rattachables à un cours.", "Écarter ou rattacher à « Cours inconnu ».",
+          pd.DataFrame(unknown, columns=["CODE", "course_id"]))
+
+    p = s["params_raw"]
+    rates = re.findall(r'"([^"]+)"\s*:\s*([0-9]+(?:[.,][0-9]+)?)', p)
+    a.add(T, "extrainfos.txt", "texte", "Fichier de paramètres non structuré", 1, "Info",
+          f"Taux lus : {dict(rates)}. Format libre (espaces irréguliers, « permenant » mal orthographié, ligne vide finale).",
+          "Lecture fragile : un changement de mise en forme casse l'extraction.",
+          "Transformer en table clé / valeur (code_taux, valeur) ; corriger « permenant ».")
+
+
+# ----------------------------------------------------------------------------- graphiques
+
+def png(fig) -> str:
+    buf = io.BytesIO()
     fig.tight_layout()
-    fig.savefig(buffer, format="png", dpi=120, bbox_inches="tight")
+    fig.savefig(buf, format="png", dpi=110)
     plt.close(fig)
-    return base64.b64encode(buffer.getvalue()).decode("ascii")
+    return base64.b64encode(buf.getvalue()).decode("ascii")
 
 
-def add_anomaly(anomalies: list[dict], file_name: str, column: str, kind: str,
-                rows: pd.DataFrame, severity: str, explanation: str,
-                recommendation: str, ssis_rule: str, index_col: str = "_row_number",
-                details: Optional[list[str]] = None):
-    """Enregistre un problème et ses exemples. Aucune correction n'est appliquée."""
-    if rows is None or rows.empty:
-        return
-    examples = []
-    for _, row in rows.head(100).iterrows():
-        item = {"ligne_source": safe_text(row.get(index_col, ""))}
-        for c in rows.columns:
-            if c != index_col:
-                item[c] = safe_text(row[c])
-        examples.append(item)
-    anomalies.append({
-        "fichier": file_name, "colonne": column, "type": kind,
-        "nb_lignes": int(len(rows)), "index": ", ".join(safe_text(x) for x in rows.get(index_col, pd.Series(dtype=str)).head(100).tolist()),
-        "severite": severity, "explication": explanation,
-        "recommandation": recommendation, "ssis": ssis_rule,
-        "exemples": examples, "details": details or [],
-    })
+def charts(s: dict) -> list:
+    out = []
+    fig, ax = plt.subplots(figsize=(7, 3.2))
+    for key, label in [("att_tech_p", "Techniques"), ("att_adm_p", "Administratifs")]:
+        ax.hist(s[key]["_worked_h"].dropna(), bins=40, alpha=0.6, label=label)
+    ax.set_xlabel("Heures travaillées par jour"); ax.set_ylabel("Journées"); ax.legend()
+    ax.set_title("Les pointages administratifs sont beaucoup plus dispersés")
+    out.append(("Heures travaillées par jour", png(fig)))
+
+    dep = s["dep"].copy()
+    hc = pd.concat([s["emp_p"]["DEP_ID"], s["adm_p"]["DEP_ID"]]).value_counts()
+    dep["effectif"] = dep["ID_DEP"].map(hc).fillna(0)
+    fig, ax = plt.subplots(figsize=(7, 3.2))
+    x = range(len(dep))
+    ax.bar([i - 0.2 for i in x], num(dep["CAPACITY"]), width=0.4, label="Capacité")
+    ax.bar([i + 0.2 for i in x], dep["effectif"], width=0.4, label="Effectif")
+    ax.set_xticks(list(x)); ax.set_xticklabels(dep["DEP"]); ax.legend()
+    ax.set_title("Télécom et Administration dépassent leur capacité")
+    out.append(("Effectif et capacité par département", png(fig)))
+
+    fig, ax = plt.subplots(figsize=(7, 3.2))
+    ax.boxplot([s["emp_p"]["_SALARY"].dropna(), s["adm_p"]["_SALARY"].dropna()], orientation="horizontal",
+               tick_labels=["Permanents techniques", "Administratifs"])
+    ax.set_xlabel("Salaire mensuel"); ax.set_title("Salaires : même ordre de grandeur, dispersion plus forte côté administratif")
+    out.append(("Salaires", png(fig)))
+    return out
 
 
-def matching_rows(df: pd.DataFrame, mask: pd.Series) -> pd.DataFrame:
-    return df.loc[mask.fillna(False)].copy()
+# ----------------------------------------------------------------------------- rapport HTML
+
+def fmt(n) -> str:
+    return f"{n:,}".replace(",", " ")
 
 
-def temp_numeric(series: pd.Series) -> pd.Series:
-    """Conversion temporaire tolérante aux virgules décimales."""
-    return pd.to_numeric(series.astype(str).str.strip().str.replace(",", ".", regex=False), errors="coerce")
+def esc(v) -> str:
+    return (str(v).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;"))
 
 
-def temp_dates(series: pd.Series) -> pd.Series:
-    """Parse des dates en mémoire uniquement; dayfirst=True pour les formats francophones."""
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        return pd.to_datetime(series.astype(str).str.strip(), errors="coerce", dayfirst=True, format="mixed")
+def render(a: Audit, s: dict, figs: list, out: Path):
+    items = sorted(a.items, key=lambda x: (x["theme"], SEVERITY_ORDER[x["severite"]], -x["n"]))
+    counts = Counter(x["severite"] for x in items)
+    sources = [("emp_data.xlsx", s["emp"]), ("administration_data.xlsx", s["adm"]),
+               ("attendance_dataset_2023.csv", s["att_tech"]), ("Administration_attendance.xlsx", s["att_adm"]),
+               ("Coursera_trainings.csv", s["courses"]), ("departments.ods", s["dep"])]
+    src_rows = "".join(f"<tr><td>{n}</td><td>{fmt(len(d))}</td><td>{len(d.columns)}</td></tr>" for n, d in sources)
+    src_rows += f"<tr><td>extrainfos.txt</td><td>{len(s['params_raw'].strip().splitlines())} lignes de texte</td><td>—</td></tr>"
 
+    summary = "".join(
+        f"<tr><td>{esc(x['theme'])}</td><td><a href='#a{i}'>{esc(x['titre'])}</a></td><td>{esc(x['fichier'])}</td>"
+        f"<td class='n'>{fmt(x['n'])}</td><td><span class='b {x['severite'][:4]}'>{x['severite']}</span></td></tr>"
+        for i, x in enumerate(items))
+    cards = []
+    for i, x in enumerate(items):
+        ex = x["exemples"]
+        ex_html = (f"<details><summary>Exemples ({min(len(ex), 15)} premières lignes)</summary>"
+                   f"{ex.to_html(index=False, border=0, classes='t', na_rep='')}</details>") if len(ex) else ""
+        cards.append(f"""<article id="a{i}" class="{x['severite'][:4]}">
+<h3>{esc(x['titre'])} <span class="b {x['severite'][:4]}">{x['severite']}</span></h3>
+<p class="meta">{esc(x['fichier'])} · {esc(x['colonnes'])} · <b>{fmt(x['n'])}</b></p>
+<p><b>Constat :</b> {esc(x['constat'])}</p><p><b>Impact :</b> {esc(x['impact'])}</p>
+<p><b>Traitement proposé :</b> {esc(x['action'])}</p>{ex_html}</article>""")
+    figs_html = "".join(f"<figure><figcaption>{esc(t)}</figcaption><img alt='{esc(t)}' src='data:image/png;base64,{b}'></figure>"
+                        for t, b in figs)
+    passed = "".join(f"<li>{esc(p)}</li>" for p in sorted(set(a.passed)))
 
-def quality_score(anomalies: list[dict], total_rows: int, total_cells: int) -> float:
-    """Score indicatif, pénalisant davantage les anomalies critiques."""
-    if total_cells <= 0:
-        return 0.0
-    weights = {"Critique": 3.0, "Avertissement": 1.5, "Info": 0.3}
-    penalty = sum(weights.get(a["severite"], 1.0) * min(a["nb_lignes"], max(total_rows, 1))
-                  for a in anomalies)
-    # Normalisation pour que le score reste entre 0 et 100 et ne dépende pas uniquement du volume.
-    return round(max(0.0, 100.0 * (1.0 - penalty / max(total_cells * 0.25, 1))), 1)
-
-
-def audit_missing(df: pd.DataFrame, filename: str, anomalies: list[dict], charts: list[dict]):
-    # _row_number est une métadonnée de traçabilité et ne doit pas compter comme colonne source.
-    source_cols = [c for c in df.columns if c != "_row_number"]
-    real_counts = df[source_cols].isna().sum()
-    fake_counts = {}
-    rows_for_bar = []
-    total_fake = 0
-    for col in source_cols:
-        values = df[col].astype(str)
-        mask = values.str.strip().str.casefold().isin(MISSING_TOKENS_NORMALIZED)
-        fake_counts[col] = int(mask.sum())
-        total_fake += int(mask.sum())
-        rows_for_bar.append((col, float((real_counts[col] + mask.sum()) / max(len(df), 1) * 100)))
-        if mask.any():
-            bad = df.loc[mask].copy()
-            add_anomaly(anomalies, filename, col, "Faux-vides / marqueurs de vide", bad,
-                        "Avertissement" if mask.mean() <= 0.05 else "Critique",
-                        f'{int(mask.sum())} valeur(s) utilisent un marqueur textuel de vide (ex. NULL, N/A, tiret). Elles ne sont pas des NaN natifs.',
-                        "Définir explicitement les marqueurs reconnus comme NULL dans la couche de staging, après validation métier. Conserver la valeur brute dans une colonne de traçabilité si nécessaire.",
-                        "Dans SSIS, dériver une colonne de contrôle (TRIM + comparaison insensible à la casse) et convertir en NULL uniquement selon une règle validée.")
-    # Graphique pourcentage combiné manquants réels + faux-vides.
-    fig, ax = plt.subplots(figsize=(max(8, len(df.columns) * 0.38), 4.5))
-    if rows_for_bar:
-        labels, vals = zip(*sorted(rows_for_bar, key=lambda x: x[1], reverse=True))
-        ax.bar(range(len(vals)), vals)
-        ax.set_xticks(range(len(vals)))
-        ax.set_xticklabels(labels, rotation=75, ha="right", fontsize=8)
-        ax.set_ylabel("% lignes concernées")
-        ax.set_title(f"Valeurs manquantes + faux-vides — {filename}")
-        ax.axhline(5, linestyle="--", linewidth=1, label="Seuil d'alerte 5 %")
-        ax.legend()
-    charts.append({"title": f"Manquants — {filename}", "png": make_chart_bytes(fig)})
-    if msno is not None and len(df) > 0 and len(df.columns) > 0:
-        try:
-            fig = plt.figure(figsize=(max(8, len(df.columns) * 0.35), 4))
-            sample = df.head(5000).replace(list(FALSE_EMPTY), np.nan)
-            msno.matrix(sample, ax=fig.gca(), sparkline=False)
-            plt.title(f"Missingno matrix — {filename} (max. 5 000 lignes)")
-            charts.append({"title": f"Missingno matrix — {filename}", "png": make_chart_bytes(fig)})
-        except Exception as exc:
-            charts.append({"title": f"Missingno — {filename}", "note": f"Visualisation indisponible: {exc}"})
-    return {"real": {c: int(real_counts[c]) for c in source_cols},
-            "fake": fake_counts, "fake_total": total_fake,
-            "over5": [(c, pct) for c, pct in rows_for_bar if pct > 5]}
-
-
-def audit_duplicates(df: pd.DataFrame, filename: str, key_candidates: list[list[str]],
-                     anomalies: list[dict], label: str):
-    for candidates in key_candidates:
-        cols = [find_col(df, [c]) for c in candidates]
-        if any(c is None for c in cols):
-            continue
-        cols = list(dict.fromkeys(cols))
-        dup_mask = df.duplicated(subset=cols, keep=False)
-        if dup_mask.any():
-            rows = df.loc[dup_mask].copy()
-            key_label = " + ".join(cols)
-            add_anomaly(anomalies, filename, key_label, "Doublons de clé", rows, "Critique",
-                        f"{int(dup_mask.sum())} lignes appartiennent à un groupe de doublons pour {key_label}. Une clé supposée unique n'identifie donc pas une ligne de manière univoque.",
-                        "Comparer les lignes du groupe avant de décider s'il s'agit de doublons exacts, d'historique légitime ou d'une clé insuffisante. Ne pas supprimer automatiquement.",
-                        f"Contrôle SSIS: agréger par {key_label}, compter les occurrences et router les groupes count > 1 vers une sortie d'audit.")
-    # Doublons exacts sur toutes les colonnes, séparés des doublons de clé.
-    dup_exact = df.duplicated(keep=False)
-    if dup_exact.any():
-        rows = df.loc[dup_exact].copy()
-        add_anomaly(anomalies, filename, "*", "Lignes entièrement dupliquées", rows, "Avertissement",
-                    f"{int(dup_exact.sum())} lignes sont identiques sur toutes les colonnes.",
-                    "Vérifier si la répétition provient d'une extraction répétée ou représente des événements réellement distincts. Préserver les lignes brutes jusqu'à arbitrage.",
-                    "Dans SSIS, créer un flux de contrôle de doublons exacts basé sur l'ensemble des colonnes et consigner le résultat.")
-
-
-def audit_numeric(df: pd.DataFrame, filename: str, anomalies: list[dict], charts: list[dict]):
-    for requested in NUMERIC_COLS:
-        col = find_col(df, [requested])
-        if not col:
-            continue
-        raw = df[col].astype(str).str.strip()
-        empty = raw.str.casefold().isin(MISSING_TOKENS_NORMALIZED)
-        converted = temp_numeric(raw.mask(empty, np.nan))
-        invalid = (~empty) & converted.isna()
-        if invalid.any():
-            rows = df.loc[invalid].copy()
-            add_anomaly(anomalies, filename, col, "Valeur numérique non convertible", rows, "Avertissement",
-                        f"{int(invalid.sum())} valeur(s) non vides ne peuvent pas être interprétées comme nombres. Exemples: {', '.join(raw[invalid].head(8).tolist())}.",
-                        "Identifier les séparateurs décimaux, unités, espaces ou textes parasites. Valider le format cible avant conversion.",
-                        f"SSIS: TRIM puis conversion TRY_CONVERT/DT_NUMERIC; router les échecs vers une table d'erreurs avec valeur brute.")
-        valid = converted.dropna()
-        if len(valid) > 0 and requested.casefold() in {"salary", "course rating", "exp_years", "hours", "extra_hour", "capacity", "leave_consumed", "leave_balance", "tenure"}:
-            if requested.casefold() == "salary":
-                q1, q3 = valid.quantile([.25, .75])
-                iqr = q3 - q1
-                outlier = (converted < q1 - 1.5 * iqr) | (converted > q3 + 1.5 * iqr)
-                mean, std = valid.mean(), valid.std(ddof=0)
-                zmask = (converted - mean).abs() / std > 3 if std and not np.isnan(std) else pd.Series(False, index=df.index)
-                mask = (outlier | zmask).fillna(False)
-                if mask.any():
-                    rows = df.loc[mask].copy()
-                    add_anomaly(anomalies, filename, col, "Outlier salaire (IQR / Z-score)", rows, "Avertissement",
-                                f"{int(mask.sum())} valeur(s) signalées par IQR ou |Z-score| > 3. Un outlier statistique n'est pas nécessairement une erreur.",
-                                "Vérifier devise, périodicité (mensuelle/annuelle), primes et statut du contrat avant toute correction.",
-                                "SSIS: produire un indicateur d'anomalie et mettre les valeurs signalées en revue; ne pas plafonner automatiquement.")
-                fig, ax = plt.subplots(figsize=(7, 3.5))
-                ax.boxplot(valid, vert=False)
-                ax.set_title(f"Distribution de {col} — {filename}")
-                charts.append({"title": f"Boxplot {col} — {filename}", "png": make_chart_bytes(fig)})
-            if requested.casefold() == "exp_years":
-                mask = ((converted < 0) | (converted > 50)).fillna(False)
-                if mask.any():
-                    add_anomaly(anomalies, filename, col, "Ancienneté/expérience hors plage", df.loc[mask].copy(), "Avertissement",
-                                "Valeur négative ou supérieure à 50 ans détectée selon le seuil demandé.",
-                                "Contrôler l'unité (années/mois), les valeurs sentinelles et les erreurs de saisie.",
-                                "SSIS: contrôle de plage [0, 50] avec quarantaine des valeurs hors plage.")
-            elif requested.casefold() == "hours":
-                mask = ((converted < 0) | (converted > 300)).fillna(False)
-                if mask.any():
-                    add_anomaly(anomalies, filename, col, "Heures hors plage", df.loc[mask].copy(), "Avertissement",
-                                "Valeur HOURS inférieure à 0 ou supérieure à 300.",
-                                "Confirmer la période représentée par HOURS (jour, mois, année) et l'unité.",
-                                "SSIS: contrôle de plage métier avant chargement DW.")
-            elif requested.casefold() == "extra_hour":
-                mask = (converted < 0).fillna(False)
-                if mask.any():
-                    add_anomaly(anomalies, filename, col, "Heures supplémentaires négatives", df.loc[mask].copy(), "Avertissement",
-                                "Les heures supplémentaires ne devraient généralement pas être négatives.",
-                                "Vérifier si les valeurs représentent une correction/annulation ou une erreur de saisie.",
-                                "SSIS: règle de plage >= 0, avec exception documentée si les corrections négatives sont autorisées.")
-            elif requested.casefold() == "course rating":
-                mask = ((converted < 0) | (converted > 5)).fillna(False)
-                if mask.any():
-                    add_anomaly(anomalies, filename, col, "Note de formation hors [0,5]", df.loc[mask].copy(), "Avertissement",
-                                "La note est en dehors de l'échelle attendue 0–5.",
-                                "Confirmer l'échelle de notation source et les valeurs sentinelles.",
-                                "SSIS: contrainte entre 0 et 5 après conversion numérique.")
-            elif requested.casefold() == "capacity":
-                mask = (converted <= 0).fillna(False)
-                if mask.any():
-                    add_anomaly(anomalies, filename, col, "Capacité nulle ou négative", df.loc[mask].copy(), "Avertissement",
-                                "La capacité d'un département est nulle ou négative.",
-                                "Vérifier si zéro signifie réellement absence de capacité ou donnée inconnue.",
-                                "SSIS: contrôle CAPACITY > 0, avec exception explicitement documentée.")
-            elif requested.casefold() in {"leave_consumed", "leave_balance"}:
-                mask = (converted < 0).fillna(False)
-                if mask.any():
-                    add_anomaly(anomalies, filename, col, "Solde/congé négatif", df.loc[mask].copy(), "Avertissement",
-                                "Valeur négative détectée dans une mesure de congés.",
-                                "Comparer au règlement RH, à la période de calcul et aux éventuelles régularisations.",
-                                "SSIS: contrôle de plage et indicateur de revue métier.")
-
-
-def audit_dates(df: pd.DataFrame, filename: str, anomalies: list[dict]):
-    for requested in DATE_COLS:
-        col = find_col(df, [requested])
-        if not col:
-            continue
-        raw = df[col].astype(str).str.strip()
-        empty = raw.str.casefold().isin(MISSING_TOKENS_NORMALIZED)
-        parsed = temp_dates(raw.mask(empty, np.nan))
-        invalid = (~empty) & parsed.isna()
-        if invalid.any():
-            vals = raw[invalid].value_counts().head(12)
-            add_anomaly(anomalies, filename, col, "Format date/heure non reconnu", df.loc[invalid].copy(), "Avertissement",
-                        f"{int(invalid.sum())} valeur(s) non vides n'ont pas été interprétées comme dates/heures. Valeurs fréquentes: {dict(vals)}.",
-                        "Lister les formats source distincts, confirmer jour/mois, fuseau et formats horaires avant de choisir une conversion.",
-                        "SSIS: tenter les formats explicitement identifiés; utiliser une sortie d'erreur pour les valeurs non convertibles plutôt qu'une conversion silencieuse.")
-        if requested.casefold() == "date":
-            year_mask = parsed.notna() & (parsed.dt.year != 2023)
-            if year_mask.any():
-                add_anomaly(anomalies, filename, col, "Date de pointage hors 2023", df.loc[year_mask].copy(), "Avertissement",
-                            f"{int(year_mask.sum())} date(s) interprétée(s) hors de l'année 2023.",
-                            "Confirmer si le fichier doit exclusivement contenir 2023 ou s'il couvre une période plus large.",
-                            "SSIS: règle de plage temporelle configurable et journalisation des lignes hors période.")
-
-
-def audit_categories(df: pd.DataFrame, filename: str, anomalies: list[dict]):
-    for requested in CATEGORY_COLS:
-        col = find_col(df, [requested])
-        if not col:
-            continue
-        values = df[col].astype(str)
-        distinct = values[~values.str.strip().str.casefold().isin(MISSING_TOKENS_NORMALIZED)].value_counts()
-        # Catégories avec variations probables de casse/espaces.
-        groups = {}
-        for value in distinct.index:
-            key = re.sub(r"\\s+", " ", str(value).strip()).casefold()
-            groups.setdefault(key, []).append(str(value))
-        variants = {k: v for k, v in groups.items() if len(v) > 1}
-        if variants:
-            rows_mask = values.isin([v for group in variants.values() for v in group])
-            add_anomaly(anomalies, filename, col, "Variantes de libellés", df.loc[rows_mask].copy(), "Info",
-                        "Plusieurs libellés semblent représenter la même valeur après normalisation de la casse/espaces: " +
-                        "; ".join(" / ".join(v) for v in list(variants.values())[:12]) + ".",
-                        "Créer un dictionnaire de correspondance approuvé par le métier; ne pas fusionner les catégories automatiquement sans validation.",
-                        "SSIS: colonne de normalisation temporaire + table de mapping versionnée; conserver la valeur source.")
-        if requested.casefold() == "gender":
-            unexpected = ~values.str.strip().str.upper().isin(["M", "F", "MALE", "FEMALE", "HOMME", "FEMME", ""])
-            unexpected &= ~values.str.strip().str.casefold().isin(MISSING_TOKENS_NORMALIZED)
-            if unexpected.any():
-                add_anomaly(anomalies, filename, col, "Valeur GENDER inattendue", df.loc[unexpected].copy(), "Avertissement",
-                            "Valeurs autres que M/F et quelques libellés courants attendus détectées.",
-                            "Faire confirmer la nomenclature autorisée. Éviter d'inférer le genre à partir du prénom comme règle de nettoyage.",
-                            "SSIS: référentiel de valeurs autorisées; router les valeurs inconnues vers une table de rejets.")
-        if requested.casefold() == "marital_status":
-            unexpected = ~values.str.strip().isin(["0", "1", ""])
-            unexpected &= ~values.str.strip().str.casefold().isin(MISSING_TOKENS_NORMALIZED)
-            if unexpected.any():
-                add_anomaly(anomalies, filename, col, "MARITAL_STATUS hors 0/1", df.loc[unexpected].copy(), "Avertissement",
-                            "La colonne contient des valeurs autres que 0/1 (en dehors des marqueurs de vide).",
-                            "Confirmer la signification de 0 et 1, ainsi que la gestion des valeurs inconnues.",
-                            "SSIS: validation de domaine 0/1 et sortie d'erreur pour les autres valeurs.")
-        if requested.casefold() == "difficulty level":
-            allowed = {"beginner", "intermediate", "advanced"}
-            unexpected = ~values.str.strip().str.casefold().isin(allowed | {""})
-            unexpected &= ~values.str.strip().str.casefold().isin(MISSING_TOKENS_NORMALIZED)
-            if unexpected.any():
-                add_anomaly(anomalies, filename, col, "Difficulty Level inattendu", df.loc[unexpected].copy(), "Avertissement",
-                            "Valeurs hors Beginner/Intermediate/Advanced détectées.",
-                            "Valider la liste de catégories autorisées avec la source Coursera.",
-                            "SSIS: contrôle de domaine basé sur une table de référence.")
-
-
-def audit_cross_file(dfs: dict[str, pd.DataFrame], anomalies: list[dict], params: dict[str, str]):
-    emp, admin = dfs.get("emp"), dfs.get("admin")
-    depts, courses = dfs.get("departments"), dfs.get("courses")
-    admin_att, attendance = dfs.get("admin_att"), dfs.get("attendance")
-
-    def ref_check(source_key, source_candidates, target_key, target_candidates, label):
-        source, target = dfs.get(source_key), dfs.get(target_key)
-        if source is None or target is None:
-            return
-        sc, tc = find_col(source, source_candidates), find_col(target, target_candidates)
-        if not sc or not tc:
-            return
-        target_values = set(target[tc].astype(str).str.strip())
-        source_vals = source[sc].astype(str).str.strip()
-        missing = ~source_vals.isin(target_values)
-        missing &= ~source_vals.str.casefold().isin(MISSING_TOKENS_NORMALIZED)
-        if missing.any():
-            rows = source.loc[missing].copy()
-            examples = source_vals[missing].value_counts().head(50)
-            add_anomaly(anomalies, FILES[source_key], sc, f"Violation référentielle: {label}", rows, "Critique",
-                        f"{int(missing.sum())} ligne(s) contiennent une référence absente de {FILES[target_key]}.{tc}. Identifiants distincts introuvables (jusqu'à 50): {list(examples.index)}.",
-                        "Vérifier les espaces/casse, les décalages de format UUID, les données manquantes du référentiel et la correspondance entre clés. Ne pas fabriquer de clé cible.",
-                        f"SSIS: Left Outer Join sur {sc} vers {tc}; router les lignes où la clé cible est NULL dans une table de rejets référentiels.",
-                        details=[f"{k} (occurrences source: {v})" for k, v in examples.items()])
-
-    ref_check("emp", ["DEP_ID", "ID_DEP"], "departments", ["ID_DEP"], "DEP_ID employé → département")
-    ref_check("admin", ["DEP_ID", "ID_DEP"], "departments", ["ID_DEP"], "DEP_ID administration → département")
-    ref_check("admin_att", ["ID_Employee", "Employee_ID", "CODE"], "admin", ["ID_Employee"], "pointage → employé administration")
-    ref_check("emp", ["ID_Training", "ID_TRAINING", "Training_ID"], "courses", ["id_course", "course_id"], "formation employé → catalogue Coursera")
-
-    # UUID présents dans les deux fichiers : peut être légitime, mais doit être documenté.
-    if emp is not None and admin is not None:
-        ec, ac = find_col(emp, ["CODE"]), find_col(admin, ["ID_Employee"])
-        if ec and ac:
-            ev = set(emp[ec].astype(str).str.strip())
-            av = set(admin[ac].astype(str).str.strip())
-            common = sorted((ev & av) - MISSING_TOKENS_NORMALIZED)
-            if common:
-                rows = emp[emp[ec].astype(str).str.strip().isin(common)].copy()
-                add_anomaly(anomalies, FILES["emp"], ec, "UUID commun aux deux fichiers employés", rows, "Info",
-                            f"{len(common)} UUID distinct(s) existent à la fois dans emp_data.CODE et administration_data.ID_Employee. Cela peut indiquer une population commune ou un schéma partagé; ce n'est pas automatiquement une erreur.",
-                            "Confirmer si les deux fichiers décrivent la même population, des rôles différents ou des référentiels distincts. Documenter la clé métier et la relation attendue.",
-                            "SSIS: profiler l'intersection des clés; ne pas supprimer ni fusionner les lignes sans règle métier.",
-                            details=[f"UUID commun: {x}" for x in common[:200]])
-
-    # Cohérence des rangs / grades.
-    if emp is not None and admin is not None:
-        rc, gc = find_col(emp, ["RANK"]), find_col(admin, ["GRADE"])
-        if rc and gc:
-            rank_vals = set(emp[rc].astype(str).str.strip().str.casefold())
-            grade_vals = set(admin[gc].astype(str).str.strip().str.casefold())
-            only_rank = sorted(rank_vals - grade_vals - MISSING_TOKENS_NORMALIZED)
-            only_grade = sorted(grade_vals - rank_vals - MISSING_TOKENS_NORMALIZED)
-            if only_rank or only_grade:
-                add_anomaly(anomalies, "emp_data.xlsx + administration_data.xlsx", "RANK / GRADE",
-                            "Valeurs de référentiel différentes", emp[[rc]].drop_duplicates().copy(), "Info",
-                            f"Valeurs uniquement dans RANK: {only_rank[:50]}; uniquement dans GRADE: {only_grade[:50]}. Les champs peuvent avoir des sémantiques différentes.",
-                            "Confirmer si RANK et GRADE sont comparables avant de construire un mapping.",
-                            "DW: utiliser une dimension de correspondance validée plutôt qu'une égalité implicite.")
-
-    # Cohérence des heures de présence.
-    for key in ["admin_att", "attendance"]:
-        df = dfs.get(key)
-        if df is None:
-            continue
-        start, end = find_col(df, ["StartTime"]), find_col(df, ["EndTime"])
-        brk, resume = find_col(df, ["BreakTime"]), find_col(df, ["ResumeTime"])
-        if start and end:
-            st, en = temp_dates(df[start]), temp_dates(df[end])
-            # Si les valeurs sont des heures seules, pandas peut les parser sur une date de référence commune.
-            mask = st.notna() & en.notna() & (st > en)
-            if mask.any():
-                add_anomaly(anomalies, FILES[key], f"{start} / {end}", "Heure de fin avant heure de début",
-                            df.loc[mask].copy(), "Avertissement",
-                            f"{int(mask.sum())} ligne(s) ont StartTime > EndTime selon le parsing. Les postes traversant minuit doivent être distingués des erreurs.",
-                            "Vérifier les équipes de nuit et la présence d'une date de fin distincte avant de considérer ces lignes comme invalides.",
-                            "SSIS: comparer les heures après application d'une règle explicite pour les shifts traversant minuit.")
-        if brk and resume:
-            bt, rt = temp_dates(df[brk]), temp_dates(df[resume])
-            mask = bt.notna() & rt.notna() & (bt > rt)
-            if mask.any():
-                add_anomaly(anomalies, FILES[key], f"{brk} / {resume}", "Pause après reprise",
-                            df.loc[mask].copy(), "Avertissement",
-                            f"{int(mask.sum())} ligne(s) ont BreakTime > ResumeTime.",
-                            "Confirmer les formats et vérifier si une pause traverse minuit.",
-                            "SSIS: règle temporelle BreakTime <= ResumeTime avec gestion documentée des cas nocturnes.")
-
-    # Contrats, salaire/heures et dates sur les fichiers employés.
-    for key in ["emp", "admin"]:
-        df = dfs.get(key)
-        if df is None:
-            continue
-        contract = find_col(df, ["TYPE_CONTRACT", "Type_Contract", "Contract_Type"])
-        salary = find_col(df, ["SALARY"])
-        hours = find_col(df, ["HOURS"])
-        start = find_col(df, ["CONTRACT_START"])
-        end = find_col(df, ["CONTRACT_END"])
-        starting = find_col(df, ["STARTING_DATE"])
-        if contract:
-            c = df[contract].astype(str).str.strip().str.casefold()
-            empty = c.eq("") | c.isin(MISSING_TOKENS_NORMALIZED)
-            if empty.any():
-                add_anomaly(anomalies, FILES[key], contract, "Statut contractuel manquant", df.loc[empty].copy(), "Critique",
-                            f"{int(empty.sum())} employé(s) n'ont pas de TYPE_CONTRACT exploitable.",
-                            "Récupérer le statut auprès de la source RH faisant autorité; ne pas déduire un contrat par défaut.",
-                            "SSIS: contrôle NOT NULL métier et table de rejets pour les lignes sans statut.")
-            if salary and hours:
-                s = temp_numeric(df[salary]); hraw = df[hours].astype(str).str.strip()
-                hmissing = hraw.str.casefold().isin(MISSING_TOKENS_NORMALIZED)
-                vac = c.str.contains("vacataire", na=False)
-                permanent = c.str.contains("permanent", na=False)
-                mask = (vac & s.notna() & hmissing) | (vac & s.isna() & ~hmissing) | (permanent & ~hmissing & hraw.ne(""))
-                if mask.any():
-                    add_anomaly(anomalies, FILES[key], f"{contract} / {salary} / {hours}",
-                                "Contrat incohérent avec salaire/heures", df.loc[mask].copy(), "Avertissement",
-                                f"{int(mask.sum())} ligne(s) signalées selon les règles proposées: vacataire salaire renseigné/heures absentes, vacataire salaire absent/heures présentes, ou permanent avec HOURS renseigné.",
-                                "Faire confirmer la définition des statuts et si HOURS désigne un volume contractuel, des heures travaillées ou des heures supplémentaires.",
-                                "SSIS: règles conditionnelles par TYPE_CONTRACT, à activer après validation métier.")
-        if start and end:
-            s, e = temp_dates(df[start]), temp_dates(df[end])
-            mask = s.notna() & e.notna() & (s > e)
-            if mask.any():
-                add_anomaly(anomalies, FILES[key], f"{start} / {end}", "Début de contrat après fin",
-                            df.loc[mask].copy(), "Critique",
-                            f"{int(mask.sum())} contrat(s) ont une date de début postérieure à la date de fin.",
-                            "Vérifier l'inversion jour/mois et les dates saisies; demander validation RH.",
-                            "SSIS: contrainte CONTRACT_START <= CONTRACT_END; rejeter ou mettre en quarantaine les lignes non conformes.")
-        if starting and start:
-            s, e = temp_dates(df[starting]), temp_dates(df[start])
-            mask = s.notna() & e.notna() & (s > e)
-            if mask.any():
-                add_anomaly(anomalies, FILES[key], f"{starting} / {start}", "Date d'entrée après début de contrat",
-                            df.loc[mask].copy(), "Avertissement",
-                            f"{int(mask.sum())} ligne(s) ont STARTING_DATE > CONTRACT_START.",
-                            "Confirmer si STARTING_DATE est la date d'entrée dans l'entreprise et CONTRACT_START la date contractuelle.",
-                            "SSIS: règle temporelle conditionnelle après validation de la définition des champs.")
-
-    # Contrôle de cohérence salaire vacataire avec HOURS × taux horaire.
-    if emp is not None:
-        contract = find_col(emp, ["TYPE_CONTRACT", "Type_Contract"])
-        salary = find_col(emp, ["SALARY"])
-        hours = find_col(emp, ["HOURS"])
-        rate = next((v for k, v in params.items() if "hour" in k and "vacat" in k), None)
-        if contract and salary and hours and rate:
-            c = emp[contract].astype(str).str.casefold()
-            s, h = temp_numeric(emp[salary]), temp_numeric(emp[hours])
-            r = float(rate)
-            mask = c.str.contains("vacataire", na=False) & s.notna() & h.notna() & ((s - h * r).abs() > max(1.0, r * 0.05))
-            if mask.any():
-                add_anomaly(anomalies, FILES["emp"], f"{salary} / {hours}", "Salaire vacataire différent de HOURS × taux",
-                            emp.loc[mask].copy(), "Avertissement",
-                            f"{int(mask.sum())} ligne(s) diffèrent de plus de 5 % ou 1 unité du calcul HOURS × {r}. Cette règle suppose que les deux champs couvrent la même période et que SALARY est calculé au taux horaire.",
-                            "Confirmer l'unité des heures, la périodicité du salaire, les arrondis et les autres éléments de rémunération.",
-                            f"SSIS: calculer un montant théorique temporaire HOURS * {r}; comparer avec tolérance approuvée, sans remplacer SALARY.")
-
-
-def report_html(dfs, sheet_names, meta, missing_info, anomalies, charts, params_raw, out_path: Path):
-    total_rows = sum(len(df) for df in dfs.values())
-    # Exclure la colonne technique de traçabilité du décompte des colonnes/cellules.
-    total_cols = sum(len(df.columns) - (1 if "_row_number" in df.columns else 0) for df in dfs.values())
-    total_cells = sum(len(df) * (len(df.columns) - (1 if "_row_number" in df.columns else 0)) for df in dfs.values())
-    score = quality_score(anomalies, total_rows, total_cells)
-    counts = Counter(a["severite"] for a in anomalies)
-    # missing_info contient plusieurs structures (real, fake, fake_total, over5).
-    # Seul le dictionnaire real contient les compteurs de valeurs NaN/None natifs.
-    missing_real = sum(sum(v["real"].values()) for v in missing_info.values())
-    fake_total = sum(v["fake_total"] for v in missing_info.values())
-    dup_total = sum(a["nb_lignes"] for a in anomalies if "Doublon" in a["type"])
-    ref_total = sum(a["nb_lignes"] for a in anomalies if "référentielle" in a["type"].casefold())
-    temporal_total = sum(a["nb_lignes"] for a in anomalies if any(x in a["type"].casefold() for x in ["date", "heure", "pause", "temporelle"]))
-    outlier_total = sum(a["nb_lignes"] for a in anomalies if "outlier" in a["type"].casefold() or "heures hors" in a["type"].casefold())
-    severity = "🟢" if score >= 85 else ("🟡" if score >= 65 else "🔴")
-
-    nav = ['<a href="#overview">Vue générale</a>', '<a href="#sources">Sources</a>',
-           '<a href="#anomalies">Anomalies détaillées</a>', '<a href="#catalogue">Catalogue SSIS/DW</a>',
-           '<a href="#method">Méthodologie & limites</a>']
-    for i, a in enumerate(anomalies):
-        pass
-
-    source_rows = []
-    for key, df in dfs.items():
-        source_rows.append(f"<tr><td>{html_escape(key)}</td><td>{len(df):,}</td><td>{len(df.columns)}</td><td>{html_escape(', '.join(map(str, df.columns)))}</td></tr>")
-    anomaly_cards = []
-    for i, a in enumerate(anomalies, 1):
-        sev_class = {"Critique": "crit", "Avertissement": "warn", "Info": "info"}.get(a["severite"], "info")
-        examples_df = pd.DataFrame(a["exemples"])
-        detail_html = ""
-        if a["details"]:
-            detail_html = "<h4>Valeurs / identifiants détaillés</h4><ul>" + "".join(f"<li>{html_escape(x)}</li>" for x in a["details"][:200]) + "</ul>"
-        anomaly_cards.append(f"""
-        <article class="anomaly {sev_class}" id="anomaly-{i}">
-          <h3>{i}. {html_escape(a['type'])} <span class="badge {sev_class}">{html_escape(a['severite'])}</span></h3>
-          <p><b>Fichier :</b> {html_escape(a['fichier'])} &nbsp; <b>Colonne(s) :</b> {html_escape(a['colonne'])}</p>
-          <p><b>Lignes concernées :</b> {a['nb_lignes']:,}</p>
-          <p><b>Pourquoi c'est un problème :</b> {html_escape(a['explication'])}</p>
-          <p><b>Recommandation d'analyse :</b> {html_escape(a['recommandation'])}</p>
-          <p><b>Piste SSIS :</b> {html_escape(a['ssis'])}</p>
-          {detail_html}
-          <details><summary>Afficher les exemples (maximum 100 lignes)</summary>{dataframe_to_html(examples_df, 100)}</details>
-        </article>""")
-
-    chart_html = []
-    for c in charts:
-        if "png" in c:
-            chart_html.append(f'<figure><figcaption>{html_escape(c["title"])}</figcaption><img alt="{html_escape(c["title"])}" src="data:image/png;base64,{c["png"]}"></figure>')
-        else:
-            chart_html.append(f'<p class="muted">{html_escape(c["title"])} — {html_escape(c.get("note",""))}</p>')
-
-    # Vue des colonnes dépassant le seuil de 5 %.
-    over5_rows = []
-    for file, info in missing_info.items():
-        for col, pct in info["over5"]:
-            over5_rows.append(f"<tr><td>{html_escape(file)}</td><td>{html_escape(col)}</td><td>{pct:.2f}%</td></tr>")
-    over5_html = "<table><thead><tr><th>Fichier</th><th>Colonne</th><th>Manquants + faux-vides</th></tr></thead><tbody>" + "".join(over5_rows) + "</tbody></table>" if over5_rows else "<p>Aucune colonne ne dépasse le seuil de 5 % calculé sur les manquants réels + faux-vides.</p>"
-
-    # Le HTML est entièrement autonome: CSS et images en base64.
-    html = f"""<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Audit qualité RH — Rapport détaillé</title>
-    <style>
-    :root{{--bg:#f5f7fb;--card:#fff;--ink:#182230;--muted:#667085;--line:#d8dee9;--blue:#2457a7;--red:#b42318;--yellow:#9a6700;--cyan:#175cd3}}
-    *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 "Segoe UI",Arial,sans-serif}}
-    header{{padding:32px 5%;background:#13294b;color:white}}header h1{{margin:0 0 8px;font-size:28px}}header p{{margin:4px 0;color:#d0d9e8}}
-    nav{{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:12px 5%;display:flex;gap:10px;flex-wrap:wrap;z-index:5}}nav a{{color:var(--blue);text-decoration:none;border:1px solid var(--line);border-radius:20px;padding:5px 12px}}
-    main{{max-width:1400px;margin:auto;padding:24px}}section,.panel{{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:22px;box-shadow:0 2px 8px #1018280a}}
-    h2{{margin-top:0}}h3{{margin:0 0 10px}}h4{{margin-bottom:4px}}.kpis{{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}}
-    .kpi{{padding:16px;border:1px solid var(--line);border-radius:10px}}.kpi strong{{display:block;font-size:25px;color:var(--blue)}}.muted{{color:var(--muted)}}
-    .score{{font-size:36px;font-weight:800;color:{'#16803c' if score >= 85 else '#9a6700' if score >= 65 else '#b42318'}}}
-    table{{border-collapse:collapse;width:100%;font-size:12px;margin:10px 0}}th,td{{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;overflow-wrap:anywhere}}th{{background:#edf2f8}}.table-wrap{{overflow:auto}}
-    figure{{margin:18px 0;padding:12px;border:1px solid var(--line);border-radius:8px}}figure img{{max-width:100%;height:auto;display:block}}figcaption{{font-weight:700;margin-bottom:8px}}
-    .anomaly{{background:white;border:1px solid var(--line);border-left:5px solid #667085;border-radius:8px;padding:18px;margin:14px 0;scroll-margin-top:80px}}
-    .anomaly.crit{{border-left-color:#b42318}}.anomaly.warn{{border-left-color:#b7791f}}.anomaly.info{{border-left-color:#175cd3}}
-    .badge{{border-radius:20px;padding:3px 9px;font-size:11px}}.badge.crit{{background:#fee4e2;color:#b42318}}.badge.warn{{background:#fef0c7;color:#93370d}}.badge.info{{background:#dbeafe;color:#1849a9}}
-    details{{margin-top:12px}}summary{{cursor:pointer;color:var(--blue);font-weight:600}}.callout{{background:#fffaeb;border:1px solid #fedf89;padding:12px;border-radius:8px}}
-    code{{background:#edf2f8;padding:2px 5px;border-radius:4px}}footer{{padding:20px 5%;color:var(--muted);text-align:center}}
-    </style></head><body>
-    <header><h1>Rapport d'audit qualité — Données RH</h1><p>Profilage et audit en lecture seule, préparation SSIS / Staging / Data Warehouse</p>
-    <p>Généré le {datetime.now().strftime('%d/%m/%Y à %H:%M:%S')}</p></header>
-    <nav>{''.join(nav)}</nav><main>
-    <section id="overview"><h2>Vue générale</h2><div class="score">{score:.1f}% {severity}</div><p class="muted">Score indicatif calculé à partir du volume de cellules et de la sévérité des anomalies. Ce n'est pas une norme certifiée et il ne remplace pas l'analyse métier.</p>
-    <div class="kpis">
-    <div class="kpi"><strong>{len(dfs)}</strong>fichiers / sources chargés</div>
-    <div class="kpi"><strong>{total_rows:,}</strong>lignes totales</div>
-    <div class="kpi"><strong>{total_cols}</strong>colonnes totales</div>
-    <div class="kpi"><strong>{missing_real:,}</strong>NaN/None natifs</div>
-    <div class="kpi"><strong>{fake_total:,}</strong>faux-vides détectés</div>
-    <div class="kpi"><strong>{dup_total:,}</strong>lignes dans anomalies de doublons</div>
-    <div class="kpi"><strong>{ref_total:,}</strong>lignes avec violation référentielle</div>
-    <div class="kpi"><strong>{len(anomalies)}</strong>règles/anomalies détectées</div>
-    <div class="kpi"><strong>{counts.get('Critique',0)}</strong>anomalies critiques</div>
-    <div class="kpi"><strong>{counts.get('Avertissement',0)}</strong>avertissements</div>
-    <div class="kpi"><strong>{counts.get('Info',0)}</strong>informations</div></div>
-    <p class="callout"><b>Lecture importante :</b> une anomalie détectée est un signal à examiner, pas une autorisation de modifier la source. Les exemples et recommandations sont fournis pour arbitrage métier et conception du flux SSIS.</p></section>
-    <section id="sources"><h2>Sources et structure chargées</h2><p>Chaque onglet Excel/ODS est traité comme une table distincte. Les noms de colonnes sont affichés tels qu'ils sont présents dans les sources.</p>
-    <div class="table-wrap"><table><thead><tr><th>Source / onglet</th><th>Lignes</th><th>Colonnes</th><th>Liste des colonnes</th></tr></thead><tbody>{''.join(source_rows)}</tbody></table></div>
-    <h3>Seuil des valeurs manquantes : plus de 5 %</h3>{over5_html}
-    <h3>Visualisations intégrées</h3>{''.join(chart_html)}
-    <h3>Paramètres extraits de extrainfos.txt</h3><pre>{html_escape(params_raw or 'Fichier absent ou vide.')}</pre>
-    </section>
-    <section id="anomalies"><h2>Anomalies détaillées, explications et recommandations</h2>
-    <p>Les lignes listées sont des exemples limités à 100 par anomalie; les nombres annoncés correspondent au total détecté. Pour les identifiants de référence introuvables, le détail contient jusqu'à 50 identifiants distincts avec leurs occurrences.</p>
-    {''.join(anomaly_cards) if anomaly_cards else '<p>Aucune anomalie selon les règles configurées. Cela ne garantit pas l’absence de défauts non couverts.</p>'}
-    </section>
-    <section id="catalogue"><h2>Catalogue des anomalies pour SSIS / DW</h2><p>Ce catalogue est une proposition de contrôles de qualité. Les règles de correction ne sont pas exécutées.</p>
-    <div class="table-wrap"><table><thead><tr><th>Fichier</th><th>Colonne</th><th>Type anomalie</th><th>Lignes concernées</th><th>Index / lignes source</th><th>Sévérité</th><th>Règle SSIS suggérée</th></tr></thead><tbody>
-    {''.join(f"<tr><td>{html_escape(a['fichier'])}</td><td>{html_escape(a['colonne'])}</td><td>{html_escape(a['type'])}</td><td>{a['nb_lignes']}</td><td>{html_escape(a['index'][:1000])}</td><td>{html_escape(a['severite'])}</td><td>{html_escape(a['ssis'])}</td></tr>" for a in anomalies)}
-    </tbody></table></div></section>
-    <section id="method"><h2>Méthodologie, hypothèses et limites</h2>
-    <ul>
-      <li>Lecture seule : aucun fichier source n'est écrit, renommé ou modifié par ce script.</li>
-      <li>Chargement en chaînes : CSV via <code>dtype=str</code>, XLSX/ODS via <code>dtype=str</code>; les faux-vides sont détectés sans remplacement dans les DataFrames sources.</li>
-      <li>Les conversions numériques et dates sont temporaires et servent uniquement à détecter des problèmes.</li>
-      <li>Les lignes sont numérotées à partir de 2 pour les fichiers tabulaires, en supposant que la ligne 1 est l'en-tête. Pour les onglets Excel, il s'agit d'un numéro de ligne logique, pas nécessairement du numéro physique si le fichier contient des lignes vides supprimées par pandas.</li>
-      <li>Les contrôles de genre à partir du prénom ne sont pas exécutés : une heuristique de nom peut produire des inférences erronées et ne doit pas servir de règle de nettoyage RH.</li>
-      <li>Le contrôle « contrat actif avec fin dans le passé » n'est pas automatique si aucune colonne de statut actif/inactif fiable n'est disponible.</li>
-      <li>Le contrôle quota légal de congés n'est pas calculé sans quota explicite et applicable dans les sources/paramètres.</li>
-      <li>Les contrôles de référence s'exécutent uniquement si les colonnes attendues sont trouvées. Une colonne absente est ignorée plutôt que supposée.</li>
-      <li>Le fichier attendance_dataset_2023.csv est analysé localement si présent. Aucun fichier n'est téléchargé par le script.</li>
-      <li>Score qualité : indicateur synthétique interne, à interpréter avec prudence; les anomalies peuvent se chevaucher.</li>
-    </ul>
-    <h3>Priorités conseillées avant le pipeline SSIS</h3>
-    <ol>
-      <li>Confirmer les clés et relations (CODE, ID_Employee, ID_DEP, ID_Training/id_course).</li>
-      <li>Arbitrer les doublons et les références introuvables; ne pas supprimer automatiquement les lignes.</li>
-      <li>Documenter les formats de dates, les unités numériques et les catégories autorisées.</li>
-      <li>Implémenter des sorties de quarantaine et une table de rejets avec valeur brute, nom du fichier, onglet et numéro de ligne.</li>
-      <li>Après validation métier, transformer les contrôles retenus en règles SSIS versionnées et testées.</li>
-    </ol></section></main><footer>Rapport généré automatiquement — sources préservées en lecture seule.</footer></body></html>"""
-    out_path.write_text(html, encoding="utf-8")
+    html = f"""<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Audit qualité RH</title><style>
+:root{{--bg:#f5f7fb;--card:#fff;--ink:#182230;--muted:#667085;--line:#d8dee9;--blue:#2457a7}}
+body{{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 "Segoe UI",Arial,sans-serif}}
+header{{padding:28px 5%;background:#13294b;color:#fff}}header h1{{margin:0 0 6px}}header p{{margin:2px 0;color:#d0d9e8}}
+nav{{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:10px 5%;display:flex;gap:8px;flex-wrap:wrap;z-index:2}}
+nav a{{color:var(--blue);text-decoration:none;border:1px solid var(--line);border-radius:20px;padding:4px 12px}}
+main{{max-width:1200px;margin:auto;padding:20px}}section{{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px}}
+.kpis{{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}}.kpi{{border:1px solid var(--line);border-radius:10px;padding:12px}}
+.kpi strong{{display:block;font-size:24px;color:var(--blue)}}table{{border-collapse:collapse;width:100%;font-size:12.5px;margin:8px 0}}
+th,td{{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top;overflow-wrap:anywhere}}th{{background:#edf2f8}}td.n{{text-align:right}}
+article{{border:1px solid var(--line);border-left:5px solid #667085;border-radius:8px;padding:14px 16px;margin:12px 0;scroll-margin-top:60px}}
+article.Crit{{border-left-color:#b42318}}article.Aver{{border-left-color:#b7791f}}article.Info{{border-left-color:#175cd3}}
+.b{{border-radius:20px;padding:2px 9px;font-size:11px;font-weight:600}}.b.Crit{{background:#fee4e2;color:#b42318}}.b.Aver{{background:#fef0c7;color:#93370d}}.b.Info{{background:#dbeafe;color:#1849a9}}
+.meta{{color:var(--muted);margin:0 0 6px}}summary{{cursor:pointer;color:var(--blue)}}figure{{margin:14px 0}}figure img{{max-width:100%}}figcaption{{font-weight:600}}
+.t td,.t th{{font-size:12px}}
+</style></head><body>
+<header><h1>Audit qualité des données RH</h1><p>7 fichiers sources · lecture seule · préparation du chargement SSIS / Data Warehouse</p>
+<p>Généré le {datetime.now():%d/%m/%Y à %H:%M}</p></header>
+<nav><a href="#synthese">Synthèse</a><a href="#sources">Sources</a><a href="#graphiques">Graphiques</a><a href="#anomalies">Anomalies</a><a href="#ok">Contrôles réussis</a><a href="#methode">Méthode</a></nav>
+<main>
+<section id="synthese"><h2>Synthèse</h2>
+<p>Les deux fichiers d'employés ne décrivent pas les mêmes notions de la même façon (statut, diplôme, grade, libellés), et plusieurs règles
+métier sont violées (CDI datés, pointages après la fin du contrat, pointages administratifs incohérents). Chaque anomalie ci-dessous donne
+son volume, son impact et le traitement proposé pour le chargement.</p>
+<div class="kpis"><div class="kpi"><strong>{len(items)}</strong>anomalies</div>
+<div class="kpi"><strong>{counts.get('Critique', 0)}</strong>critiques</div><div class="kpi"><strong>{counts.get('Avertissement', 0)}</strong>avertissements</div>
+<div class="kpi"><strong>{counts.get('Info', 0)}</strong>informations</div><div class="kpi"><strong>{len(set(a.passed))}</strong>contrôles réussis</div></div>
+<table><thead><tr><th>Thème</th><th>Anomalie</th><th>Fichier</th><th>Volume</th><th>Sévérité</th></tr></thead><tbody>{summary}</tbody></table></section>
+<section id="sources"><h2>Sources</h2><table><thead><tr><th>Fichier</th><th>Lignes</th><th>Colonnes</th></tr></thead><tbody>{src_rows}</tbody></table></section>
+<section id="graphiques"><h2>Graphiques</h2>{figs_html}</section>
+<section id="anomalies"><h2>Anomalies détaillées</h2>{''.join(cards)}</section>
+<section id="ok"><h2>Contrôles réussis (0 anomalie)</h2><ul>{passed}</ul></section>
+<section id="methode"><h2>Méthode et limites</h2><ul>
+<li>Lecture seule : les fichiers sources ne sont jamais modifiés.</li>
+<li>Formats explicites par fichier (dates ISO pour les fiches, M/J/AAAA et H:MM:SS pour les pointages techniques, AAAA-MM-JJ et HH:MM pour les pointages administratifs). Aucun parseur « automatique » n'est utilisé, car il inverse jour et mois.</li>
+<li>Les vides attendus (SALARY des vacataires, HOURS des permanents, CONTRACT_END d'un contrat sans terme, ADRESSE_MISSION) ne sont pas comptés comme manquants.</li>
+<li>Ancienneté calculée au 01/01/2023, début de la période de pointage.</li>
+<li>Jours fériés : fêtes nationales tunisiennes à date fixe uniquement ; les fêtes religieuses (mobiles) ne sont pas contrôlées.</li>
+<li>Une anomalie est un signal à arbitrer avec les RH, pas une correction automatique.</li></ul></section>
+</main></body></html>"""
+    out.write_text(html, encoding="utf-8")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Audit qualité RH en lecture seule; génère un rapport HTML autonome.")
-    parser.add_argument("--input-dir", default="./data", help="Dossier contenant les 7 sources (défaut: ./data).")
-    parser.add_argument("--output", default="eda_audit_report.html", help="Chemin du rapport HTML généré.")
-    args = parser.parse_args()
-    root = Path(args.input_dir).expanduser().resolve()
-    out_path = Path(args.output).expanduser().resolve()
-    if not root.exists():
-        print(f"ERREUR: dossier source introuvable: {root}", file=sys.stderr)
-        print("Créez ./data et placez-y les fichiers source, ou utilisez --input-dir.", file=sys.stderr)
-        sys.exit(2)
+    here = Path(__file__).resolve().parent
+    ap = argparse.ArgumentParser(description="Audit qualité des données RH (lecture seule) ; produit un rapport HTML autonome.")
+    ap.add_argument("--input-dir", default=str(here / "DataSet"), help="Dossier des 7 fichiers sources (défaut : DataSet/).")
+    ap.add_argument("--output", default=str(here / "eda_audit_report.html"), help="Rapport HTML produit.")
+    args = ap.parse_args()
 
-    dfs: dict[str, pd.DataFrame] = {}
-    sheet_names = {}
-    meta = {}
-    params_raw = ""
-    params = {}
-    missing_info = {}
-    anomalies: list[dict] = []
-    charts: list[dict] = []
+    s = prepare(load_sources(Path(args.input_dir)))
+    a = Audit()
+    check_cross_file(a, s)
+    check_quality(a, s)
+    check_contracts(a, s)
+    check_attendance(a, s)
+    check_departments_courses(a, s)
+    render(a, s, charts(s), Path(args.output))
 
-    print("=" * 72)
-    print("         RAPPORT AUDIT QUALITÉ RH — MODE LECTURE SEULE")
-    print("=" * 72)
-    for key, filename in FILES.items():
-        path = root / filename
-        if not path.exists():
-            print(f"[ABSENT] {filename} — source ignorée, aucune donnée inventée.")
-            continue
-        try:
-            if key in ("emp", "admin", "admin_att"):
-                sheets = load_workbook(path)
-                for sheet, df in sheets.items():
-                    name = f"{filename} [{sheet}]"
-                    df = df.copy()
-                    df.insert(0, "_row_number", np.arange(2, len(df) + 2).astype(str))
-                    dfs[key if len(sheets) == 1 else f"{key}::{sheet}"] = df
-                    sheet_names[key if len(sheets) == 1 else f"{key}::{sheet}"] = name
-                    meta[name] = {"rows": len(df), "cols": len(df.columns) - 1, "columns": list(df.columns[1:])}
-            elif key in ("attendance", "courses"):
-                df, enc, sep = read_csv_robust(path)
-                df.insert(0, "_row_number", np.arange(2, len(df) + 2).astype(str))
-                dfs[key] = df
-                sheet_names[key] = filename
-                meta[filename] = {"rows": len(df), "cols": len(df.columns) - 1, "columns": list(df.columns[1:]), "encoding": enc, "separator": sep}
-            elif key == "departments":
-                sheets = read_ods_all_sheets(path)
-                for sheet, df in sheets.items():
-                    name = f"{filename} [{sheet}]"
-                    df.insert(0, "_row_number", np.arange(2, len(df) + 2).astype(str))
-                    dfs[key if len(sheets) == 1 else f"{key}::{sheet}"] = df
-                    sheet_names[key if len(sheets) == 1 else f"{key}::{sheet}"] = name
-                    meta[name] = {"rows": len(df), "cols": len(df.columns) - 1, "columns": list(df.columns[1:])}
-            elif key == "params":
-                params_raw, params = parse_param_file(path)
-                meta[filename] = {"rows": len(params_raw.splitlines()), "cols": 1, "columns": ["paramètres texte"]}
-            print(f"[OK] {filename}")
-        except Exception as exc:
-            print(f"[ERREUR] {filename}: {exc}", file=sys.stderr)
-
-    # Aplatir les onglets en choisissant le premier onglet pour les contrôles inter-fichiers.
-    # Tous les onglets restent inclus dans le profilage et les contrôles génériques.
-    primary = {}
-    for key in ["emp", "admin", "admin_att", "attendance", "courses", "departments"]:
-        if key in dfs:
-            primary[key] = dfs[key]
-        else:
-            candidates = [k for k in dfs if k.startswith(key + "::")]
-            if candidates:
-                primary[key] = dfs[candidates[0]]
-    # Alias vers les clés attendues par les règles inter-fichiers.
-    dfs_for_cross = dict(primary)
-
-    # Affichage structure + aperçu de 5 lignes pour chaque table/onglet.
-    print("\\n--- PROFIL DES SOURCES ---")
-    for key, df in dfs.items():
-        display_name = sheet_names.get(key, key)
-        data_cols = [c for c in df.columns if c != "_row_number"]
-        print(f"\\n{display_name}: {len(df):,} lignes × {len(data_cols)} colonnes")
-        print("Colonnes:", ", ".join(map(str, data_cols)))
-        print(df[data_cols].head(5).to_string(index=False, max_cols=20))
-        # Chaque table/onglet est audité génériquement.
-        miss = audit_missing(df, display_name, anomalies, charts)
-        missing_info[display_name] = miss
-        # Ajouter les numéros de ligne aux anomalies d'audit manquants qui n'avaient pas cet index.
-        # Les contrôles détaillés utilisent le DataFrame original avec _row_number.
-        audit_duplicates(df, display_name, [
-            ["CODE"], ["ID_Employee"], ["REGISTRATION_NUMBER"], ["EMAIL"],
-            ["id_course"], ["course_id"], ["Course Name"], ["ID_DEP"], ["DEP"],
-            ["ID_Employee", "Date"], ["Employee_ID", "Date"], ["CODE", "Date"],
-        ], anomalies, display_name)
-        audit_numeric(df, display_name, anomalies, charts)
-        audit_dates(df, display_name, anomalies)
-        audit_categories(df, display_name, anomalies)
-
-    # Contrôles de quasi-doublons de noms et champs spécifiques.
-    for key in ["emp", "admin"]:
-        df = dfs_for_cross.get(key)
-        if df is None:
-            continue
-        name_col = find_col(df, ["NAME_EMP", "Employee_Name", "Name"])
-        if name_col:
-            normalized = df[name_col].astype(str).str.casefold().str.replace(r"\\s+", " ", regex=True).str.strip()
-            mask = normalized.duplicated(keep=False) & normalized.ne("")
-            if mask.any():
-                add_anomaly(anomalies, FILES[key], name_col, "Noms identiques après normalisation", df.loc[mask].copy(), "Info",
-                            f"{int(mask.sum())} lignes ont un nom identique après neutralisation de la casse et des espaces multiples. Ce signal ne prouve pas que les employés sont identiques.",
-                            "Comparer les identifiants, la date de naissance si elle est légalement disponible et d'autres attributs autorisés; ne pas fusionner sur le seul nom.",
-                            "SSIS: générer une clé de rapprochement indicative et soumettre les candidats à une validation humaine.")
-        for column in (["REGISTRATION_NUMBER", "EMAIL"] if key == "emp" else ["REGISTRATION_NUMBER", "EMAIL"]):
-            col = find_col(df, [column])
-            if col:
-                val = df[col].astype(str).str.strip().str.casefold()
-                mask = val.duplicated(keep=False) & ~val.isin(MISSING_TOKENS_NORMALIZED)
-                if mask.any():
-                    add_anomaly(anomalies, FILES[key], col, f"Doublons sur {column}", df.loc[mask].copy(), "Avertissement",
-                                f"{int(mask.sum())} lignes partagent une valeur de {column}; vérifier si la valeur doit être unique.",
-                                "Comparer les lignes concernées et confirmer la règle d'unicité métier.",
-                                f"SSIS: profiler les doublons de {column}; mettre les cas en revue sans suppression automatique.")
-
-    # Dédoublonner les contrôles redondants par signature de règle, en gardant l'information la plus précise.
-    audit_cross_file(dfs_for_cross, anomalies, params)
-
-    # Imprimer le catalogue synthétique.
-    total_rows = sum(len(df) for df in dfs.values())
-    total_cols = sum(len(df.columns) - (1 if "_row_number" in df.columns else 0) for df in dfs.values())
-    total_cells = sum(len(df) * (len(df.columns) - (1 if "_row_number" in df.columns else 0)) for df in dfs.values())
-    score = quality_score(anomalies, total_rows, total_cells)
-    counts = Counter(a["severite"] for a in anomalies)
-    print("\\n" + "=" * 72)
-    print("RÉSUMÉ")
-    print("-" * 72)
-    print(f"Sources tabulaires/onglets analysés : {len(dfs)}")
-    print(f"Lignes totales : {total_rows:,}")
-    print(f"Colonnes totales : {total_cols:,}")
-    print(f"Anomalies détectées : {len(anomalies)} (critique={counts.get('Critique',0)}, avertissement={counts.get('Avertissement',0)}, info={counts.get('Info',0)})")
-    print(f"Score qualité indicatif : {score:.1f}%")
-    print("Aucune donnée source modifiée.")
-    try:
-        report_html(dfs, sheet_names, meta, missing_info, anomalies, charts, params_raw, out_path)
-        print(f"Rapport HTML généré : {out_path}")
-    except Exception as exc:
-        print(f"ERREUR génération HTML : {exc}", file=sys.stderr)
-        sys.exit(1)
+    c = Counter(x["severite"] for x in a.items)
+    print(f"{len(a.items)} anomalies (critiques {c.get('Critique', 0)}, avertissements {c.get('Avertissement', 0)}, "
+          f"infos {c.get('Info', 0)}), {len(set(a.passed))} contrôles réussis.")
+    for x in sorted(a.items, key=lambda x: (x["theme"], SEVERITY_ORDER[x["severite"]])):
+        print(f"  [{x['severite'][:4]}] {x['titre']} — {x['fichier']} : {x['n']}")
+    print(f"Rapport : {args.output}")
 
 
 if __name__ == "__main__":
