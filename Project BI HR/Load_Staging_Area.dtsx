@@ -1,4 +1,4 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 <DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
   DTS:refId="Package"
   DTS:CreationDate="10/3/2026 2:15:45 PM"
@@ -7,12 +7,12 @@
   DTS:CreatorName="DESKTOP-4VHN986\ousse"
   DTS:DTSID="{FC7C9906-4336-4E40-B979-E708B07796BA}"
   DTS:ExecutableType="Microsoft.Package"
-  DTS:LastModifiedProductVersion="17.0.1008.3"
+  DTS:LastModifiedProductVersion="16.0.1000.6"
   DTS:LocaleID="1036"
   DTS:ObjectName="Load_Staging_Area"
   DTS:PackageType="5"
   DTS:VersionBuild="69"
-  DTS:VersionGUID="{30383D26-AD2A-4B0E-BC7A-3FE58BD9F25A}">
+  DTS:VersionGUID="{BC8BD071-726E-489B-8EAB-A1874E9E3195}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -22,12 +22,12 @@
       DTS:DTSID="{9CBE13FC-6FD6-4398-A9DF-6D1A3224DEA6}"
       DTS:ObjectName="administration_attendance.xlsx">
       <DTS:PropertyExpression
-        DTS:Name="ExcelFilePath">@[$Project::DossierSources] + &quot;\\Administration_attendance.xlsx&quot;</DTS:PropertyExpression>
+        DTS:Name="ExcelFilePath">@[$Project::DossierSources] + "\\Administration_attendance.xlsx"</DTS:PropertyExpression>
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
           DTS:ConnectRetryInterval="0"
-          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\Administration_attendance.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
+          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\Administration_attendance.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
     <DTS:ConnectionManager
@@ -36,12 +36,12 @@
       DTS:DTSID="{AD446D15-D0E4-422C-95EE-004FBCE87604}"
       DTS:ObjectName="administration_data.xlsx">
       <DTS:PropertyExpression
-        DTS:Name="ExcelFilePath">@[$Project::DossierSources] + &quot;\\administration_data.xlsx&quot;</DTS:PropertyExpression>
+        DTS:Name="ExcelFilePath">@[$Project::DossierSources] + "\\administration_data.xlsx"</DTS:PropertyExpression>
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
           DTS:ConnectRetryInterval="0"
-          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\administration_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
+          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\administration_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
     <DTS:ConnectionManager
@@ -50,7 +50,7 @@
       DTS:DTSID="{E62328FA-B277-414E-BBFA-0557AC8D9327}"
       DTS:ObjectName="Coursera_trainings.csv">
       <DTS:PropertyExpression
-        DTS:Name="ConnectionString">@[$Project::DossierSources] + &quot;\\Coursera_trainings.csv&quot;</DTS:PropertyExpression>
+        DTS:Name="ConnectionString">@[$Project::DossierSources] + "\\Coursera_trainings.csv"</DTS:PropertyExpression>
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:Format="Delimited"
@@ -60,7 +60,7 @@
           DTS:RowDelimiter=""
           DTS:TextQualifier="_x0022_"
           DTS:CodePage="65001"
-          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\Coursera_trainings.csv">
+          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\Coursera_trainings.csv">
           <DTS:FlatFileColumns>
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -152,12 +152,12 @@
       DTS:DTSID="{12629CD2-AAC7-4513-B70E-562E302C57E1}"
       DTS:ObjectName="emp_data.xlsx">
       <DTS:PropertyExpression
-        DTS:Name="ExcelFilePath">@[$Project::DossierSources] + &quot;\\emp_data.xlsx&quot;</DTS:PropertyExpression>
+        DTS:Name="ExcelFilePath">@[$Project::DossierSources] + "\\emp_data.xlsx"</DTS:PropertyExpression>
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
           DTS:ConnectRetryInterval="0"
-          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\emp_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
+          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\emp_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
     <DTS:ConnectionManager
@@ -166,7 +166,7 @@
       DTS:DTSID="{D126EC74-CF58-4AE7-8399-AB5CCD17ED41}"
       DTS:ObjectName="FF_attendance_tech">
       <DTS:PropertyExpression
-        DTS:Name="ConnectionString">@[$Project::DossierSources] + &quot;\\attendance_dataset_2023.csv&quot;</DTS:PropertyExpression>
+        DTS:Name="ConnectionString">@[$Project::DossierSources] + "\\attendance_dataset_2023.csv"</DTS:PropertyExpression>
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:Format="Delimited"
@@ -176,7 +176,7 @@
           DTS:RowDelimiter=""
           DTS:TextQualifier="_x003C_none_x003E_"
           DTS:CodePage="1252"
-          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\attendance_dataset_2023.csv">
+          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\attendance_dataset_2023.csv">
           <DTS:FlatFileColumns>
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -242,7 +242,7 @@
       DTS:DTSID="{E00B6AE3-DDA7-41A2-B7BF-D71E7F30742E}"
       DTS:ObjectName="FF_extrainfos">
       <DTS:PropertyExpression
-        DTS:Name="ConnectionString">@[$Project::DossierSources] + &quot;\\extrainfos.txt&quot;</DTS:PropertyExpression>
+        DTS:Name="ConnectionString">@[$Project::DossierSources] + "\\extrainfos.txt"</DTS:PropertyExpression>
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:Format="Delimited"
@@ -251,7 +251,7 @@
           DTS:RowDelimiter=""
           DTS:TextQualifier="_x003C_none_x003E_"
           DTS:CodePage="65001"
-          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\extrainfos.txt">
+          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\extrainfos.txt">
           <DTS:FlatFileColumns>
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -288,7 +288,7 @@
           <DTS:Password
             DTS:Name="Password"
             Sensitive="1"
-            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAABARRwoQ6efD6xuDeauw2uCn1obYuvZj7J6WsJa1O6qYAAAAAAOgAAAAAIAACAAAADO8DLm8VPXdd3hUHE023QcQgVOjcFwBtOsIFb4LrdoICAAAAA0RRcKIqWJd5vhcm6HV3OFIKkva8r0su5DzSa8+pdDVEAAAACY7u9Deu86qmyD8pNIa5S7LmfudOLB3UgBp9mCFseAN7Gy7J57iwfCwF/8rPK8ZXEllnFKMCuz0Ilra6upcPnf</DTS:Password>
+            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAAC4HBRsEWuLV+vO6p5Jx20OUHl5kHoTsypZJQNHMMTnOAAAAAAOgAAAAAIAACAAAADxWn7cXqGi4+yD4RPHBTIzp2TLjG8T1O1h+c7DdtJZFyAAAAD6yA5wXkS1HLc9lODps2omcD7I0IGVG9RVvKM6cITAIUAAAAB9abebqorGMBC2/gjZjpu1sheDdovDX/jz4NqKC/6VS9I03npGQaVd7vDOS2P7368qwQ2GGNAsevKETcxU5hRe</DTS:Password>
         </DTS:ConnectionManager>
       </DTS:ObjectData>
     </DTS:ConnectionManager>
@@ -296,23 +296,14 @@
   <DTS:Variables>
     <DTS:Variable
       DTS:CreationName=""
-      DTS:DTSID="{D569B1BF-D113-41B1-B461-38B264A9DB07}"
-      DTS:IncludeInDebugDump="6789"
-      DTS:Namespace="User"
-      DTS:ObjectName="BatchId">
-      <DTS:VariableValue
-        DTS:DataType="3">1</DTS:VariableValue>
-    </DTS:Variable>
-    <DTS:Variable
-      DTS:CreationName=""
       DTS:DTSID="{F53A0E43-098C-4765-B833-4F877E296403}"
-      DTS:IncludeInDebugDump="2345"
       DTS:EvaluateAsExpression="True"
       DTS:Expression="@[$Project::DossierSources] + &quot;\\departments.ods&quot;"
+      DTS:IncludeInDebugDump="2345"
       DTS:Namespace="User"
       DTS:ObjectName="OdsPath">
       <DTS:VariableValue
-        DTS:DataType="8">C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\departments.ods</DTS:VariableValue>
+        DTS:DataType="8">C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\departments.ods</DTS:VariableValue>
     </DTS:Variable>
   </DTS:Variables>
   <DTS:Executables>
@@ -330,124 +321,6 @@
         <pipeline
           version="1">
           <components>
-            <component
-              refId="Package\DFT_ADMINISTRATION_DATA\Load Infos"
-              componentClassID="Microsoft.DerivedColumn"
-              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
-              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
-              name="Load Infos"
-              usesDispositions="true">
-              <inputs>
-                <input
-                  refId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Inputs[Derived Column Input]"
-                  description="Input to the Derived Column Transformation"
-                  name="Derived Column Input">
-                  <externalMetadataColumns />
-                </input>
-              </inputs>
-              <outputs>
-                <output
-                  refId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Output]"
-                  description="Default Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  name="Derived Column Output"
-                  synchronousInputId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      dataType="wstr"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      length="25"
-                      lineageId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      name="_SourceFile"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">"admoinistration_data.xlsx"</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">"admoinistration_data.xlsx"</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      dataType="i4"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      name="_BatchId"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">@[User::BatchId]</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">@[User::BatchId]</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      dataType="dbTimeStamp"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      name="_LoadDate"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">[GETDATE]()</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">GETDATE()</property>
-                      </properties>
-                    </outputColumn>
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-                <output
-                  refId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Error Output]"
-                  description="Error Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  isErrorOut="true"
-                  name="Derived Column Error Output"
-                  synchronousInputId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      dataType="i4"
-                      lineageId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      name="ErrorCode"
-                      specialFlags="1" />
-                    <outputColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      dataType="i4"
-                      lineageId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      name="ErrorColumn"
-                      specialFlags="2" />
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-              </outputs>
-            </component>
             <component
               refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination"
               componentClassID="Microsoft.OLEDBDestination"
@@ -473,7 +346,7 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -582,7 +455,8 @@
                       lineageId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].Columns[SALARY]" />
                     <inputColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[STARTING_DATE]"
-                      cachedDataType="date"
+                      cachedDataType="wstr"
+                      cachedLength="255"
                       cachedName="STARTING_DATE"
                       externalMetadataColumnId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[STARTING_DATE]"
                       lineageId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].Columns[STARTING_DATE]" />
@@ -621,13 +495,15 @@
                       lineageId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].Columns[LEAVE_BALANCE]" />
                     <inputColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[CONTRACT_START]"
-                      cachedDataType="date"
+                      cachedDataType="wstr"
+                      cachedLength="255"
                       cachedName="CONTRACT_START"
                       externalMetadataColumnId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CONTRACT_START]"
                       lineageId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].Columns[CONTRACT_START]" />
                     <inputColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[CONTRACT_END]"
-                      cachedDataType="date"
+                      cachedDataType="wstr"
+                      cachedLength="255"
                       cachedName="CONTRACT_END"
                       externalMetadataColumnId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CONTRACT_END]"
                       lineageId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].Columns[CONTRACT_END]" />
@@ -678,33 +554,9 @@
                       cachedName="LAST_LEAVE_TYPE"
                       externalMetadataColumnId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LAST_LEAVE_TYPE]"
                       lineageId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].Columns[LAST_LEAVE_TYPE]" />
-                    <inputColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_SourceFile]"
-                      cachedDataType="wstr"
-                      cachedLength="25"
-                      cachedName="_SourceFile"
-                      externalMetadataColumnId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
-                      lineageId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]" />
-                    <inputColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_BatchId]"
-                      cachedDataType="i4"
-                      cachedName="_BatchId"
-                      externalMetadataColumnId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      lineageId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]" />
-                    <inputColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_LoadDate]"
-                      cachedDataType="dbTimeStamp"
-                      cachedName="_LoadDate"
-                      externalMetadataColumnId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      lineageId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]" />
                   </inputColumns>
                   <externalMetadataColumns
                     isUsed="True">
-                    <externalMetadataColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ID_Employee]"
-                      dataType="wstr"
-                      length="255"
-                      name="ID_Employee" />
                     <externalMetadataColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[NAME_EMP]"
                       dataType="wstr"
@@ -716,20 +568,9 @@
                       length="255"
                       name="GENDER" />
                     <externalMetadataColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ADDRESS]"
-                      dataType="wstr"
-                      length="500"
-                      name="ADDRESS" />
-                    <externalMetadataColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[MARITAL_STATUS]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="MARITAL_STATUS" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Grade]"
-                      dataType="wstr"
-                      length="255"
-                      name="Grade" />
                     <externalMetadataColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[TYPE_DIPLOMA]"
                       dataType="wstr"
@@ -737,8 +578,7 @@
                       name="TYPE_DIPLOMA" />
                     <externalMetadataColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[EXP_YEARS]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="EXP_YEARS" />
                     <externalMetadataColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[EMAIL]"
@@ -751,19 +591,13 @@
                       length="255"
                       name="LANGUAGE" />
                     <externalMetadataColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[extra_hour]"
-                      dataType="wstr"
-                      length="255"
-                      name="extra_hour" />
-                    <externalMetadataColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[POSITION]"
                       dataType="wstr"
                       length="255"
                       name="POSITION" />
                     <externalMetadataColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SALARY]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="SALARY" />
                     <externalMetadataColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[STARTING_DATE]"
@@ -787,13 +621,11 @@
                       name="DEP_ID" />
                     <externalMetadataColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LEAVE_CONSUMED]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="LEAVE_CONSUMED" />
                     <externalMetadataColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LEAVE_BALANCE]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="LEAVE_BALANCE" />
                     <externalMetadataColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CONTRACT_START]"
@@ -807,33 +639,37 @@
                       name="CONTRACT_END" />
                     <externalMetadataColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[TENURE]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="TENURE" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LAST_LEAVE_TYPE]"
-                      dataType="wstr"
-                      length="255"
-                      name="LAST_LEAVE_TYPE" />
                     <externalMetadataColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SOURCE_of_employment]"
                       dataType="wstr"
                       length="255"
                       name="SOURCE_of_employment" />
                     <externalMetadataColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      dataType="dbTimeStamp2"
-                      name="_LoadDate"
-                      scale="7" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
+                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ID_Employee]"
                       dataType="wstr"
-                      length="260"
-                      name="_SourceFile" />
+                      length="255"
+                      name="ID_Employee" />
                     <externalMetadataColumn
-                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      dataType="i4"
-                      name="_BatchId" />
+                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ADDRESS]"
+                      dataType="wstr"
+                      length="255"
+                      name="ADDRESS" />
+                    <externalMetadataColumn
+                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Grade]"
+                      dataType="wstr"
+                      length="255"
+                      name="Grade" />
+                    <externalMetadataColumn
+                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[extra_hour]"
+                      dataType="r8"
+                      name="extra_hour" />
+                    <externalMetadataColumn
+                      refId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LAST_LEAVE_TYPE]"
+                      dataType="wstr"
+                      length="255"
+                      name="LAST_LEAVE_TYPE" />
                   </externalMetadataColumns>
                 </input>
               </inputs>
@@ -887,7 +723,7 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
                 <property
                   dataType="System.String"
                   description="The variable that contains the SQL command to be executed."
@@ -1004,10 +840,11 @@
                       truncationRowDisposition="FailComponent" />
                     <outputColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].Columns[STARTING_DATE]"
-                      dataType="date"
+                      dataType="wstr"
                       errorOrTruncationOperation="Conversion"
                       errorRowDisposition="FailComponent"
                       externalMetadataColumnId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].ExternalColumns[STARTING_DATE]"
+                      length="255"
                       lineageId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].Columns[STARTING_DATE]"
                       name="STARTING_DATE"
                       truncationRowDisposition="FailComponent" />
@@ -1061,19 +898,21 @@
                       truncationRowDisposition="FailComponent" />
                     <outputColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].Columns[CONTRACT_START]"
-                      dataType="date"
+                      dataType="wstr"
                       errorOrTruncationOperation="Conversion"
                       errorRowDisposition="FailComponent"
                       externalMetadataColumnId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].ExternalColumns[CONTRACT_START]"
+                      length="255"
                       lineageId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].Columns[CONTRACT_START]"
                       name="CONTRACT_START"
                       truncationRowDisposition="FailComponent" />
                     <outputColumn
                       refId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].Columns[CONTRACT_END]"
-                      dataType="date"
+                      dataType="wstr"
                       errorOrTruncationOperation="Conversion"
                       errorRowDisposition="FailComponent"
                       externalMetadataColumnId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].ExternalColumns[CONTRACT_END]"
+                      length="255"
                       lineageId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output].Columns[CONTRACT_END]"
                       name="CONTRACT_END"
                       truncationRowDisposition="FailComponent" />
@@ -1425,13 +1264,8 @@
           </components>
           <paths>
             <path
-              refId="Package\DFT_ADMINISTRATION_DATA.Paths[Derived Column Output]"
-              endId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input]"
-              name="Derived Column Output"
-              startId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Outputs[Derived Column Output]" />
-            <path
               refId="Package\DFT_ADMINISTRATION_DATA.Paths[Excel Source Output]"
-              endId="Package\DFT_ADMINISTRATION_DATA\Load Infos.Inputs[Derived Column Input]"
+              endId="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination.Inputs[OLE DB Destination Input]"
               name="Excel Source Output"
               startId="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data.Outputs[Excel Source Output]" />
           </paths>
@@ -1477,7 +1311,7 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
                 <property
                   dataType="System.String"
                   description="The variable that contains the SQL command to be executed."
@@ -1659,124 +1493,6 @@
               </outputs>
             </component>
             <component
-              refId="Package\DFT_ATTENDANCE_ADMIN\Load Infos"
-              componentClassID="Microsoft.DerivedColumn"
-              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
-              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
-              name="Load Infos"
-              usesDispositions="true">
-              <inputs>
-                <input
-                  refId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Inputs[Derived Column Input]"
-                  description="Input to the Derived Column Transformation"
-                  name="Derived Column Input">
-                  <externalMetadataColumns />
-                </input>
-              </inputs>
-              <outputs>
-                <output
-                  refId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Output]"
-                  description="Default Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  name="Derived Column Output"
-                  synchronousInputId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      dataType="wstr"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      length="31"
-                      lineageId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      name="_SourceFile"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">"admoinistration_attendance.xlsx"</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">"admoinistration_attendance.xlsx"</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      dataType="i4"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      name="_BatchId"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">@[User::BatchId]</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">@[User::BatchId]</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      dataType="dbTimeStamp"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      name="_LoadDate"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">[GETDATE]()</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">GETDATE()</property>
-                      </properties>
-                    </outputColumn>
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-                <output
-                  refId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Error Output]"
-                  description="Error Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  isErrorOut="true"
-                  name="Derived Column Error Output"
-                  synchronousInputId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      dataType="i4"
-                      lineageId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      name="ErrorCode"
-                      specialFlags="1" />
-                    <outputColumn
-                      refId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      dataType="i4"
-                      lineageId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      name="ErrorColumn"
-                      specialFlags="2" />
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-              </outputs>
-            </component>
-            <component
               refId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination"
               componentClassID="Microsoft.OLEDBDestination"
               contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
@@ -1801,7 +1517,7 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -1856,25 +1572,6 @@
                       externalMetadataColumnId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ID_Employee]"
                       lineageId="Package\DFT_ATTENDANCE_ADMIN\Excel Source.Outputs[Excel Source Output].Columns[ID_Employee]" />
                     <inputColumn
-                      refId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_SourceFile]"
-                      cachedDataType="wstr"
-                      cachedLength="31"
-                      cachedName="_SourceFile"
-                      externalMetadataColumnId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
-                      lineageId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]" />
-                    <inputColumn
-                      refId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_BatchId]"
-                      cachedDataType="i4"
-                      cachedName="_BatchId"
-                      externalMetadataColumnId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      lineageId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]" />
-                    <inputColumn
-                      refId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_LoadDate]"
-                      cachedDataType="dbTimeStamp"
-                      cachedName="_LoadDate"
-                      externalMetadataColumnId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      lineageId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]" />
-                    <inputColumn
                       refId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Date]"
                       cachedDataType="wstr"
                       cachedLength="255"
@@ -1917,20 +1614,6 @@
                       dataType="wstr"
                       length="255"
                       name="ID_Employee" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      dataType="dbTimeStamp2"
-                      name="_LoadDate"
-                      scale="7" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
-                      dataType="wstr"
-                      length="260"
-                      name="_SourceFile" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      dataType="i4"
-                      name="_BatchId" />
                     <externalMetadataColumn
                       refId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Date]"
                       dataType="wstr"
@@ -1987,13 +1670,8 @@
           </components>
           <paths>
             <path
-              refId="Package\DFT_ATTENDANCE_ADMIN.Paths[Derived Column Output]"
-              endId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input]"
-              name="Derived Column Output"
-              startId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Outputs[Derived Column Output]" />
-            <path
               refId="Package\DFT_ATTENDANCE_ADMIN.Paths[Excel Source Output]"
-              endId="Package\DFT_ATTENDANCE_ADMIN\Load Infos.Inputs[Derived Column Input]"
+              endId="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination.Inputs[OLE DB Destination Input]"
               name="Excel Source Output"
               startId="Package\DFT_ATTENDANCE_ADMIN\Excel Source.Outputs[Excel Source Output]" />
           </paths>
@@ -2236,124 +1914,6 @@
               </outputs>
             </component>
             <component
-              refId="Package\DFT_ATTENDANCE_TECH\Load Infos"
-              componentClassID="Microsoft.DerivedColumn"
-              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
-              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
-              name="Load Infos"
-              usesDispositions="true">
-              <inputs>
-                <input
-                  refId="Package\DFT_ATTENDANCE_TECH\Load Infos.Inputs[Derived Column Input]"
-                  description="Input to the Derived Column Transformation"
-                  name="Derived Column Input">
-                  <externalMetadataColumns />
-                </input>
-              </inputs>
-              <outputs>
-                <output
-                  refId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Output]"
-                  description="Default Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  name="Derived Column Output"
-                  synchronousInputId="Package\DFT_ATTENDANCE_TECH\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      dataType="wstr"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      length="27"
-                      lineageId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      name="_SourceFile"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">"attendance_dataset_2023.csv"</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">"attendance_dataset_2023.csv"</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      dataType="i4"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      name="_BatchId"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">@[User::BatchId]</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">@[User::BatchId]</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      dataType="dbTimeStamp"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      name="_LoadDate"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">[GETDATE]()</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">GETDATE()</property>
-                      </properties>
-                    </outputColumn>
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-                <output
-                  refId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Error Output]"
-                  description="Error Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  isErrorOut="true"
-                  name="Derived Column Error Output"
-                  synchronousInputId="Package\DFT_ATTENDANCE_TECH\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      dataType="i4"
-                      lineageId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      name="ErrorCode"
-                      specialFlags="1" />
-                    <outputColumn
-                      refId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      dataType="i4"
-                      lineageId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      name="ErrorColumn"
-                      specialFlags="2" />
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-              </outputs>
-            </component>
-            <component
               refId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination"
               componentClassID="Microsoft.OLEDBDestination"
               contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
@@ -2378,7 +1938,7 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -2433,25 +1993,6 @@
                       externalMetadataColumnId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ID_Employee]"
                       lineageId="Package\DFT_ATTENDANCE_TECH\Flat File Source.Outputs[Flat File Source Output].Columns[ID_Employee]" />
                     <inputColumn
-                      refId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_SourceFile]"
-                      cachedDataType="wstr"
-                      cachedLength="27"
-                      cachedName="_SourceFile"
-                      externalMetadataColumnId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
-                      lineageId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]" />
-                    <inputColumn
-                      refId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_BatchId]"
-                      cachedDataType="i4"
-                      cachedName="_BatchId"
-                      externalMetadataColumnId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      lineageId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]" />
-                    <inputColumn
-                      refId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_LoadDate]"
-                      cachedDataType="dbTimeStamp"
-                      cachedName="_LoadDate"
-                      externalMetadataColumnId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      lineageId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]" />
-                    <inputColumn
                       refId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Date]"
                       cachedDataType="wstr"
                       cachedLength="255"
@@ -2494,20 +2035,6 @@
                       dataType="wstr"
                       length="255"
                       name="ID_Employee" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      dataType="dbTimeStamp2"
-                      name="_LoadDate"
-                      scale="7" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
-                      dataType="wstr"
-                      length="260"
-                      name="_SourceFile" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      dataType="i4"
-                      name="_BatchId" />
                     <externalMetadataColumn
                       refId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Date]"
                       dataType="wstr"
@@ -2564,13 +2091,8 @@
           </components>
           <paths>
             <path
-              refId="Package\DFT_ATTENDANCE_TECH.Paths[Derived Column Output]"
-              endId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input]"
-              name="Derived Column Output"
-              startId="Package\DFT_ATTENDANCE_TECH\Load Infos.Outputs[Derived Column Output]" />
-            <path
               refId="Package\DFT_ATTENDANCE_TECH.Paths[Flat File Source Output]"
-              endId="Package\DFT_ATTENDANCE_TECH\Load Infos.Inputs[Derived Column Input]"
+              endId="Package\DFT_ATTENDANCE_TECH\OLE DB Destination.Inputs[OLE DB Destination Input]"
               name="Flat File Source Output"
               startId="Package\DFT_ATTENDANCE_TECH\Flat File Source.Outputs[Flat File Source Output]" />
           </paths>
@@ -2591,200 +2113,6 @@
         <pipeline
           version="1">
           <components>
-            <component
-              refId="Package\DFT_COURSERA_TRAININGS\Data Conversion"
-              componentClassID="Microsoft.DataConvert"
-              contactInfo="Data Conversion;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
-              description="Data Conversion"
-              name="Data Conversion"
-              usesDispositions="true">
-              <inputs>
-                <input
-                  refId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Inputs[Data Conversion Input]"
-                  name="Data Conversion Input">
-                  <inputColumns>
-                    <inputColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Inputs[Data Conversion Input].Columns[Course Description]"
-                      cachedCodepage="65001"
-                      cachedDataType="text"
-                      cachedName="Course Description"
-                      lineageId="Package\DFT_COURSERA_TRAININGS\trainings_coursera.Outputs[Flat File Source Output].Columns[Course Description]" />
-                  </inputColumns>
-                  <externalMetadataColumns />
-                </input>
-              </inputs>
-              <outputs>
-                <output
-                  refId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Outputs[Data Conversion Output]"
-                  exclusionGroup="1"
-                  name="Data Conversion Output"
-                  synchronousInputId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Inputs[Data Conversion Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Outputs[Data Conversion Output].Columns[Copy of Course Description]"
-                      dataType="nText"
-                      errorOrTruncationOperation="Conversion"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Outputs[Data Conversion Output].Columns[Copy of Course Description]"
-                      name="Copy of Course Description"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.Int32"
-                          description="Specifies the input column used as the source of data for the conversion."
-                          name="SourceInputColumnLineageID">#{Package\DFT_COURSERA_TRAININGS\trainings_coursera.Outputs[Flat File Source Output].Columns[Course Description]}</property>
-                        <property
-                          dataType="System.Boolean"
-                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
-                          name="FastParse">false</property>
-                      </properties>
-                    </outputColumn>
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-                <output
-                  refId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Outputs[Data Conversion Error Output]"
-                  exclusionGroup="1"
-                  isErrorOut="true"
-                  name="Data Conversion Error Output"
-                  synchronousInputId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Inputs[Data Conversion Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Outputs[Data Conversion Error Output].Columns[ErrorCode]"
-                      dataType="i4"
-                      lineageId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Outputs[Data Conversion Error Output].Columns[ErrorCode]"
-                      name="ErrorCode"
-                      specialFlags="1" />
-                    <outputColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Outputs[Data Conversion Error Output].Columns[ErrorColumn]"
-                      dataType="i4"
-                      lineageId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Outputs[Data Conversion Error Output].Columns[ErrorColumn]"
-                      name="ErrorColumn"
-                      specialFlags="2" />
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-              </outputs>
-            </component>
-            <component
-              refId="Package\DFT_COURSERA_TRAININGS\Load Infos"
-              componentClassID="Microsoft.DerivedColumn"
-              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
-              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
-              name="Load Infos"
-              usesDispositions="true">
-              <inputs>
-                <input
-                  refId="Package\DFT_COURSERA_TRAININGS\Load Infos.Inputs[Derived Column Input]"
-                  description="Input to the Derived Column Transformation"
-                  name="Derived Column Input">
-                  <externalMetadataColumns />
-                </input>
-              </inputs>
-              <outputs>
-                <output
-                  refId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Output]"
-                  description="Default Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  name="Derived Column Output"
-                  synchronousInputId="Package\DFT_COURSERA_TRAININGS\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      dataType="wstr"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      length="21"
-                      lineageId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      name="_SourceFile"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">"cousera_trainings.csv"</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">"cousera_trainings.csv"</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      dataType="i4"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      name="_BatchId"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">@[User::BatchId]</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">@[User::BatchId]</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      dataType="dbTimeStamp"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      name="_LoadDate"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">[GETDATE]()</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">GETDATE()</property>
-                      </properties>
-                    </outputColumn>
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-                <output
-                  refId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Error Output]"
-                  description="Error Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  isErrorOut="true"
-                  name="Derived Column Error Output"
-                  synchronousInputId="Package\DFT_COURSERA_TRAININGS\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      dataType="i4"
-                      lineageId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      name="ErrorCode"
-                      specialFlags="1" />
-                    <outputColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      dataType="i4"
-                      lineageId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      name="ErrorColumn"
-                      specialFlags="2" />
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-              </outputs>
-            </component>
             <component
               refId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination"
               componentClassID="Microsoft.OLEDBDestination"
@@ -2810,7 +2138,7 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -2907,37 +2235,19 @@
                       externalMetadataColumnId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Course URL]"
                       lineageId="Package\DFT_COURSERA_TRAININGS\trainings_coursera.Outputs[Flat File Source Output].Columns[Course URL]" />
                     <inputColumn
+                      refId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Course Description]"
+                      cachedCodepage="65001"
+                      cachedDataType="text"
+                      cachedName="Course Description"
+                      externalMetadataColumnId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Course Description]"
+                      lineageId="Package\DFT_COURSERA_TRAININGS\trainings_coursera.Outputs[Flat File Source Output].Columns[Course Description]" />
+                    <inputColumn
                       refId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Skills]"
                       cachedDataType="wstr"
                       cachedLength="2000"
                       cachedName="Skills"
                       externalMetadataColumnId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Skills]"
                       lineageId="Package\DFT_COURSERA_TRAININGS\trainings_coursera.Outputs[Flat File Source Output].Columns[Skills]" />
-                    <inputColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_SourceFile]"
-                      cachedDataType="wstr"
-                      cachedLength="21"
-                      cachedName="_SourceFile"
-                      externalMetadataColumnId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
-                      lineageId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]" />
-                    <inputColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_BatchId]"
-                      cachedDataType="i4"
-                      cachedName="_BatchId"
-                      externalMetadataColumnId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      lineageId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]" />
-                    <inputColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_LoadDate]"
-                      cachedDataType="dbTimeStamp"
-                      cachedName="_LoadDate"
-                      externalMetadataColumnId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      lineageId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]" />
-                    <inputColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Copy of Course Description]"
-                      cachedDataType="nText"
-                      cachedName="Copy of Course Description"
-                      externalMetadataColumnId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Course Description]"
-                      lineageId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Outputs[Data Conversion Output].Columns[Copy of Course Description]" />
                   </inputColumns>
                   <externalMetadataColumns
                     isUsed="True">
@@ -2978,26 +2288,14 @@
                       name="Course URL" />
                     <externalMetadataColumn
                       refId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Course Description]"
-                      dataType="nText"
+                      codePage="65001"
+                      dataType="text"
                       name="Course Description" />
                     <externalMetadataColumn
                       refId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Skills]"
-                      dataType="nText"
-                      name="Skills" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      dataType="dbTimeStamp2"
-                      name="_LoadDate"
-                      scale="7" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
                       dataType="wstr"
-                      length="260"
-                      name="_SourceFile" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      dataType="i4"
-                      name="_BatchId" />
+                      length="2000"
+                      name="Skills" />
                   </externalMetadataColumns>
                 </input>
               </inputs>
@@ -3328,18 +2626,8 @@
           </components>
           <paths>
             <path
-              refId="Package\DFT_COURSERA_TRAININGS.Paths[Data Conversion Output]"
-              endId="Package\DFT_COURSERA_TRAININGS\Load Infos.Inputs[Derived Column Input]"
-              name="Data Conversion Output"
-              startId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Outputs[Data Conversion Output]" />
-            <path
-              refId="Package\DFT_COURSERA_TRAININGS.Paths[Derived Column Output]"
-              endId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input]"
-              name="Derived Column Output"
-              startId="Package\DFT_COURSERA_TRAININGS\Load Infos.Outputs[Derived Column Output]" />
-            <path
               refId="Package\DFT_COURSERA_TRAININGS.Paths[Flat File Source Output]"
-              endId="Package\DFT_COURSERA_TRAININGS\Data Conversion.Inputs[Data Conversion Input]"
+              endId="Package\DFT_COURSERA_TRAININGS\OLE DB Destination.Inputs[OLE DB Destination Input]"
               name="Flat File Source Output"
               startId="Package\DFT_COURSERA_TRAININGS\trainings_coursera.Outputs[Flat File Source Output]" />
           </paths>
@@ -3360,124 +2648,6 @@
         <pipeline
           version="1">
           <components>
-            <component
-              refId="Package\DFT_DEPARTEMENTS\Load Infos"
-              componentClassID="Microsoft.DerivedColumn"
-              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
-              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
-              name="Load Infos"
-              usesDispositions="true">
-              <inputs>
-                <input
-                  refId="Package\DFT_DEPARTEMENTS\Load Infos.Inputs[Derived Column Input]"
-                  description="Input to the Derived Column Transformation"
-                  name="Derived Column Input">
-                  <externalMetadataColumns />
-                </input>
-              </inputs>
-              <outputs>
-                <output
-                  refId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Output]"
-                  description="Default Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  name="Derived Column Output"
-                  synchronousInputId="Package\DFT_DEPARTEMENTS\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      dataType="wstr"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      length="16"
-                      lineageId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      name="_SourceFile"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">"departements.ods"</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">"departements.ods"</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      dataType="i4"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      name="_BatchId"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">@[User::BatchId]</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">@[User::BatchId]</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      dataType="dbTimeStamp"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      name="_LoadDate"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">[GETDATE]()</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">GETDATE()</property>
-                      </properties>
-                    </outputColumn>
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-                <output
-                  refId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Error Output]"
-                  description="Error Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  isErrorOut="true"
-                  name="Derived Column Error Output"
-                  synchronousInputId="Package\DFT_DEPARTEMENTS\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      dataType="i4"
-                      lineageId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      name="ErrorCode"
-                      specialFlags="1" />
-                    <outputColumn
-                      refId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      dataType="i4"
-                      lineageId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      name="ErrorColumn"
-                      specialFlags="2" />
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-              </outputs>
-            </component>
             <component
               refId="Package\DFT_DEPARTEMENTS\OLE DB Destination"
               componentClassID="Microsoft.OLEDBDestination"
@@ -3503,7 +2673,7 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -3571,25 +2741,6 @@
                       cachedName="CAPACITY"
                       externalMetadataColumnId="Package\DFT_DEPARTEMENTS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CAPACITY]"
                       lineageId="Package\DFT_DEPARTEMENTS\SRC_departments_ods.Outputs[departments_output].Columns[CAPACITY]" />
-                    <inputColumn
-                      refId="Package\DFT_DEPARTEMENTS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_SourceFile]"
-                      cachedDataType="wstr"
-                      cachedLength="16"
-                      cachedName="_SourceFile"
-                      externalMetadataColumnId="Package\DFT_DEPARTEMENTS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
-                      lineageId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]" />
-                    <inputColumn
-                      refId="Package\DFT_DEPARTEMENTS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_BatchId]"
-                      cachedDataType="i4"
-                      cachedName="_BatchId"
-                      externalMetadataColumnId="Package\DFT_DEPARTEMENTS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      lineageId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]" />
-                    <inputColumn
-                      refId="Package\DFT_DEPARTEMENTS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_LoadDate]"
-                      cachedDataType="dbTimeStamp"
-                      cachedName="_LoadDate"
-                      externalMetadataColumnId="Package\DFT_DEPARTEMENTS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      lineageId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]" />
                   </inputColumns>
                   <externalMetadataColumns
                     isUsed="True">
@@ -3608,20 +2759,6 @@
                       dataType="wstr"
                       length="255"
                       name="CAPACITY" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_DEPARTEMENTS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      dataType="dbTimeStamp2"
-                      name="_LoadDate"
-                      scale="7" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_DEPARTEMENTS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
-                      dataType="wstr"
-                      length="260"
-                      name="_SourceFile" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_DEPARTEMENTS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      dataType="i4"
-                      name="_BatchId" />
                   </externalMetadataColumns>
                 </input>
               </inputs>
@@ -4589,14 +3726,9 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           <paths>
             <path
               refId="Package\DFT_DEPARTEMENTS.Paths[departments_output]"
-              endId="Package\DFT_DEPARTEMENTS\Load Infos.Inputs[Derived Column Input]"
+              endId="Package\DFT_DEPARTEMENTS\OLE DB Destination.Inputs[OLE DB Destination Input]"
               name="departments_output"
               startId="Package\DFT_DEPARTEMENTS\SRC_departments_ods.Outputs[departments_output]" />
-            <path
-              refId="Package\DFT_DEPARTEMENTS.Paths[Derived Column Output]"
-              endId="Package\DFT_DEPARTEMENTS\OLE DB Destination.Inputs[OLE DB Destination Input]"
-              name="Derived Column Output"
-              startId="Package\DFT_DEPARTEMENTS\Load Infos.Outputs[Derived Column Output]" />
           </paths>
         </pipeline>
       </DTS:ObjectData>
@@ -4615,124 +3747,6 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
         <pipeline
           version="1">
           <components>
-            <component
-              refId="Package\DFT_EMP_DATA\Load Infos"
-              componentClassID="Microsoft.DerivedColumn"
-              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
-              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
-              name="Load Infos"
-              usesDispositions="true">
-              <inputs>
-                <input
-                  refId="Package\DFT_EMP_DATA\Load Infos.Inputs[Derived Column Input]"
-                  description="Input to the Derived Column Transformation"
-                  name="Derived Column Input">
-                  <externalMetadataColumns />
-                </input>
-              </inputs>
-              <outputs>
-                <output
-                  refId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Output]"
-                  description="Default Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  name="Derived Column Output"
-                  synchronousInputId="Package\DFT_EMP_DATA\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      dataType="wstr"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      length="13"
-                      lineageId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      name="_SourceFile"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">"emp_data.xlsx"</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">"emp_data.xlsx"</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      dataType="i4"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      name="_BatchId"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">@[User::BatchId]</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">@[User::BatchId]</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      dataType="dbTimeStamp"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      name="_LoadDate"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">[GETDATE]()</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">GETDATE()</property>
-                      </properties>
-                    </outputColumn>
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-                <output
-                  refId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Error Output]"
-                  description="Error Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  isErrorOut="true"
-                  name="Derived Column Error Output"
-                  synchronousInputId="Package\DFT_EMP_DATA\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      dataType="i4"
-                      lineageId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      name="ErrorCode"
-                      specialFlags="1" />
-                    <outputColumn
-                      refId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      dataType="i4"
-                      lineageId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      name="ErrorColumn"
-                      specialFlags="2" />
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-              </outputs>
-            </component>
             <component
               refId="Package\DFT_EMP_DATA\OLE DB Destination"
               componentClassID="Microsoft.OLEDBDestination"
@@ -4758,7 +3772,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -5004,25 +4018,6 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                       cachedName="SOURCE_of_employment"
                       externalMetadataColumnId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SOURCE_of_employment]"
                       lineageId="Package\DFT_EMP_DATA\XLS_emp_data.Outputs[Excel Source Output].Columns[SOURCE_of_employment]" />
-                    <inputColumn
-                      refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_LoadDate]"
-                      cachedDataType="dbTimeStamp"
-                      cachedName="_LoadDate"
-                      externalMetadataColumnId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      lineageId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]" />
-                    <inputColumn
-                      refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_SourceFile]"
-                      cachedDataType="wstr"
-                      cachedLength="13"
-                      cachedName="_SourceFile"
-                      externalMetadataColumnId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
-                      lineageId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]" />
-                    <inputColumn
-                      refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_BatchId]"
-                      cachedDataType="i4"
-                      cachedName="_BatchId"
-                      externalMetadataColumnId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      lineageId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]" />
                   </inputColumns>
                   <externalMetadataColumns
                     isUsed="True">
@@ -5044,12 +4039,11 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ADRESS]"
                       dataType="wstr"
-                      length="500"
+                      length="255"
                       name="ADRESS" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[MARITAL_STATUS]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="MARITAL_STATUS" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[GRAD_UNIVERSITY]"
@@ -5063,8 +4057,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                       name="TYPE_DIPLOMA" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[EXP_YEARS]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="EXP_YEARS" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[EMAIL]"
@@ -5078,8 +4071,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                       name="LANGUAGE" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[RANK]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="RANK" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[GRADE]"
@@ -5093,18 +4085,15 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                       name="POSITION" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[SALARY]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="SALARY" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[HOURS]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="HOURS" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[STARTING_DATE]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="dbTimeStamp"
                       name="STARTING_DATE" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[REGISTRATION_NUMBER]"
@@ -5123,31 +4112,29 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                       name="DEP_ID" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[TECHNOLOGIES]"
-                      dataType="nText"
+                      dataType="wstr"
+                      length="255"
                       name="TECHNOLOGIES" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LEAVE_CONSUMED]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="LEAVE_CONSUMED" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LEAVE_BALANCE]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="LEAVE_BALANCE" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CONTRACT_START]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="dbTimeStamp"
                       name="CONTRACT_START" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[CONTRACT_END]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="dbTimeStamp"
                       name="CONTRACT_END" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ID_TRAINING]"
-                      dataType="nText"
+                      dataType="wstr"
+                      length="255"
                       name="ID_TRAINING" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ACTIVITY]"
@@ -5156,13 +4143,12 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                       name="ACTIVITY" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[TENURE]"
-                      dataType="wstr"
-                      length="255"
+                      dataType="r8"
                       name="TENURE" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[ADRESSE_MISSION]"
                       dataType="wstr"
-                      length="500"
+                      length="255"
                       name="ADRESSE_MISSION" />
                     <externalMetadataColumn
                       refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[LEAVE_TYPE]"
@@ -5174,20 +4160,6 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                       dataType="wstr"
                       length="255"
                       name="SOURCE_of_employment" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      dataType="dbTimeStamp2"
-                      name="_LoadDate"
-                      scale="7" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
-                      dataType="wstr"
-                      length="260"
-                      name="_SourceFile" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      dataType="i4"
-                      name="_BatchId" />
                   </externalMetadataColumns>
                 </input>
               </inputs>
@@ -5241,7 +4213,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
                 <property
                   dataType="System.String"
                   description="The variable that contains the SQL command to be executed."
@@ -5896,13 +4868,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           </components>
           <paths>
             <path
-              refId="Package\DFT_EMP_DATA.Paths[Derived Column Output]"
-              endId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input]"
-              name="Derived Column Output"
-              startId="Package\DFT_EMP_DATA\Load Infos.Outputs[Derived Column Output]" />
-            <path
               refId="Package\DFT_EMP_DATA.Paths[Excel Source Output]"
-              endId="Package\DFT_EMP_DATA\Load Infos.Inputs[Derived Column Input]"
+              endId="Package\DFT_EMP_DATA\OLE DB Destination.Inputs[OLE DB Destination Input]"
               name="Excel Source Output"
               startId="Package\DFT_EMP_DATA\XLS_emp_data.Outputs[Excel Source Output]" />
           </paths>
@@ -5923,203 +4890,6 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
         <pipeline
           version="1">
           <components>
-            <component
-              refId="Package\DFT_EXTRA_INFOS\Conditional Split"
-              componentClassID="Microsoft.ConditionalSplit"
-              contactInfo="Conditional Split;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
-              description="Routes data rows to different outputs depending on the content of the data. Use conditions (SSIS expressions) to specify which rows are routed. For example, separate records that need to be cleaned from those that are ready to be loaded or route only a subset of records."
-              name="Conditional Split"
-              usesDispositions="true">
-              <inputs>
-                <input
-                  refId="Package\DFT_EXTRA_INFOS\Conditional Split.Inputs[Conditional Split Input]"
-                  description="Input to the Conditional Split Transformation"
-                  name="Conditional Split Input">
-                  <inputColumns>
-                    <inputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Conditional Split.Inputs[Conditional Split Input].Columns[Column 0]"
-                      cachedCodepage="65001"
-                      cachedDataType="str"
-                      cachedLength="50"
-                      cachedName="Column 0"
-                      lineageId="Package\DFT_EXTRA_INFOS\extra infos.Outputs[Flat File Source Output].Columns[Column 0]" />
-                  </inputColumns>
-                  <externalMetadataColumns />
-                </input>
-              </inputs>
-              <outputs>
-                <output
-                  refId="Package\DFT_EXTRA_INFOS\Conditional Split.Outputs[ligne valides]"
-                  description="Output 1 of the Conditional Split Transformation"
-                  errorOrTruncationOperation="Computation"
-                  errorRowDisposition="FailComponent"
-                  exclusionGroup="1"
-                  name="ligne valides"
-                  synchronousInputId="Package\DFT_EXTRA_INFOS\Conditional Split.Inputs[Conditional Split Input]"
-                  truncationRowDisposition="FailComponent">
-                  <properties>
-                    <property
-                      containsID="true"
-                      dataType="System.String"
-                      description="Specifies the expression. This expression version uses lineage identifiers instead of column names."
-                      name="Expression">![ISNULL](#{Package\DFT_EXTRA_INFOS\extra infos.Outputs[Flat File Source Output].Columns[Column 0]}) &amp;&amp; [LEN]([TRIM](#{Package\DFT_EXTRA_INFOS\extra infos.Outputs[Flat File Source Output].Columns[Column 0]})) &gt; 0</property>
-                    <property
-                      containsID="true"
-                      dataType="System.String"
-                      description="Specifies the friendly version of the expression. This expression version uses column names."
-                      expressionType="Notify"
-                      name="FriendlyExpression">!ISNULL([Column 0]) &amp;&amp; LEN(TRIM([Column 0])) &gt; 0</property>
-                    <property
-                      dataType="System.Int32"
-                      description="Specifies the position of the condition in the list of conditions that the transformation evaluates. The evaluation order is from the lowest to the highest value."
-                      name="EvaluationOrder">0</property>
-                  </properties>
-                  <externalMetadataColumns />
-                </output>
-                <output
-                  refId="Package\DFT_EXTRA_INFOS\Conditional Split.Outputs[Conditional Split Default Output]"
-                  description="Default Output of the Conditional Split Transformation"
-                  exclusionGroup="1"
-                  name="Conditional Split Default Output"
-                  synchronousInputId="Package\DFT_EXTRA_INFOS\Conditional Split.Inputs[Conditional Split Input]">
-                  <properties>
-                    <property
-                      dataType="System.Boolean"
-                      name="IsDefaultOut">true</property>
-                  </properties>
-                  <externalMetadataColumns />
-                </output>
-                <output
-                  refId="Package\DFT_EXTRA_INFOS\Conditional Split.Outputs[Conditional Split Error Output]"
-                  description="Error Output of the Conditional Split Transformation"
-                  exclusionGroup="1"
-                  isErrorOut="true"
-                  name="Conditional Split Error Output"
-                  synchronousInputId="Package\DFT_EXTRA_INFOS\Conditional Split.Inputs[Conditional Split Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Conditional Split.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
-                      dataType="i4"
-                      lineageId="Package\DFT_EXTRA_INFOS\Conditional Split.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
-                      name="ErrorCode"
-                      specialFlags="1" />
-                    <outputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Conditional Split.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
-                      dataType="i4"
-                      lineageId="Package\DFT_EXTRA_INFOS\Conditional Split.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
-                      name="ErrorColumn"
-                      specialFlags="2" />
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-              </outputs>
-            </component>
-            <component
-              refId="Package\DFT_EXTRA_INFOS\Data Conversion"
-              componentClassID="Microsoft.DataConvert"
-              contactInfo="Data Conversion;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
-              description="Data Conversion"
-              name="Data Conversion"
-              usesDispositions="true">
-              <inputs>
-                <input
-                  refId="Package\DFT_EXTRA_INFOS\Data Conversion.Inputs[Data Conversion Input]"
-                  name="Data Conversion Input">
-                  <inputColumns>
-                    <inputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Data Conversion.Inputs[Data Conversion Input].Columns[Column 0]"
-                      cachedCodepage="65001"
-                      cachedDataType="str"
-                      cachedLength="50"
-                      cachedName="Column 0"
-                      lineageId="Package\DFT_EXTRA_INFOS\extra infos.Outputs[Flat File Source Output].Columns[Column 0]" />
-                    <inputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Data Conversion.Inputs[Data Conversion Input].Columns[Column 1]"
-                      cachedCodepage="65001"
-                      cachedDataType="str"
-                      cachedLength="50"
-                      cachedName="Column 1"
-                      lineageId="Package\DFT_EXTRA_INFOS\extra infos.Outputs[Flat File Source Output].Columns[Column 1]" />
-                  </inputColumns>
-                  <externalMetadataColumns />
-                </input>
-              </inputs>
-              <outputs>
-                <output
-                  refId="Package\DFT_EXTRA_INFOS\Data Conversion.Outputs[Data Conversion Output]"
-                  exclusionGroup="1"
-                  name="Data Conversion Output"
-                  synchronousInputId="Package\DFT_EXTRA_INFOS\Data Conversion.Inputs[Data Conversion Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Data Conversion.Outputs[Data Conversion Output].Columns[libelle]"
-                      dataType="wstr"
-                      errorOrTruncationOperation="Conversion"
-                      errorRowDisposition="FailComponent"
-                      length="255"
-                      lineageId="Package\DFT_EXTRA_INFOS\Data Conversion.Outputs[Data Conversion Output].Columns[libelle]"
-                      name="libelle"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.Int32"
-                          description="Specifies the input column used as the source of data for the conversion."
-                          name="SourceInputColumnLineageID">#{Package\DFT_EXTRA_INFOS\extra infos.Outputs[Flat File Source Output].Columns[Column 0]}</property>
-                        <property
-                          dataType="System.Boolean"
-                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
-                          name="FastParse">false</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Data Conversion.Outputs[Data Conversion Output].Columns[valeur]"
-                      dataType="wstr"
-                      errorOrTruncationOperation="Conversion"
-                      errorRowDisposition="FailComponent"
-                      length="50"
-                      lineageId="Package\DFT_EXTRA_INFOS\Data Conversion.Outputs[Data Conversion Output].Columns[valeur]"
-                      name="valeur"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.Int32"
-                          description="Specifies the input column used as the source of data for the conversion."
-                          name="SourceInputColumnLineageID">#{Package\DFT_EXTRA_INFOS\extra infos.Outputs[Flat File Source Output].Columns[Column 1]}</property>
-                        <property
-                          dataType="System.Boolean"
-                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
-                          name="FastParse">false</property>
-                      </properties>
-                    </outputColumn>
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-                <output
-                  refId="Package\DFT_EXTRA_INFOS\Data Conversion.Outputs[Data Conversion Error Output]"
-                  exclusionGroup="1"
-                  isErrorOut="true"
-                  name="Data Conversion Error Output"
-                  synchronousInputId="Package\DFT_EXTRA_INFOS\Data Conversion.Inputs[Data Conversion Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Data Conversion.Outputs[Data Conversion Error Output].Columns[ErrorCode]"
-                      dataType="i4"
-                      lineageId="Package\DFT_EXTRA_INFOS\Data Conversion.Outputs[Data Conversion Error Output].Columns[ErrorCode]"
-                      name="ErrorCode"
-                      specialFlags="1" />
-                    <outputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Data Conversion.Outputs[Data Conversion Error Output].Columns[ErrorColumn]"
-                      dataType="i4"
-                      lineageId="Package\DFT_EXTRA_INFOS\Data Conversion.Outputs[Data Conversion Error Output].Columns[ErrorColumn]"
-                      name="ErrorColumn"
-                      specialFlags="2" />
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-              </outputs>
-            </component>
             <component
               refId="Package\DFT_EXTRA_INFOS\extra infos"
               componentClassID="Microsoft.FlatFileSource"
@@ -6242,124 +5012,6 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
               </outputs>
             </component>
             <component
-              refId="Package\DFT_EXTRA_INFOS\Load Infos"
-              componentClassID="Microsoft.DerivedColumn"
-              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
-              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
-              name="Load Infos"
-              usesDispositions="true">
-              <inputs>
-                <input
-                  refId="Package\DFT_EXTRA_INFOS\Load Infos.Inputs[Derived Column Input]"
-                  description="Input to the Derived Column Transformation"
-                  name="Derived Column Input">
-                  <externalMetadataColumns />
-                </input>
-              </inputs>
-              <outputs>
-                <output
-                  refId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Output]"
-                  description="Default Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  name="Derived Column Output"
-                  synchronousInputId="Package\DFT_EXTRA_INFOS\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      dataType="wstr"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      length="14"
-                      lineageId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]"
-                      name="_SourceFile"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">"extrainfos.txt"</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">"extrainfos.txt"</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      dataType="i4"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]"
-                      name="_BatchId"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">@[User::BatchId]</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">@[User::BatchId]</property>
-                      </properties>
-                    </outputColumn>
-                    <outputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      dataType="dbTimeStamp"
-                      errorOrTruncationOperation="Computation"
-                      errorRowDisposition="FailComponent"
-                      lineageId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]"
-                      name="_LoadDate"
-                      truncationRowDisposition="FailComponent">
-                      <properties>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Expression"
-                          name="Expression">[GETDATE]()</property>
-                        <property
-                          containsID="true"
-                          dataType="System.String"
-                          description="Derived Column Friendly Expression"
-                          expressionType="Notify"
-                          name="FriendlyExpression">GETDATE()</property>
-                      </properties>
-                    </outputColumn>
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-                <output
-                  refId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Error Output]"
-                  description="Error Output of the Derived Column Transformation"
-                  exclusionGroup="1"
-                  isErrorOut="true"
-                  name="Derived Column Error Output"
-                  synchronousInputId="Package\DFT_EXTRA_INFOS\Load Infos.Inputs[Derived Column Input]">
-                  <outputColumns>
-                    <outputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      dataType="i4"
-                      lineageId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                      name="ErrorCode"
-                      specialFlags="1" />
-                    <outputColumn
-                      refId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      dataType="i4"
-                      lineageId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                      name="ErrorColumn"
-                      specialFlags="2" />
-                  </outputColumns>
-                  <externalMetadataColumns />
-                </output>
-              </outputs>
-            </component>
-            <component
               refId="Package\DFT_EXTRA_INFOS\OLE DB Destination"
               componentClassID="Microsoft.OLEDBDestination"
               contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
@@ -6384,7 +5036,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -6432,65 +5084,36 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                   name="OLE DB Destination Input">
                   <inputColumns>
                     <inputColumn
-                      refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_SourceFile]"
-                      cachedDataType="wstr"
-                      cachedLength="14"
-                      cachedName="_SourceFile"
-                      externalMetadataColumnId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
-                      lineageId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Output].Columns[_SourceFile]" />
-                    <inputColumn
-                      refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_BatchId]"
-                      cachedDataType="i4"
-                      cachedName="_BatchId"
-                      externalMetadataColumnId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      lineageId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Output].Columns[_BatchId]" />
-                    <inputColumn
-                      refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[_LoadDate]"
-                      cachedDataType="dbTimeStamp"
-                      cachedName="_LoadDate"
-                      externalMetadataColumnId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      lineageId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Output].Columns[_LoadDate]" />
-                    <inputColumn
-                      refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[libelle]"
-                      cachedDataType="wstr"
-                      cachedLength="255"
-                      cachedName="libelle"
-                      externalMetadataColumnId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[libelle]"
-                      lineageId="Package\DFT_EXTRA_INFOS\Data Conversion.Outputs[Data Conversion Output].Columns[libelle]" />
-                    <inputColumn
-                      refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[valeur]"
-                      cachedDataType="wstr"
+                      refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Column 0]"
+                      cachedCodepage="65001"
+                      cachedDataType="str"
                       cachedLength="50"
-                      cachedName="valeur"
+                      cachedName="Column 0"
+                      externalMetadataColumnId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[libelle]"
+                      lineageId="Package\DFT_EXTRA_INFOS\extra infos.Outputs[Flat File Source Output].Columns[Column 0]" />
+                    <inputColumn
+                      refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Column 1]"
+                      cachedCodepage="65001"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="Column 1"
                       externalMetadataColumnId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[valeur]"
-                      lineageId="Package\DFT_EXTRA_INFOS\Data Conversion.Outputs[Data Conversion Output].Columns[valeur]" />
+                      lineageId="Package\DFT_EXTRA_INFOS\extra infos.Outputs[Flat File Source Output].Columns[Column 1]" />
                   </inputColumns>
                   <externalMetadataColumns
                     isUsed="True">
                     <externalMetadataColumn
                       refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[libelle]"
-                      dataType="wstr"
-                      length="255"
+                      codePage="65001"
+                      dataType="str"
+                      length="50"
                       name="libelle" />
                     <externalMetadataColumn
                       refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[valeur]"
-                      dataType="wstr"
+                      codePage="65001"
+                      dataType="str"
                       length="50"
                       name="valeur" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_LoadDate]"
-                      dataType="dbTimeStamp2"
-                      name="_LoadDate"
-                      scale="7" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_SourceFile]"
-                      dataType="wstr"
-                      length="260"
-                      name="_SourceFile" />
-                    <externalMetadataColumn
-                      refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[_BatchId]"
-                      dataType="i4"
-                      name="_BatchId" />
                   </externalMetadataColumns>
                 </input>
               </inputs>
@@ -6522,25 +5145,10 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           </components>
           <paths>
             <path
-              refId="Package\DFT_EXTRA_INFOS.Paths[Data Conversion Output]"
-              endId="Package\DFT_EXTRA_INFOS\Load Infos.Inputs[Derived Column Input]"
-              name="Data Conversion Output"
-              startId="Package\DFT_EXTRA_INFOS\Data Conversion.Outputs[Data Conversion Output]" />
-            <path
-              refId="Package\DFT_EXTRA_INFOS.Paths[Derived Column Output]"
-              endId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input]"
-              name="Derived Column Output"
-              startId="Package\DFT_EXTRA_INFOS\Load Infos.Outputs[Derived Column Output]" />
-            <path
               refId="Package\DFT_EXTRA_INFOS.Paths[Flat File Source Output]"
-              endId="Package\DFT_EXTRA_INFOS\Conditional Split.Inputs[Conditional Split Input]"
+              endId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input]"
               name="Flat File Source Output"
               startId="Package\DFT_EXTRA_INFOS\extra infos.Outputs[Flat File Source Output]" />
-            <path
-              refId="Package\DFT_EXTRA_INFOS.Paths[ligne valides]"
-              endId="Package\DFT_EXTRA_INFOS\Data Conversion.Inputs[Data Conversion Input]"
-              name="ligne valides"
-              startId="Package\DFT_EXTRA_INFOS\Conditional Split.Outputs[ligne valides]" />
           </paths>
         </pipeline>
       </DTS:ObjectData>
@@ -7238,10 +5846,10 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           TopLeft="423.999993681908,289.999995678663" />
         <NodeLayout
           Size="127.2,41.6"
-          Id="Package\DFT_ADMINISTRATION_DATA\Load Infos"
+          Id="2"
           TopLeft="274.666653599177,194.966665557755" />
         <EdgeLayout
-          Id="Package\DFT_ADMINISTRATION_DATA.Paths[Excel Source Output]"
+          Id="174"
           TopLeft="242.033325760233,148.499999294877">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -7277,7 +5885,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\DFT_ADMINISTRATION_DATA.Paths[Derived Column Output]"
+          Id="173"
           TopLeft="338.266653599177,236.566665557755">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -7352,14 +5960,14 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           TopLeft="424.999993667007,289.999995678663" />
         <NodeLayout
           Size="127.2,41.6"
-          Id="Package\DFT_ATTENDANCE_ADMIN\Load Infos"
+          Id="33"
           TopLeft="274.666653599177,194.966665557755" />
         <NodeLayout
           Size="140,41.6"
           Id="Package\DFT_ATTENDANCE_ADMIN\Excel Source"
           TopLeft="191.999997138977,105.999998420477" />
         <EdgeLayout
-          Id="Package\DFT_ATTENDANCE_ADMIN.Paths[Derived Column Output]"
+          Id="83"
           TopLeft="338.266653599177,236.566665557755">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -7395,7 +6003,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\DFT_ATTENDANCE_ADMIN.Paths[Excel Source Output]"
+          Id="84"
           TopLeft="261.999997138977,147.599998420477">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -7474,10 +6082,10 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           TopLeft="423.999993681908,289.999995678663" />
         <NodeLayout
           Size="127.2,41.6"
-          Id="Package\DFT_ATTENDANCE_TECH\Load Infos"
+          Id="35"
           TopLeft="274.666653599177,194.966665557755" />
         <EdgeLayout
-          Id="Package\DFT_ATTENDANCE_TECH.Paths[Flat File Source Output]"
+          Id="86"
           TopLeft="240.266661248439,116.63333326704">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -7513,7 +6121,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\DFT_ATTENDANCE_TECH.Paths[Derived Column Output]"
+          Id="85"
           TopLeft="338.266653599177,236.566665557755">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -7575,7 +6183,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           TopLeft="513.49999332428,345.499995827675" />
         <NodeLayout
           Size="127.2,41.6"
-          Id="Package\DFT_COURSERA_TRAININGS\Load Infos"
+          Id="12"
           TopLeft="388.999994203448,275.99999588728" />
         <NodeLayout
           Size="164,41.6"
@@ -7583,10 +6191,10 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           TopLeft="175.499997466803,114.499998375773" />
         <NodeLayout
           Size="156,41.6"
-          Id="Package\DFT_COURSERA_TRAININGS\Data Conversion"
+          Id="2"
           TopLeft="252.499996766448,201.499997526407" />
         <EdgeLayout
-          Id="Package\DFT_COURSERA_TRAININGS.Paths[Flat File Source Output]"
+          Id="115"
           TopLeft="257.499997466803,156.099998375773">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -7620,7 +6228,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\DFT_COURSERA_TRAININGS.Paths[Derived Column Output]"
+          Id="114"
           TopLeft="452.599994203448,317.59999588728">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -7654,7 +6262,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\DFT_COURSERA_TRAININGS.Paths[Data Conversion Output]"
+          Id="113"
           TopLeft="330.499996766448,243.099997526407">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -7709,85 +6317,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
       <GraphLayout
         Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
-          Size="127.2,41.6"
-          Id="Package\DFT_DEPARTEMENTS\Load Infos"
-          TopLeft="342.499984564881,237.666665431195" />
-        <NodeLayout
           Size="186.4,41.6"
           Id="Package\DFT_DEPARTEMENTS\SRC_departments_ods"
           TopLeft="127.166660019093,93.8999993852775" />
-        <EdgeLayout
-          Id="Package\DFT_DEPARTEMENTS.Paths[departments_output]"
-          TopLeft="220.366660019093,135.499999385277">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="185.733324545788,102.166666045917"
-              Start="0,0"
-              End="185.733324545788,94.6666660459173">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,47.0833330229587" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,47.0833330229587"
-                    Point2="0,51.0833330229587"
-                    Point3="4,51.0833330229587" />
-                  <mssgle:LineSegment
-                    End="181.733324545788,51.0833330229587" />
-                  <mssgle:CubicBezierSegment
-                    Point1="181.733324545788,51.0833330229587"
-                    Point2="185.733324545788,51.0833330229587"
-                    Point3="185.733324545788,55.0833330229587" />
-                  <mssgle:LineSegment
-                    End="185.733324545788,94.6666660459173" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
         <NodeLayout
           Size="171.2,41.6"
           Id="Package\DFT_DEPARTEMENTS\OLE DB Destination"
           TopLeft="488.833306925165,319.233331151671" />
-        <EdgeLayout
-          Id="Package\DFT_DEPARTEMENTS.Paths[Derived Column Output]"
-          TopLeft="406.099984564881,279.266665431195">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="168.333322360284,39.9666657204761"
-              Start="0,0"
-              End="168.333322360284,32.4666657204761">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,15.9833328602381" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,15.9833328602381"
-                    Point2="0,19.9833328602381"
-                    Point3="4,19.9833328602381" />
-                  <mssgle:LineSegment
-                    End="164.333322360284,19.9833328602381" />
-                  <mssgle:CubicBezierSegment
-                    Point1="164.333322360284,19.9833328602381"
-                    Point2="168.333322360284,19.9833328602381"
-                    Point3="168.333322360284,23.9833328602381" />
-                  <mssgle:LineSegment
-                    End="168.333322360284,32.4666657204761" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
       </GraphLayout>
     </LayoutInfo>
   </TaskHost>
@@ -7819,10 +6355,10 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           TopLeft="359.666647315854,290.633331350552" />
         <NodeLayout
           Size="127.2,41.6"
-          Id="Package\DFT_EMP_DATA\Load Infos"
+          Id="2"
           TopLeft="274.666653599177,194.966665557755" />
         <EdgeLayout
-          Id="Package\DFT_EMP_DATA.Paths[Excel Source Output]"
+          Id="204"
           TopLeft="219.033325775134,148.499999294877">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -7858,7 +6394,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\DFT_EMP_DATA.Paths[Derived Column Output]"
+          Id="203"
           TopLeft="338.266653599177,236.566665557755">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -7929,7 +6465,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
         Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
         <NodeLayout
           Size="127.2,41.6"
-          Id="Package\DFT_EXTRA_INFOS\Load Infos"
+          Id="45"
           TopLeft="241.666663065552,217.999996751547" />
         <NodeLayout
           Size="126.4,41.6"
@@ -7940,7 +6476,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           Id="Package\DFT_EXTRA_INFOS\OLE DB Destination"
           TopLeft="400.166660785675,238.833329856396" />
         <EdgeLayout
-          Id="Package\DFT_EXTRA_INFOS.Paths[Derived Column Output]"
+          Id="88"
           TopLeft="368.866663065552,238.799996751547">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -7975,10 +6511,10 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
         </EdgeLayout>
         <NodeLayout
           Size="156,41.6"
-          Id="Package\DFT_EXTRA_INFOS\Data Conversion"
+          Id="14"
           TopLeft="68.1666661798953,176.16666457057" />
         <EdgeLayout
-          Id="Package\DFT_EXTRA_INFOS.Paths[Data Conversion Output]"
+          Id="87"
           TopLeft="224.166666179895,195.499996751547">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -8007,10 +6543,10 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
         </EdgeLayout>
         <NodeLayout
           Size="153.6,41.6"
-          Id="Package\DFT_EXTRA_INFOS\Conditional Split"
+          Id="2"
           TopLeft="88.166666328907,79.4999997913837" />
         <EdgeLayout
-          Id="Package\DFT_EXTRA_INFOS.Paths[Flat File Source Output]"
+          Id="89"
           TopLeft="148.033332151175,56.7666665226216">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -8044,7 +6580,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\DFT_EXTRA_INFOS.Paths[ligne valides]"
+          Id="90"
           TopLeft="164.966666328907,121.099999791384">
           <EdgeLayout.Curve>
             <mssgle:Curve
