@@ -20,8 +20,10 @@ cd Project-BI-HR
 
 1. Open `Project BI HR/Project BI HR.sln`
 2. Double-click **Project.params**
-3. Set `DossierSources` = full path of **your** `PI\DataSet` folder (no `\` at the end)
-   e.g. `D:\School\Project-BI-HR\PI\DataSet`
+3. Set `DossierSources` = full path of **your** `DataSet` folder (no `\` at the end)
+   e.g. `D:\School\Project-BI-HR\DataSet`
+
+> Already set it before? The folder moved from `PI\DataSet` to `DataSet` — update your value.
 4. Save, then hide this change from Git:
 
 ```bash

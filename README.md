@@ -15,8 +15,10 @@
 
 | Folder / file | What it is |
 | --- | --- |
-| `PI/DataSet/` | The 7 source files (employees, attendance, courses, departments, rates) |
-| `PI/EDA_HR.ipynb` | Exploratory analysis + business KPIs (OM1–OM6) |
+| `DataSet/` | The 7 source files (employees, attendance, courses, departments, rates) |
+| `eda_audit_pipeline.py` | Data quality audit of the 7 files (read-only) |
+| `eda_audit_report.html` | Audit report it generates: 42 anomalies, impact, proposed fix |
+| `Projet_EDA_BI_RH.pptx` | EDA presentation: business objectives OM1–OM6 and KPIs |
 | `Project BI HR/` | SSIS project (Visual Studio 2022) |
 | `Dossier_Conception_DW_RH.docx` | Data Warehouse design (17 tables) |
 | `Rapport SSIS — ….pdf` | Full explanation of every SSIS component |
@@ -31,6 +33,14 @@
 ## Tech stack
 
 SQL Server 2022 · SSIS (SSDT, VS 2022) · Python (pandas) · Power BI · Tailscale (shared server)
+
+## Re-run the data audit
+
+```bash
+python eda_audit_pipeline.py
+```
+
+Needs `pandas`, `openpyxl`, `odfpy`, `matplotlib`. Reads `DataSet/`, writes `eda_audit_report.html`.
 
 ## Get started
 
