@@ -21,8 +21,8 @@
 | `Projet_EDA_BI_RH.pptx` | EDA presentation: business objectives OM1–OM6 and KPIs |
 | `sql/staging_area.sql` | Creates the 7 `stg` tables: file columns only, typed as SSIS reads them |
 | `Project BI HR/` | SSIS project (Visual Studio 2022) |
-| `Dossier_Conception_DW_RH.docx` | Data Warehouse design (17 tables) |
-| `Rapport SSIS — ….pdf` | Full explanation of every SSIS component |
+| `Dossier_Conception_DW_RH.docx` | **v1** Data Warehouse design (17 tables, with bridge tables) — replaced by the v2 guide below |
+| `Rapport SSIS — ….pdf` | Explanation of every component of the **v1** SSIS packages |
 | `docs/` | Setup guide + team conventions |
 
 ## The staging area (schema `stg`)
@@ -31,15 +31,21 @@
 - **Type differences are handled in the database:** each `stg` column has the type SSIS reads (`float` for Excel numbers, `datetime` for Excel dates, UTF-8 `varchar` for UTF-8 text).
 - **All cleaning happens in the DW load.**
 
-## The Data Warehouse (schema `dw`)
+## The Data Warehouse (schema `dw`) — v2, being rebuilt
 
-- **3 fact tables:** `fact_pointage` (273k attendance rows), `fact_effectif_snapshot` (2,740 employees), `fact_formation` (18,679 enrolments)
-- **12 dimensions:** employee, department, hourly rate (SCD 2) · contract, position, leave type, course, skill (SCD 1) · date, time · 2 junk flag dimensions
-- **2 bridge tables:** employee ↔ technology, course ↔ skill
+⚠️ `Load_data_warehouse.dtsx` is the **v1** package: it no longer runs against the raw staging area. The team rebuilds the DW by hand in SSDT, following the guide:
+
+👉 **[Guide — Reconstruire le Data Warehouse RH (v2)](https://claude.ai/artifact/BR66GDu8mnFdRxUEx1nmeX)**
+
+- **3 fact tables:** `fact_pointage` (employee × day, 272,999 rows), `fact_effectif_snapshot` (employee × snapshot, 2,740), `fact_inscription_formation` (employee × course × snapshot, 18,685)
+- **11 dimensions:** date, time, employee (SCD 2), department, contract, position, leave type, course, hourly rate, attendance anomalies, contract anomalies
+- **5 sub-dimensions (snowflake):** diploma, hiring channel, pole, university, course level
+- **No bridge table:** languages and technologies become yes/no flags, enrolments are fact rows
+- **Visual SSIS components only** — SQL is used only to create the tables and empty the facts before reloading
 
 ## Tech stack
 
-SQL Server 2022 · SSIS (SSDT, VS 2022) · Python (pandas) · Power BI · Tailscale (shared server)
+SQL Server 2019 (shared server) · SSIS (SSDT, VS 2022) · Python (pandas) · Power BI · Tailscale
 
 ## Re-run the data audit
 
