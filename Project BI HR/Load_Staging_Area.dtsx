@@ -11,8 +11,8 @@
   DTS:LocaleID="1036"
   DTS:ObjectName="Load_Staging_Area"
   DTS:PackageType="5"
-  DTS:VersionBuild="70"
-  DTS:VersionGUID="{FC44F007-2DF2-4E76-9DB8-5C81DA50C47E}">
+  DTS:VersionBuild="71"
+  DTS:VersionGUID="{894EDAFC-8986-48F3-A78E-AFC940993EC5}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -27,7 +27,7 @@
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
           DTS:ConnectRetryInterval="0"
-          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\Administration_attendance.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
+          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\Administration_attendance.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
     <DTS:ConnectionManager
@@ -41,7 +41,7 @@
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
           DTS:ConnectRetryInterval="0"
-          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\administration_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
+          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\administration_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
     <DTS:ConnectionManager
@@ -60,7 +60,7 @@
           DTS:RowDelimiter=""
           DTS:TextQualifier="_x0022_"
           DTS:CodePage="65001"
-          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\Coursera_trainings.csv">
+          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\Coursera_trainings.csv">
           <DTS:FlatFileColumns>
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -157,7 +157,7 @@
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
           DTS:ConnectRetryInterval="0"
-          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\emp_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
+          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\emp_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
     <DTS:ConnectionManager
@@ -176,7 +176,7 @@
           DTS:RowDelimiter=""
           DTS:TextQualifier="_x003C_none_x003E_"
           DTS:CodePage="1252"
-          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\attendance_dataset_2023.csv">
+          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\attendance_dataset_2023.csv">
           <DTS:FlatFileColumns>
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -251,7 +251,7 @@
           DTS:RowDelimiter=""
           DTS:TextQualifier="_x003C_none_x003E_"
           DTS:CodePage="65001"
-          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\extrainfos.txt">
+          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\extrainfos.txt">
           <DTS:FlatFileColumns>
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -288,7 +288,7 @@
           <DTS:Password
             DTS:Name="Password"
             Sensitive="1"
-            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAAC3iYJCakk1BmVVyLtTQ2nS+8Z54NjMJA6jzGXKTJvBKgAAAAAOgAAAAAIAACAAAAA9dHVkYRg3pBCR9Xam30Xf1BfY8gtpr4g7ewB7zuRB1SAAAAAB0n7bfT9l1xsoVlHj1E3HN9P3FicF8XA3LQHO6KNTZEAAAABL1XJL38v1oi9+YGHkQ41WlKT2H4mNVkT9nlWAl0/clZKTm+RlmNlxDL0NbAcuptX/Dp2GOkLnQPYtAbwEBCBt</DTS:Password>
+            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAAAkmDIpKJD76dnBRaIJ7Vx9n4igqR3NweuumhfMROlRPgAAAAAOgAAAAAIAACAAAADwuvxD7zuv/vWIpWb7uWYLD3CzOUcswhEG4rusetAD/SAAAAA93ipXeZh151rnLrY/F3ywQuUjc4ahyRzQdq9COAPvtUAAAAD0NkEBZVk4a2qMCKMxOasfYqPlDceySVwz2I0MSsEkoekreGUx2/xmX3zJpoC8V6bbVnOn3mJ6mKETzh6iK21r</DTS:Password>
         </DTS:ConnectionManager>
       </DTS:ObjectData>
     </DTS:ConnectionManager>
@@ -303,7 +303,7 @@
       DTS:Namespace="User"
       DTS:ObjectName="OdsPath">
       <DTS:VariableValue
-        DTS:DataType="8">C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\departments.ods</DTS:VariableValue>
+        DTS:DataType="8">C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\departments.ods</DTS:VariableValue>
     </DTS:Variable>
   </DTS:Variables>
   <DTS:Executables>
@@ -5040,11 +5040,11 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
-                  name="DefaultCodePage">1252</property>
+                  name="DefaultCodePage">65001</property>
                 <property
                   dataType="System.Boolean"
                   description="Forces the use of the DefaultCodePage property value when describing character data."
-                  name="AlwaysUseDefaultCodePage">false</property>
+                  name="AlwaysUseDefaultCodePage">true</property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the mode used to access the database."
@@ -5104,13 +5104,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                     isUsed="True">
                     <externalMetadataColumn
                       refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[libelle]"
-                      codePage="65001"
+                      codePage="1252"
                       dataType="str"
                       length="50"
                       name="libelle" />
                     <externalMetadataColumn
                       refId="Package\DFT_EXTRA_INFOS\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[valeur]"
-                      codePage="65001"
+                      codePage="1252"
                       dataType="str"
                       length="50"
                       name="valeur" />
@@ -6278,89 +6278,35 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
     design-time-name="Package\DFT_EMP_DATA">
     <LayoutInfo>
       <GraphLayout
-        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
           Size="150.4,41.6"
           Id="Package\DFT_EMP_DATA\XLS_emp_data"
-          TopLeft="143.833325775134,106.899999294877" />
+          TopLeft="15.9,5.49999999999995" />
         <NodeLayout
           Size="171.2,41.6"
           Id="Package\DFT_EMP_DATA\OLE DB Destination"
-          TopLeft="359.666647315854,290.633331350552" />
-        <NodeLayout
-          Size="127.2,41.6"
-          Id="Package\DFT_EMP_DATA\OLE DB Destination"
-          TopLeft="274.666653599177,194.966665557755" />
+          TopLeft="5.50000000000001,107.1" />
         <EdgeLayout
-          Id="204"
-          TopLeft="219.033325775134,148.499999294877">
+          Id="Package\DFT_EMP_DATA.Paths[Excel Source Output]"
+          TopLeft="91.1,47.1">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="119.233327824043,46.4666662628784"
+              EndConnector="0,59.9999999999999"
               Start="0,0"
-              End="119.233327824043,38.9666662628784">
+              End="0,52.4999999999999">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,19.2333331314392" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,19.2333331314392"
-                    Point2="0,23.2333331314392"
-                    Point3="4,23.2333331314392" />
-                  <mssgle:LineSegment
-                    End="115.233327824043,23.2333331314392" />
-                  <mssgle:CubicBezierSegment
-                    Point1="115.233327824043,23.2333331314392"
-                    Point2="119.233327824043,23.2333331314392"
-                    Point3="119.233327824043,27.2333331314392" />
-                  <mssgle:LineSegment
-                    End="119.233327824043,38.9666662628784" />
+                    End="0,52.4999999999999" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="203"
-          TopLeft="338.266653599177,236.566665557755">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="106.999993716677,54.0666657927962"
-              Start="0,0"
-              End="106.999993716677,46.5666657927962">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,23.0333328963981" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,23.0333328963981"
-                    Point2="0,27.0333328963981"
-                    Point3="4,27.0333328963981" />
-                  <mssgle:LineSegment
-                    End="102.999993716677,27.0333328963981" />
-                  <mssgle:CubicBezierSegment
-                    Point1="102.999993716677,27.0333328963981"
-                    Point2="106.999993716677,27.0333328963981"
-                    Point3="106.999993716677,31.0333328963981" />
-                  <mssgle:LineSegment
-                    End="106.999993716677,46.5666657927962" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
