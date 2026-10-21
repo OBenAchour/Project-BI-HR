@@ -1,0 +1,161 @@
+# Conception du Data Warehouse RH — v2
+
+> Modèle en constellation de la base `RH_Data_Warehouse_v2`, schéma `dw`.
+> Création : [`sql/data_warehouse.sql`](../sql/data_warehouse.sql). Chargement pas à pas : guide « Reconstruire le Data Warehouse RH (v2) » (lien dans le README).
+
+## 1. Le modèle en bref
+
+**3 faits, 11 dimensions, 5 sous-dimensions, aucune table de pont.** Les 3 faits partagent `dim_date`, `dim_employe` et `dim_departement`, ce qui permet de croiser effectif, assiduité et formation.
+
+```mermaid
+flowchart TB
+    subgraph SD[Sous-dimensions]
+        DIP[dim_diplome]
+        CAN[dim_canal_recrutement]
+        POL[dim_pole]
+        UNI[dim_universite]
+        NIV[dim_niveau_cours]
+    end
+    DIP --> EMP
+    CAN --> EMP
+    POL --> DEP
+    UNI --> COU
+    NIV --> COU
+
+    DAT[dim_date]
+    EMP[dim_employe SCD 2]
+    DEP[dim_departement]
+    DEP --> EMP
+
+    EFF[[fact_effectif_snapshot]]
+    PTG[[fact_pointage]]
+    FOR[[fact_inscription_formation]]
+
+    DAT --> EFF & PTG & FOR
+    EMP --> EFF & PTG & FOR
+    DEP --> EFF & PTG & FOR
+
+    CTR[dim_contrat] --> EFF
+    PST[dim_poste] --> EFF
+    TCG[dim_type_conge] --> EFF
+    ANC[dim_anomalie_contrat] --> EFF
+    TAU[dim_taux_horaire] --> EFF & PTG
+    HEU[dim_heure] --> PTG
+    ANP[dim_anomalie_pointage] --> PTG
+    COU[dim_cours] --> FOR
+```
+
+### Pourquoi ce modèle
+
+| Choix | Raison |
+| --- | --- |
+| Constellation (3 faits) | 3 processus métier de grain différent : la photo de l'effectif, le pointage quotidien, les inscriptions aux cours |
+| Pas de table de pont | Les listes multi-valeurs sont résolues autrement : langues (4) et technologies (2) en indicateurs dans `dim_employe`, inscriptions en lignes de fait, compétences des cours en texte |
+| Sous-dimensions (flocon) | Les valeurs répétées (diplôme, canal, pôle, université, niveau) sont normalisées une seule fois |
+| `dim_employe` en SCD 2 | Garder l'historique d'un changement de département, d'adresse ou de statut marital |
+| Dimensions « junk » d'anomalies | Regrouper les indicateurs de qualité des données (8 pour le pointage, 5 pour le contrat) en une seule clé par fait |
+| Membre « Inconnu » (-1) | Aucune ligne de fait perdue quand une clé n'est pas trouvée |
+
+## 2. Matrice en bus (dimension × fait)
+
+| Dimension | fact_effectif_snapshot | fact_pointage | fact_inscription_formation |
+| --- | --- | --- | --- |
+| `dim_date` | snapshot, embauche, début et fin de contrat | jour pointé | snapshot |
+| `dim_employe` | ● | ● | ● |
+| `dim_departement` | ● | ● | ● |
+| `dim_contrat` | ● | | |
+| `dim_poste` | ● | | |
+| `dim_type_conge` | ● | | |
+| `dim_anomalie_contrat` | ● | | |
+| `dim_taux_horaire` | taux vacataire, taux heures sup admin | taux des heures sup | |
+| `dim_heure` | | heure d'arrivée | |
+| `dim_anomalie_pointage` | | ● | |
+| `dim_cours` | | | ● |
+
+## 3. Tables de faits
+
+### fact_effectif_snapshot
+
+**Grain :** 1 employé × 1 date de snapshot. **Volume :** 2 740 lignes par snapshot. **Clé primaire :** (`date_snapshot_sk`, `employe_sk`).
+
+| Colonne | Type | Rôle |
+| --- | --- | --- |
+| `date_snapshot_sk`, `date_embauche_sk`, `date_debut_contrat_sk`, `date_fin_contrat_sk` | int | → `dim_date` (dimension à rôles) |
+| `employe_sk`, `departement_sk`, `contrat_sk`, `poste_sk`, `type_conge_sk`, `anomalie_contrat_sk` | int | → dimensions |
+| `taux_vacataire_sk`, `taux_hs_admin_sk` | int NULL | → `dim_taux_horaire` ; NULL = non applicable |
+| `salaire_mensuel` | decimal(12,2) | Mesure semi-additive |
+| `heures_payees`, `heures_sup_admin` | decimal(8,2) | Mesures semi-additives |
+| `cout_vacataire`, `cout_hs_admin`, `cout_total_estime` | decimal(14,2) | Mesures semi-additives |
+| `conges_consommes`, `solde_conges` | decimal(5,1) | Mesures semi-additives |
+| `annees_experience` | decimal(4,1) | Mesure non additive (moyenne) |
+| `anciennete_jours` | int | Mesure non additive (moyenne) |
+| `nb_employes` | smallint | Compteur (1) |
+| `source_fichier` | nvarchar(50) | Traçabilité |
+
+**Semi-additive :** s'additionne entre employés et départements, jamais entre deux snapshots (prendre le dernier).
+
+### fact_pointage
+
+**Grain :** 1 employé × 1 jour pointé. **Volume :** 272 999 lignes. **Clé primaire :** `pointage_sk` (bigint IDENTITY).
+
+| Colonne | Type | Rôle |
+| --- | --- | --- |
+| `date_sk`, `employe_sk`, `departement_sk`, `heure_arrivee_sk`, `taux_hs_sk`, `anomalie_pointage_sk` | int / smallint | → dimensions |
+| `minutes_travaillees`, `minutes_pause`, `minutes_retard`, `minutes_sup` | int NULL | Mesures additives ; NULL si une heure est illisible |
+| `cout_heures_sup` | decimal(12,2) | Mesure additive |
+| `nb_pointages` | smallint | Compteur (1) |
+| `source_fichier` | nvarchar(50) | Traçabilité |
+
+### fact_inscription_formation
+
+**Grain :** 1 employé × 1 cours × 1 date de snapshot. **Volume :** 18 685 lignes par snapshot. **Clé primaire :** (`date_snapshot_sk`, `employe_sk`, `cours_sk`). Fait sans mesure (*factless*) : il enregistre l'événement « inscrit ».
+
+| Colonne | Type | Rôle |
+| --- | --- | --- |
+| `date_snapshot_sk`, `employe_sk`, `cours_sk`, `departement_sk` | int | → dimensions |
+| `nb_inscriptions` | smallint | Compteur (1) |
+
+## 4. Dimensions
+
+| Dimension | Clé métier | Colonnes principales | Historisation | Lignes |
+| --- | --- | --- | --- | --- |
+| `dim_date` | `date_sk` (AAAAMMJJ) | date, jour, semaine ISO, mois, trimestre, année, jour ouvré, jour férié et libellé | Statique (2000-2030) | 11 323 |
+| `dim_heure` | `heure_sk` (HHMM) | heure, minute, tranche de 15 min, après 8 h 30 | Statique | 1 440 |
+| `dim_employe` | `employe_bk` | population, nom, genre, statut marital, e-mail, adresses, 4 langues, 2 technologies, `code_tenure`, diplôme, canal, département | SCD 2 (`est_courant`) | 2 740 |
+| `dim_departement` | `departement_bk` | libellé, capacité, pôle | SCD 1 | 4 |
+| `dim_contrat` | (`type_contrat`, `statut_emploi`) | contrat court | SCD 1 | ≈ 8 |
+| `dim_poste` | (intitulé, catégorie, rang, activité) | `categorie_poste` : métier technique ou fonction administrative | SCD 1 | ≈ 1 422 |
+| `dim_type_conge` | `type_conge_code` | libellé français | SCD 1 | 4 |
+| `dim_cours` | `cours_bk` (`course_id`) | intitulé, université, niveau, note, URL, description, compétences | SCD 1 | 3 522 |
+| `dim_taux_horaire` | `code_taux` | libellé, valeur | SCD 2 (`est_courant`) | 3 |
+| `dim_anomalie_pointage` | 8 indicateurs | heure illisible, durée négative, fin avant reprise, pause > 3 h, journée < 1 h ou > 10 h, hors contrat, jour férié | Combinaisons générées | 256 |
+| `dim_anomalie_contrat` | 5 indicateurs | CDI avec date de fin, CDD/CIVP sans date de fin, vacataire en CDI, contrat échu, expérience incohérente | Combinaisons générées | 32 |
+
+### Sous-dimensions
+
+| Sous-dimension | Référencée par | Valeurs |
+| --- | --- | --- |
+| `dim_pole` | `dim_departement` | Technique, Administratif |
+| `dim_diplome` | `dim_employe` | Licence, Master, Ingénieur, Doctorat (+ niveau bac+n) |
+| `dim_canal_recrutement` | `dim_employe` | Candidature spontanée, Session de recrutement, Recommandation, Ancien vacataire |
+| `dim_universite` | `dim_cours` | 185 universités |
+| `dim_niveau_cours` | `dim_cours` | Débutant, Intermédiaire, Avancé, Conversant, Non calibré |
+
+## 5. Règles de modélisation
+
+- **Clés :** clé de substitution `_sk` (IDENTITY) sur chaque dimension, sauf `dim_date` et `dim_heure` dont la clé est lisible (AAAAMMJJ, HHMM). Les faits ne contiennent que des clés de substitution.
+- **Membre « Inconnu » :** clé -1 dans toutes les dimensions, sauf les deux dimensions d'anomalies (toutes leurs combinaisons existent).
+- **Pas de NULL dans une clé de recherche :** un Lookup SSIS ne retrouve pas une valeur NULL. Les attributs utilisés comme clé reçoivent une valeur explicite (« Inconnu », rang 0…).
+- **Données personnelles :** nom, e-mail et adresses de `dim_employe` sont à masquer ou à filtrer dans Power BI.
+- **Source unique :** toutes les tables sont chargées depuis le SA brut (`RH_Staging_Area.stg`) ; chaque correction est justifiée par une anomalie de l'audit (`eda_audit_report.html`).
+
+## 6. Lien avec les objectifs métier
+
+| Objectif | Tables utilisées |
+| --- | --- |
+| OM1 — Effectif et capacité | `fact_effectif_snapshot`, `dim_departement` (capacité), `dim_contrat`, `dim_date` (embauche) |
+| OM2 — Coûts et équité | `fact_effectif_snapshot` (salaires, coûts), `dim_employe` (genre), `dim_poste`, `dim_diplome` |
+| OM3 — Temps travaillé | `fact_pointage`, `dim_heure`, `dim_date` (jours ouvrés, fériés), `dim_anomalie_pointage` |
+| OM4 — Compétences | `fact_inscription_formation`, `dim_cours`, `dim_niveau_cours`, indicateurs de technologies |
+| OM5 — Congés | `fact_effectif_snapshot` (congés), `dim_type_conge` |
+| OM6 — Échéances | `fact_effectif_snapshot` (date de fin de contrat), `dim_anomalie_contrat` |
