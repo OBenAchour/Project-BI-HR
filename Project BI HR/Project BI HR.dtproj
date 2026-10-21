@@ -22,8 +22,8 @@
           <SSIS:Property SSIS:Name="VersionComments">
           </SSIS:Property>
           <SSIS:Property SSIS:Name="CreationDate">2026-10-03T14:15:43.6803426+01:00</SSIS:Property>
-          <SSIS:Property SSIS:Name="CreatorName">DESKTOP-4VHN986\ousse</SSIS:Property>
-          <SSIS:Property SSIS:Name="CreatorComputerName">DESKTOP-4VHN986</SSIS:Property>
+          <SSIS:Property SSIS:Name="CreatorName"></SSIS:Property>
+          <SSIS:Property SSIS:Name="CreatorComputerName"></SSIS:Property>
           <SSIS:Property SSIS:Name="Description">
           </SSIS:Property>
           <SSIS:Property SSIS:Name="PasswordVerifier" SSIS:Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAACAAAAAAAQZgAAAAEAACAAAADJ/TsudtZaFb1o+A1aQrRnACVp9q7f7dqALwZa+qRUOwAAAAAOgAAAAAIAACAAAACrRzSmuC95a/wJPOlDtIyLcVMkUttvpPORCPNZHxWhV5AAAAAIiM4eGtr22DMVQj3C9KBrhX5Yp3BdrvPS34mPecvo4jQs4F7Btb2OFWCJnt9D7WrKnyGwGARo7iiW7HG4A9gZnaamVL9aHLQFLdpbaaX6VFYj4hN268iRvDITAONjWZOo6/3EAmSgw4JUyYoLHdfJyg+k3vnxSN2YRyIUdVkbUaMicwFfvWWNIVMRS1o1NUJAAAAAtKvREL5QQ87DKhmUipHFK9Ew+8tZPjKgKMr13wYed9ocLtZVe5IOhpyoU1mZW7fOW8D1w9ku53zZWBV0RCqeBA==</SSIS:Property>
@@ -79,7 +79,7 @@
                     <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
-                    <SSIS:Property SSIS:Name="Value">Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\Administration_attendance.xlsx;Extended Properties="EXCEL 12.0 XML;HDR=YES";</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\CHEMIN\VERS\Project-BI-HR\DataSet\Administration_attendance.xlsx;Extended Properties="EXCEL 12.0 XML;HDR=YES";</SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>
@@ -152,7 +152,7 @@
                     <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
-                    <SSIS:Property SSIS:Name="Value">C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\Administration_attendance.xlsx</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">C:\CHEMIN\VERS\Project-BI-HR\DataSet\Administration_attendance.xlsx</SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>
@@ -196,7 +196,7 @@
                     <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
-                    <SSIS:Property SSIS:Name="Value">Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\administration_data.xlsx;Extended Properties="EXCEL 12.0 XML;HDR=YES";</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\CHEMIN\VERS\Project-BI-HR\DataSet\administration_data.xlsx;Extended Properties="EXCEL 12.0 XML;HDR=YES";</SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>
@@ -269,7 +269,7 @@
                     <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
-                    <SSIS:Property SSIS:Name="Value">C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\administration_data.xlsx</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">C:\CHEMIN\VERS\Project-BI-HR\DataSet\administration_data.xlsx</SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>
@@ -495,7 +495,7 @@
                     <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
-                    <SSIS:Property SSIS:Name="Value">Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\emp_data.xlsx;Extended Properties="EXCEL 12.0 XML;HDR=YES";</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\CHEMIN\VERS\Project-BI-HR\DataSet\emp_data.xlsx;Extended Properties="EXCEL 12.0 XML;HDR=YES";</SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>
@@ -568,7 +568,7 @@
                     <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
-                    <SSIS:Property SSIS:Name="Value">C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\emp_data.xlsx</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">C:\CHEMIN\VERS\Project-BI-HR\DataSet\emp_data.xlsx</SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>

@@ -3,8 +3,8 @@
   DTS:refId="Package"
   DTS:CreationDate="10/3/2026 2:15:45 PM"
   DTS:CreationName="Microsoft.Package"
-  DTS:CreatorComputerName="DESKTOP-4VHN986"
-  DTS:CreatorName="DESKTOP-4VHN986\ousse"
+  DTS:CreatorComputerName=""
+  DTS:CreatorName=""
   DTS:DTSID="{FC7C9906-4336-4E40-B979-E708B07796BA}"
   DTS:ExecutableType="Microsoft.Package"
   DTS:LastModifiedProductVersion="17.0.1008.3"
@@ -27,7 +27,7 @@
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
           DTS:ConnectRetryInterval="0"
-          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\Administration_attendance.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
+          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\CHEMIN\VERS\Project-BI-HR\DataSet\Administration_attendance.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
     <DTS:ConnectionManager
@@ -41,7 +41,7 @@
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
           DTS:ConnectRetryInterval="0"
-          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\administration_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
+          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\CHEMIN\VERS\Project-BI-HR\DataSet\administration_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
     <DTS:ConnectionManager
@@ -60,7 +60,7 @@
           DTS:RowDelimiter=""
           DTS:TextQualifier="_x0022_"
           DTS:CodePage="65001"
-          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\Coursera_trainings.csv">
+          DTS:ConnectionString="C:\CHEMIN\VERS\Project-BI-HR\DataSet\Coursera_trainings.csv">
           <DTS:FlatFileColumns>
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -157,7 +157,7 @@
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
           DTS:ConnectRetryInterval="0"
-          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\emp_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
+          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\CHEMIN\VERS\Project-BI-HR\DataSet\emp_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
     <DTS:ConnectionManager
@@ -176,7 +176,7 @@
           DTS:RowDelimiter=""
           DTS:TextQualifier="_x003C_none_x003E_"
           DTS:CodePage="1252"
-          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\attendance_dataset_2023.csv">
+          DTS:ConnectionString="C:\CHEMIN\VERS\Project-BI-HR\DataSet\attendance_dataset_2023.csv">
           <DTS:FlatFileColumns>
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -251,7 +251,7 @@
           DTS:RowDelimiter=""
           DTS:TextQualifier="_x003C_none_x003E_"
           DTS:CodePage="65001"
-          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\extrainfos.txt">
+          DTS:ConnectionString="C:\CHEMIN\VERS\Project-BI-HR\DataSet\extrainfos.txt">
           <DTS:FlatFileColumns>
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -303,7 +303,7 @@
       DTS:Namespace="User"
       DTS:ObjectName="OdsPath">
       <DTS:VariableValue
-        DTS:DataType="8">C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\departments.ods</DTS:VariableValue>
+        DTS:DataType="8">C:\CHEMIN\VERS\Project-BI-HR\DataSet\departments.ods</DTS:VariableValue>
     </DTS:Variable>
   </DTS:Variables>
   <DTS:Executables>

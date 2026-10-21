@@ -11,8 +11,10 @@
 
 ## 2. Get the code
 
+On the repository's GitHub page, click **Code → HTTPS** and copy the address, then:
+
 ```bash
-git clone https://github.com/OBenAchour/Project-BI-HR.git
+git clone <repository address>
 cd Project-BI-HR
 ```
 
