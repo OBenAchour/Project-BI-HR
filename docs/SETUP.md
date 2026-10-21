@@ -40,7 +40,9 @@ In **both** packages, double-click each connection manager → login `BI` → pa
 
 ## 5. Run
 
-0. **Only once per server** (or after a change to the `stg` tables): run `sql/staging_area.sql` in SSMS on `RH_Staging_Area`. It recreates the 7 `stg` tables (SQL Server 2019+).
+0. **Only once per server** — already done on the Tailscale server, so skip unless you start a new one:
+   - `sql/staging_area.sql` on `RH_Staging_Area`: recreates the 7 `stg` tables (SQL Server 2019+);
+   - `sql/data_warehouse.sql`: creates the DW v2 database `RH_Data_Warehouse_v2`. ⚠️ Rerunning it empties the DW v2.
 1. `Load_Staging_Area.dtsx` → F5
 2. `Load_data_warehouse.dtsx` → **don't run it for now**: it's the v1 package, which no longer matches the raw staging area. The DW v2 is being rebuilt following the [guide](https://claude.ai/artifact/BR66GDu8mnFdRxUEx1nmeX).
 3. All boxes green = done ✅
