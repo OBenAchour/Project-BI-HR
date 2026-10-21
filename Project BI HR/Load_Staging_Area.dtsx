@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
   DTS:refId="Package"
   DTS:CreationDate="10/3/2026 2:15:45 PM"
@@ -7,12 +7,12 @@
   DTS:CreatorName="DESKTOP-4VHN986\ousse"
   DTS:DTSID="{FC7C9906-4336-4E40-B979-E708B07796BA}"
   DTS:ExecutableType="Microsoft.Package"
-  DTS:LastModifiedProductVersion="16.0.1000.6"
+  DTS:LastModifiedProductVersion="17.0.1008.3"
   DTS:LocaleID="1036"
   DTS:ObjectName="Load_Staging_Area"
   DTS:PackageType="5"
-  DTS:VersionBuild="69"
-  DTS:VersionGUID="{BC8BD071-726E-489B-8EAB-A1874E9E3195}">
+  DTS:VersionBuild="70"
+  DTS:VersionGUID="{FC44F007-2DF2-4E76-9DB8-5C81DA50C47E}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -27,7 +27,7 @@
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
           DTS:ConnectRetryInterval="0"
-          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\Administration_attendance.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
+          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\Administration_attendance.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
     <DTS:ConnectionManager
@@ -41,7 +41,7 @@
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
           DTS:ConnectRetryInterval="0"
-          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\administration_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
+          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\administration_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
     <DTS:ConnectionManager
@@ -60,7 +60,7 @@
           DTS:RowDelimiter=""
           DTS:TextQualifier="_x0022_"
           DTS:CodePage="65001"
-          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\Coursera_trainings.csv">
+          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\Coursera_trainings.csv">
           <DTS:FlatFileColumns>
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -157,7 +157,7 @@
         <DTS:ConnectionManager
           DTS:ConnectRetryCount="0"
           DTS:ConnectRetryInterval="0"
-          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\emp_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
+          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\emp_data.xlsx;Extended Properties=&quot;EXCEL 12.0 XML;HDR=YES&quot;;" />
       </DTS:ObjectData>
     </DTS:ConnectionManager>
     <DTS:ConnectionManager
@@ -176,7 +176,7 @@
           DTS:RowDelimiter=""
           DTS:TextQualifier="_x003C_none_x003E_"
           DTS:CodePage="1252"
-          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\attendance_dataset_2023.csv">
+          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\attendance_dataset_2023.csv">
           <DTS:FlatFileColumns>
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -251,7 +251,7 @@
           DTS:RowDelimiter=""
           DTS:TextQualifier="_x003C_none_x003E_"
           DTS:CodePage="65001"
-          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\extrainfos.txt">
+          DTS:ConnectionString="C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\extrainfos.txt">
           <DTS:FlatFileColumns>
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -288,7 +288,7 @@
           <DTS:Password
             DTS:Name="Password"
             Sensitive="1"
-            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAAC4HBRsEWuLV+vO6p5Jx20OUHl5kHoTsypZJQNHMMTnOAAAAAAOgAAAAAIAACAAAADxWn7cXqGi4+yD4RPHBTIzp2TLjG8T1O1h+c7DdtJZFyAAAAD6yA5wXkS1HLc9lODps2omcD7I0IGVG9RVvKM6cITAIUAAAAB9abebqorGMBC2/gjZjpu1sheDdovDX/jz4NqKC/6VS9I03npGQaVd7vDOS2P7368qwQ2GGNAsevKETcxU5hRe</DTS:Password>
+            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAAC3iYJCakk1BmVVyLtTQ2nS+8Z54NjMJA6jzGXKTJvBKgAAAAAOgAAAAAIAACAAAAA9dHVkYRg3pBCR9Xam30Xf1BfY8gtpr4g7ewB7zuRB1SAAAAAB0n7bfT9l1xsoVlHj1E3HN9P3FicF8XA3LQHO6KNTZEAAAABL1XJL38v1oi9+YGHkQ41WlKT2H4mNVkT9nlWAl0/clZKTm+RlmNlxDL0NbAcuptX/Dp2GOkLnQPYtAbwEBCBt</DTS:Password>
         </DTS:ConnectionManager>
       </DTS:ObjectData>
     </DTS:ConnectionManager>
@@ -303,7 +303,7 @@
       DTS:Namespace="User"
       DTS:ObjectName="OdsPath">
       <DTS:VariableValue
-        DTS:DataType="8">C:\Users\ousse\OneDrive\Desktop\4SDE2\DataSet\departments.ods</DTS:VariableValue>
+        DTS:DataType="8">C:\Users\ousse\OneDrive\Desktop\4SDE2\PI\DataSet\departments.ods</DTS:VariableValue>
     </DTS:Variable>
   </DTS:Variables>
   <DTS:Executables>
@@ -346,7 +346,7 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -723,7 +723,7 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
                 <property
                   dataType="System.String"
                   description="The variable that contains the SQL command to be executed."
@@ -1311,7 +1311,7 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
                 <property
                   dataType="System.String"
                   description="The variable that contains the SQL command to be executed."
@@ -1517,7 +1517,7 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -1938,7 +1938,7 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -2138,15 +2138,15 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
-                  name="DefaultCodePage">1252</property>
+                  name="DefaultCodePage">65001</property>
                 <property
                   dataType="System.Boolean"
                   description="Forces the use of the DefaultCodePage property value when describing character data."
-                  name="AlwaysUseDefaultCodePage">false</property>
+                  name="AlwaysUseDefaultCodePage">true</property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the mode used to access the database."
@@ -2673,7 +2673,7 @@
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -3772,7 +3772,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -4213,7 +4213,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
                 <property
                   dataType="System.String"
                   description="The variable that contains the SQL command to be executed."
@@ -5036,7 +5036,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
                   dataType="System.String"
                   description="The SQL command to be executed."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
                 <property
                   dataType="System.Int32"
                   description="Specifies the column code page to use when code page information is unavailable from the data source."
@@ -5399,7 +5399,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
         <NodeLayout
           Size="225.6,41.6"
           Id="Package\DFT_COURSERA_TRAININGS"
-          TopLeft="389.027756522238,406.033330509828" />
+          TopLeft="389.86108981004,406.899997170468" />
         <NodeLayout
           Size="189.6,41.6"
           Id="Package\DFT_DEPARTEMENTS"
@@ -5778,20 +5778,20 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="16.8833382734823,-42.4333343066435"
+              EndConnector="17.716671561284,-41.566667646004"
               Start="0,0"
-              End="16.8833382734823,-34.9333343066435">
+              End="17.716671561284,-34.066667646004">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="12.8833382734823,0" />
+                    End="13.716671561284,0" />
                   <mssgle:CubicBezierSegment
-                    Point1="12.8833382734823,0"
-                    Point2="16.8833382734823,0"
-                    Point3="16.8833382734823,-4" />
+                    Point1="13.716671561284,0"
+                    Point2="17.716671561284,0"
+                    Point3="17.716671561284,-4" />
                   <mssgle:LineSegment
-                    End="16.8833382734823,-34.9333343066435" />
+                    End="17.716671561284,-34.066667646004" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -5802,24 +5802,24 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 9]"
-          TopLeft="389.027756522238,426.833330509828">
+          TopLeft="389.86108981004,427.699997170468">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-51.9240653143534,-30.3074068573044"
+              EndConnector="-52.757398602155,-31.174073517944"
               Start="0,0"
-              End="-51.9240653143534,-22.8074068573044">
+              End="-52.757398602155,-23.674073517944">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="-47.9240653143534,0" />
+                    End="-48.757398602155,0" />
                   <mssgle:CubicBezierSegment
-                    Point1="-47.9240653143534,0"
-                    Point2="-51.9240653143534,0"
-                    Point3="-51.9240653143534,-4" />
+                    Point1="-48.757398602155,0"
+                    Point2="-52.757398602155,0"
+                    Point3="-52.757398602155,-4" />
                   <mssgle:LineSegment
-                    End="-51.9240653143534,-22.8074068573044" />
+                    End="-52.757398602155,-23.674073517944" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -5846,7 +5846,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           TopLeft="423.999993681908,289.999995678663" />
         <NodeLayout
           Size="127.2,41.6"
-          Id="2"
+          Id="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination"
           TopLeft="274.666653599177,194.966665557755" />
         <EdgeLayout
           Id="174"
@@ -5924,7 +5924,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
     </LayoutInfo>
   </TaskHost>
   <PipelineComponentMetadata
-    design-time-name="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data">
+    design-time-name="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -5937,7 +5937,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
-    design-time-name="Package\DFT_ADMINISTRATION_DATA\OLE DB Destination">
+    design-time-name="Package\DFT_ADMINISTRATION_DATA\XLS_administration_data">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -5960,7 +5960,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           TopLeft="424.999993667007,289.999995678663" />
         <NodeLayout
           Size="127.2,41.6"
-          Id="33"
+          Id="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination"
           TopLeft="274.666653599177,194.966665557755" />
         <NodeLayout
           Size="140,41.6"
@@ -6042,7 +6042,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
     </LayoutInfo>
   </TaskHost>
   <PipelineComponentMetadata
-    design-time-name="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination">
+    design-time-name="Package\DFT_ATTENDANCE_ADMIN\Excel Source">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -6055,7 +6055,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
-    design-time-name="Package\DFT_ATTENDANCE_ADMIN\Excel Source">
+    design-time-name="Package\DFT_ATTENDANCE_ADMIN\OLE DB Destination">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -6082,7 +6082,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           TopLeft="423.999993681908,289.999995678663" />
         <NodeLayout
           Size="127.2,41.6"
-          Id="35"
+          Id="Package\DFT_ATTENDANCE_TECH\OLE DB Destination"
           TopLeft="274.666653599177,194.966665557755" />
         <EdgeLayout
           Id="86"
@@ -6176,117 +6176,29 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
     design-time-name="Package\DFT_COURSERA_TRAININGS">
     <LayoutInfo>
       <GraphLayout
-        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
-        <NodeLayout
-          Size="171.2,41.6"
-          Id="Package\DFT_COURSERA_TRAININGS\OLE DB Destination"
-          TopLeft="513.49999332428,345.499995827675" />
-        <NodeLayout
-          Size="127.2,41.6"
-          Id="12"
-          TopLeft="388.999994203448,275.99999588728" />
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
           Size="164,41.6"
           Id="Package\DFT_COURSERA_TRAININGS\trainings_coursera"
-          TopLeft="175.499997466803,114.499998375773" />
+          TopLeft="9.10000000000001,5.49999999999995" />
         <NodeLayout
-          Size="156,41.6"
-          Id="2"
-          TopLeft="252.499996766448,201.499997526407" />
+          Size="171.2,41.6"
+          Id="Package\DFT_COURSERA_TRAININGS\OLE DB Destination"
+          TopLeft="5.50000000000001,107.1" />
         <EdgeLayout
-          Id="115"
-          TopLeft="257.499997466803,156.099998375773">
+          Id="Package\DFT_COURSERA_TRAININGS.Paths[Flat File Source Output]"
+          TopLeft="91.1,47.1">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="72.9999992996455,45.3999991506338"
+              EndConnector="0,59.9999999999999"
               Start="0,0"
-              End="72.9999992996455,37.8999991506338">
+              End="0,52.4999999999999">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,18.6999995753169" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,18.6999995753169"
-                    Point2="0,22.6999995753169"
-                    Point3="4,22.6999995753169" />
-                  <mssgle:LineSegment
-                    End="68.9999992996455,22.6999995753169" />
-                  <mssgle:CubicBezierSegment
-                    Point1="68.9999992996455,22.6999995753169"
-                    Point2="72.9999992996455,22.6999995753169"
-                    Point3="72.9999992996455,26.6999995753169" />
-                  <mssgle:LineSegment
-                    End="72.9999992996455,37.8999991506338" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="114"
-          TopLeft="452.599994203448,317.59999588728">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="146.499999120832,27.8999999403952"
-              Start="0,0"
-              End="146.499999120832,20.3999999403952">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,9.94999997019761" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,9.94999997019761"
-                    Point2="0,13.9499999701976"
-                    Point3="4,13.9499999701976" />
-                  <mssgle:LineSegment
-                    End="142.499999120832,13.9499999701976" />
-                  <mssgle:CubicBezierSegment
-                    Point1="142.499999120832,13.9499999701976"
-                    Point2="146.499999120832,13.9499999701976"
-                    Point3="146.499999120832,17.9499999701976" />
-                  <mssgle:LineSegment
-                    End="146.499999120832,20.3999999403952" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="113"
-          TopLeft="330.499996766448,243.099997526407">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="122.099997437,32.8999983608723"
-              Start="0,0"
-              End="122.099997437,25.3999983608723">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,12.4499991804362" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,12.4499991804362"
-                    Point2="0,16.4499991804362"
-                    Point3="4,16.4499991804362" />
-                  <mssgle:LineSegment
-                    End="118.099997437,16.4499991804362" />
-                  <mssgle:CubicBezierSegment
-                    Point1="118.099997437,16.4499991804362"
-                    Point2="122.099997437,16.4499991804362"
-                    Point3="122.099997437,20.4499991804362" />
-                  <mssgle:LineSegment
-                    End="122.099997437,25.3999983608723" />
+                    End="0,52.4999999999999" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -6315,15 +6227,37 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
     design-time-name="Package\DFT_DEPARTEMENTS">
     <LayoutInfo>
       <GraphLayout
-        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
           Size="186.4,41.6"
           Id="Package\DFT_DEPARTEMENTS\SRC_departments_ods"
-          TopLeft="127.166660019093,93.8999993852775" />
+          TopLeft="5.50000000000001,5.49999999999995" />
         <NodeLayout
           Size="171.2,41.6"
           Id="Package\DFT_DEPARTEMENTS\OLE DB Destination"
-          TopLeft="488.833306925165,319.233331151671" />
+          TopLeft="13.1,107.1" />
+        <EdgeLayout
+          Id="Package\DFT_DEPARTEMENTS.Paths[departments_output]"
+          TopLeft="98.7,47.1">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,59.9999999999999"
+              Start="0,0"
+              End="0,52.4999999999999">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.4999999999999" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
       </GraphLayout>
     </LayoutInfo>
   </TaskHost>
@@ -6355,7 +6289,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
           TopLeft="359.666647315854,290.633331350552" />
         <NodeLayout
           Size="127.2,41.6"
-          Id="2"
+          Id="Package\DFT_EMP_DATA\OLE DB Destination"
           TopLeft="274.666653599177,194.966665557755" />
         <EdgeLayout
           Id="204"
@@ -6433,7 +6367,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
     </LayoutInfo>
   </TaskHost>
   <PipelineComponentMetadata
-    design-time-name="Package\DFT_EMP_DATA\XLS_emp_data">
+    design-time-name="Package\DFT_EMP_DATA\OLE DB Destination">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -6446,7 +6380,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
-    design-time-name="Package\DFT_EMP_DATA\OLE DB Destination">
+    design-time-name="Package\DFT_EMP_DATA\XLS_emp_data">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -6462,157 +6396,35 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
     design-time-name="Package\DFT_EXTRA_INFOS">
     <LayoutInfo>
       <GraphLayout
-        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
-        <NodeLayout
-          Size="127.2,41.6"
-          Id="45"
-          TopLeft="241.666663065552,217.999996751547" />
-        <NodeLayout
-          Size="126.4,41.6"
-          Id="Package\DFT_EXTRA_INFOS\extra infos"
-          TopLeft="84.8333321511749,15.1666665226217" />
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
           Size="171.2,41.6"
           Id="Package\DFT_EXTRA_INFOS\OLE DB Destination"
-          TopLeft="400.166660785675,238.833329856396" />
-        <EdgeLayout
-          Id="88"
-          TopLeft="368.866663065552,238.799996751547">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="31.2999977201225,20.8333331048485"
-              Start="0,0"
-              End="23.7999977201225,20.8333331048485">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="11.6499988600613,0" />
-                  <mssgle:CubicBezierSegment
-                    Point1="11.6499988600613,0"
-                    Point2="15.6499988600613,0"
-                    Point3="15.6499988600613,4" />
-                  <mssgle:LineSegment
-                    End="15.6499988600613,16.8333331048485" />
-                  <mssgle:CubicBezierSegment
-                    Point1="15.6499988600613,16.8333331048485"
-                    Point2="15.6499988600613,20.8333331048485"
-                    Point3="19.6499988600613,20.8333331048485" />
-                  <mssgle:LineSegment
-                    End="23.7999977201225,20.8333331048485" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
+          TopLeft="5.50000000000001,107.1" />
         <NodeLayout
-          Size="156,41.6"
-          Id="14"
-          TopLeft="68.1666661798953,176.16666457057" />
+          Size="126.4,41.6"
+          Id="Package\DFT_EXTRA_INFOS\extra infos"
+          TopLeft="27.9,5.49999999999995" />
         <EdgeLayout
-          Id="87"
-          TopLeft="224.166666179895,195.499996751547">
+          Id="Package\DFT_EXTRA_INFOS.Paths[Flat File Source Output]"
+          TopLeft="91.1,47.1">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="81.0999968856571,22.5"
+              EndConnector="0,59.9999999999999"
               Start="0,0"
-              End="81.0999968856571,15">
+              End="0,52.4999999999999">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="77.0999968856571,0" />
-                  <mssgle:CubicBezierSegment
-                    Point1="77.0999968856571,0"
-                    Point2="81.0999968856571,0"
-                    Point3="81.0999968856571,4" />
-                  <mssgle:LineSegment
-                    End="81.0999968856571,15" />
+                    End="0,52.4999999999999" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
             <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <NodeLayout
-          Size="153.6,41.6"
-          Id="2"
-          TopLeft="88.166666328907,79.4999997913837" />
-        <EdgeLayout
-          Id="89"
-          TopLeft="148.033332151175,56.7666665226216">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="16.9333341777321,22.7333332687621"
-              Start="0,0"
-              End="16.9333341777321,15.2333332687621">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,7.36666663438105" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,7.36666663438105"
-                    Point2="0,11.366666634381"
-                    Point3="4,11.366666634381" />
-                  <mssgle:LineSegment
-                    End="12.9333341777321,11.366666634381" />
-                  <mssgle:CubicBezierSegment
-                    Point1="12.9333341777321,11.366666634381"
-                    Point2="16.9333341777321,11.366666634381"
-                    Point3="16.9333341777321,15.366666634381" />
-                  <mssgle:LineSegment
-                    End="16.9333341777321,15.2333332687621" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="90"
-          TopLeft="164.966666328907,121.099999791384">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="-18.8000001490117,55.0666647791863"
-              Start="0,0"
-              End="-18.8000001490117,47.5666647791863">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,23.5333323895932" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,23.5333323895932"
-                    Point2="0,27.5333323895932"
-                    Point3="-4,27.5333323895932" />
-                  <mssgle:LineSegment
-                    End="-14.8000001490117,27.5333323895932" />
-                  <mssgle:CubicBezierSegment
-                    Point1="-14.8000001490117,27.5333323895932"
-                    Point2="-18.8000001490117,27.5333323895932"
-                    Point3="-18.8000001490117,31.5333323895932" />
-                  <mssgle:LineSegment
-                    End="-18.8000001490117,47.5666647791863" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="-37.0344336682559,32.5333323895932,55.2688671875,11.6630859375"
-              RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
