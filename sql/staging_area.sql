@@ -25,6 +25,13 @@ IF HAS_PERMS_BY_NAME(DB_NAME(), 'DATABASE', 'CREATE TABLE') = 0
     THROW 50001, N'Droits insuffisants : il faut CREATE TABLE sur la base et ALTER sur le schéma stg (ex. rôle db_ddladmin). Aucune table n''a été modifiée.', 1;
 GO
 
+-- Les textes non Unicode des fichiers (Coursera, extrainfos) sont en UTF-8 : la base utilise la même
+-- collation UTF-8 que leurs colonnes varchar. Côté SSIS, la destination Coursera force le code page 65001,
+-- car SQL Server ne déclare pas de code page pour un varchar(max).
+IF DATABASEPROPERTYEX(DB_NAME(), 'Collation') <> N'Latin1_General_100_CI_AS_SC_UTF8'
+    ALTER DATABASE CURRENT COLLATE Latin1_General_100_CI_AS_SC_UTF8;
+GO
+
 IF SCHEMA_ID(N'stg') IS NULL EXEC (N'CREATE SCHEMA stg');
 GO
 
