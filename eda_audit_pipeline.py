@@ -249,7 +249,7 @@ def check_quality(a: Audit, s: dict):
         bad_t = df[["_StartTime", "_BreakTime", "_ResumeTime", "_EndTime"]].isna().any(axis=1) & ~bad_date
         a.add(T, label, "StartTime, BreakTime, ResumeTime, EndTime", "Heure manquante ou illisible", int(bad_t.sum()),
               "Avertissement", f"Au moins une des 4 heures est vide ou hors format {fmt}.",
-              "Durée travaillée incalculable pour ces journées.", "Indicateur « heure illisible » ; mesures à NULL.",
+              "Durée travaillée incalculable pour ces journées.", "Journée écartée au chargement du DW.",
               sample(df, bad_t, ["ID_Employee", "Date", "StartTime", "BreakTime", "ResumeTime", "EndTime"]))
         a.add(T, label, "ID_Employee + Date", "Pointage en double le même jour",
               int(df.duplicated(["ID_Employee", "_date"]).sum()), "Critique", "Deux pointages pour un même jour.",
@@ -294,7 +294,7 @@ def check_contracts(a: Audit, s: dict):
           f"{int(m.sum())} CDI portent une date de fin (emp_data {int(m[both._file == 'emp_data'].sum())}, "
           f"administration_data {int(m[both._file == 'administration_data'].sum())}). Un CDI n'a pas de terme.",
           "Échéances de contrat faussées ; risque de compter des départs inexistants.",
-          "Indicateur d'anomalie ; correction à la source (soit le type, soit la date est fausse).", sample(both, m, cols))
+          "Gardé dans le DW ; correction à la source (soit le type, soit la date est fausse).", sample(both, m, cols))
 
     m = both["TYPE_CONTRACT"].isin(["CDD", "CIVP"]) & both["_CONTRACT_END"].isna()
     a.add(T, "emp_data + administration_data", "TYPE_CONTRACT / CONTRACT_END", "CDD ou CIVP sans date de fin", int(m.sum()),
@@ -304,7 +304,7 @@ def check_contracts(a: Audit, s: dict):
     m = emp["POSITION"].eq("Vacataire") & emp["TYPE_CONTRACT"].eq("CDI")
     a.add(T, "emp_data", "POSITION / TYPE_CONTRACT", "Vacataire déclaré en CDI", int(m.sum()), "Critique",
           "Un vacataire (payé à l'heure, sans salaire) est déclaré en CDI.", "Statut et contrat contradictoires.",
-          "Faire valider la règle par les RH ; indicateur d'anomalie en attendant.",
+          "Gardé dans le DW ; faire valider la règle par les RH.",
           sample(emp, m, ["CODE", "POSITION", "TYPE_CONTRACT", "HOURS", "SALARY"]))
 
     m = emp["POSITION"].eq("Vacataire") & (emp["_SALARY"].notna() | emp["_HOURS"].isna())
@@ -353,27 +353,27 @@ def check_attendance(a: Audit, s: dict):
         cols = ["ID_Employee", "Date", "StartTime", "BreakTime", "ResumeTime", "EndTime"]
         m = df["_EndTime"] < df["_ResumeTime"]
         a.add(T, label, "ResumeTime / EndTime", "Fin de journée avant la reprise de l'après-midi", int(m.sum()), "Critique",
-              "EndTime est antérieur à ResumeTime.", "Durée de l'après-midi négative.", "Indicateur d'anomalie.",
+              "EndTime est antérieur à ResumeTime.", "Durée de l'après-midi négative.", "Journée écartée au chargement du DW.",
               sample(df, m, cols))
         m = (df["_BreakTime"] < df["_StartTime"]) | (df["_ResumeTime"] < df["_BreakTime"])
         a.add(T, label, "StartTime / BreakTime / ResumeTime", "Heures du matin dans le désordre", int(m.sum()), "Critique",
-              "Pause avant l'arrivée ou reprise avant la pause.", "Durée faussée.", "Indicateur d'anomalie.")
+              "Pause avant l'arrivée ou reprise avant la pause.", "Durée faussée.", "Pas de règle propre : écartée si sa durée ou sa pause est incohérente.")
         m = df["_worked_h"] < 0
         a.add(T, label, "durée calculée", "Durée travaillée négative", int(m.sum()), "Critique",
-              "(fin − début) − pause < 0.", "Heures négatives dans les totaux.", "Exclure des mesures ; indicateur.",
+              "(fin − début) − pause < 0.", "Heures négatives dans les totaux.", "Journée écartée au chargement du DW.",
               sample(df, m, cols).assign(heures=df.loc[m, "_worked_h"].round(2)))
         m = df["_pause"] > 180
         a.add(T, label, "BreakTime / ResumeTime", "Pause de plus de 3 heures", int(m.sum()), "Avertissement",
               f"{int(m.sum())} journées ({m.mean():.1%}) ont une pause de plus de 3 h (max {df['_pause'].max() / 60:.1f} h).",
               "Pause irréaliste : les heures de pause ou de reprise ne sont pas fiables.",
-              "Indicateur d'anomalie ; seuil à valider par les RH.", sample(df, m, cols))
+              "Journée écartée au chargement du DW ; seuil à valider par les RH.", sample(df, m, cols))
         m = df["_worked_h"].between(0, 1, inclusive="left")
         a.add(T, label, "durée calculée", "Journée de moins d'une heure", int(m.sum()), "Avertissement",
-              "Moins d'une heure travaillée.", "Journées quasi vides.", "Indicateur d'anomalie.")
+              "Moins d'une heure travaillée.", "Journées quasi vides.", "Journée écartée au chargement du DW.")
         m = df["_worked_h"] > 10
         a.add(T, label, "durée calculée", "Journée de plus de 10 heures", int(m.sum()), "Avertissement",
               f"Plus de 10 h travaillées (max {df['_worked_h'].max():.1f} h).", "Charge excessive ou erreur de saisie.",
-              "Vérifier ; indicateur.")
+              "Journée écartée au chargement du DW.")
         m = df["_date"].dt.dayofweek >= 5
         a.add(T, label, "Date", "Pointage le week-end", int(m.sum()), "Info", "Pointage un samedi ou un dimanche.", "—", "—")
         hol = df["_date"].isin(FIXED_HOLIDAYS_2023)
@@ -388,7 +388,7 @@ def check_attendance(a: Audit, s: dict):
         a.add(T, label, "Date / CONTRACT_END", "Pointage après la fin du contrat", int(m.sum()), "Critique",
               f"{int(m.sum())} pointages de {mg.loc[m, 'ID_Employee'].nunique()} employés sont postérieurs à leur date de fin de contrat.",
               "Soit les dates de fin sont fausses, soit des personnes sorties pointent encore.",
-              "Indicateur « pointage hors contrat » ; arbitrage RH sur les dates de fin.",
+              "Pointage écarté au chargement du DW ; arbitrage RH sur les dates de fin.",
               mg.loc[m, ["ID_Employee", "_date", "_CONTRACT_END"]].rename(columns={"_date": "Date", "_CONTRACT_END": "fin_contrat"}))
         m = (mg["_date"] < mg["_STARTING_DATE"]).to_numpy()
         a.add(T, label, "Date / STARTING_DATE", "Pointage avant l'entrée dans l'entreprise", int(m.sum()), "Critique",

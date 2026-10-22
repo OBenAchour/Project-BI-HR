@@ -5,7 +5,7 @@
 
 ## 1. Le modèle en bref
 
-**3 faits, 11 dimensions, 5 sous-dimensions, aucune table de pont.** Les 3 faits partagent `dim_date`, `dim_employe` et `dim_departement`, ce qui permet de croiser effectif, assiduité et formation.
+**3 faits, 9 dimensions, 5 sous-dimensions, aucune table de pont.** Les 3 faits partagent `dim_date`, `dim_employe` et `dim_departement`, ce qui permet de croiser effectif, assiduité et formation.
 
 ```mermaid
 flowchart TB
@@ -38,10 +38,8 @@ flowchart TB
     CTR[dim_contrat] --> EFF
     PST[dim_poste] --> EFF
     TCG[dim_type_conge] --> EFF
-    ANC[dim_anomalie_contrat] --> EFF
     TAU[dim_taux_horaire] --> EFF & PTG
     HEU[dim_heure] --> PTG
-    ANP[dim_anomalie_pointage] --> PTG
     COU[dim_cours] --> FOR
 ```
 
@@ -53,7 +51,7 @@ flowchart TB
 | Pas de table de pont | Les listes multi-valeurs sont résolues autrement : langues (4) et technologies (2) en indicateurs dans `dim_employe`, inscriptions en lignes de fait, compétences des cours en texte |
 | Sous-dimensions (flocon) | Les valeurs répétées (diplôme, canal, pôle, université, niveau) sont normalisées une seule fois |
 | `dim_employe` en SCD 2 | Garder l'historique d'un changement de département, d'adresse ou de statut marital |
-| Dimensions « junk » d'anomalies | Regrouper les indicateurs de qualité des données (8 pour le pointage, 5 pour le contrat) en une seule clé par fait |
+| Pas de dimension d'anomalies | Projet académique : on reste simple. Les pointages anormaux (heures incohérentes, après la fin du contrat) sont écartés ; les incohérences de contrat, qui touchent 77 % des employés, sont gardées telles quelles |
 | Pas de membre « Inconnu » | Une ligne sans correspondance ou à valeur obligatoire illisible est écartée au chargement : le DW ne contient que des données complètes |
 
 ## 2. Matrice en bus (dimension × fait)
@@ -66,10 +64,8 @@ flowchart TB
 | `dim_contrat` | ● | | |
 | `dim_poste` | ● | | |
 | `dim_type_conge` | ● | | |
-| `dim_anomalie_contrat` | ● | | |
 | `dim_taux_horaire` | taux vacataire, taux heures sup admin | taux des heures sup | |
 | `dim_heure` | | heure d'arrivée | |
-| `dim_anomalie_pointage` | | ● | |
 | `dim_cours` | | | ● |
 
 ## 3. Tables de faits
@@ -82,7 +78,7 @@ flowchart TB
 | --- | --- | --- |
 | `date_snapshot_sk`, `date_embauche_sk`, `date_debut_contrat_sk` | int | → `dim_date` (dimension à rôles) |
 | `date_fin_contrat_sk` | int NULL | → `dim_date` ; NULL = contrat sans date de fin |
-| `employe_sk`, `departement_sk`, `contrat_sk`, `poste_sk`, `type_conge_sk`, `anomalie_contrat_sk` | int | → dimensions |
+| `employe_sk`, `departement_sk`, `contrat_sk`, `poste_sk`, `type_conge_sk` | int | → dimensions |
 | `taux_vacataire_sk`, `taux_hs_admin_sk` | int NULL | → `dim_taux_horaire` ; NULL = non applicable |
 | `salaire_mensuel` | decimal(12,2) | Mesure semi-additive |
 | `heures_payees`, `heures_sup_admin` | decimal(8,2) | Mesures semi-additives |
@@ -97,12 +93,12 @@ flowchart TB
 
 ### fact_pointage
 
-**Grain :** 1 employé × 1 jour pointé. **Volume :** 271 074 lignes (1 925 écartées). **Clé primaire :** `pointage_sk` (bigint IDENTITY).
+**Grain :** 1 employé × 1 jour pointé. **Volume :** 168 766 lignes (104 233 écartées : heure illisible ou incohérente, employé absent de l'effectif, jour après la fin du contrat). **Clé primaire :** `pointage_sk` (bigint IDENTITY).
 
 | Colonne | Type | Rôle |
 | --- | --- | --- |
-| `date_sk`, `employe_sk`, `departement_sk`, `heure_arrivee_sk`, `taux_hs_sk`, `anomalie_pointage_sk` | int / smallint | → dimensions |
-| `minutes_travaillees`, `minutes_pause`, `minutes_retard`, `minutes_sup` | int NULL | Mesures additives ; NULL si une heure est illisible |
+| `date_sk`, `employe_sk`, `departement_sk`, `heure_arrivee_sk`, `taux_hs_sk` | int / smallint | → dimensions |
+| `minutes_travaillees`, `minutes_pause`, `minutes_retard`, `minutes_sup` | int | Mesures additives |
 | `cout_heures_sup` | decimal(12,2) | Mesure additive |
 | `nb_pointages` | smallint | Compteur (1) |
 | `source_fichier` | nvarchar(50) | Traçabilité |
@@ -129,8 +125,6 @@ flowchart TB
 | `dim_type_conge` | `type_conge_code` | libellé français | SCD 1 | 4 |
 | `dim_cours` | `cours_bk` (`course_id`) | intitulé, université, niveau, note, URL, description, compétences | SCD 1 | 3 522 |
 | `dim_taux_horaire` | `code_taux` | libellé, valeur | SCD 2 (`est_courant`) | 3 |
-| `dim_anomalie_pointage` | 7 indicateurs | durée négative, fin avant reprise, pause > 3 h, journée < 1 h ou > 10 h, hors contrat, jour férié | Combinaisons générées | 128 |
-| `dim_anomalie_contrat` | 5 indicateurs | CDI avec date de fin, CDD/CIVP sans date de fin, vacataire en CDI, contrat échu, expérience incohérente | Combinaisons générées | 32 |
 
 ### Sous-dimensions
 
@@ -145,6 +139,7 @@ flowchart TB
 ## 5. Règles de modélisation
 
 - **Clés :** clé de substitution `_sk` (IDENTITY) sur chaque dimension, sauf `dim_date` et `dim_heure` dont la clé est lisible (AAAAMMJJ, HHMM). Les faits ne contiennent que des clés de substitution.
+- **Anomalies :** pas de dimension d'anomalies. Un pointage est **écarté** quand ses heures sont incohérentes (durée négative, de moins d'1 h ou de plus de 10 h, fin avant la reprise, pause de plus de 3 h) ou quand il est postérieur à la fin du contrat. Les incohérences de contrat (CDI avec date de fin, CDD ou CIVP sans date de fin, vacataire en CDI, expérience incohérente) concernent 2 105 employés sur 2 740 : elles sont gardées telles quelles, sinon le DW serait presque vide.
 - **Lignes écartées :** pas de membre « Inconnu ». Une ligne de dimension ou de fait dont une clé n'est pas trouvée, ou dont une valeur obligatoire est vide ou illisible, n'est pas chargée. Seules les clés « non applicables » acceptent NULL : date de fin d'un contrat sans terme, taux vacataire ou taux d'heures sup admin.
 - **Pas de NULL dans une clé de recherche :** un Lookup SSIS ne retrouve pas une valeur NULL. Les attributs utilisés comme clé reçoivent une valeur explicite (rang 0 = sans rang pour les administratifs).
 - **Données personnelles :** nom, e-mail et adresses de `dim_employe` sont à masquer ou à filtrer dans Power BI.
@@ -156,7 +151,7 @@ flowchart TB
 | --- | --- |
 | OM1 — Effectif et capacité | `fact_effectif_snapshot`, `dim_departement` (capacité), `dim_contrat`, `dim_date` (embauche) |
 | OM2 — Coûts et équité | `fact_effectif_snapshot` (salaires, coûts), `dim_employe` (genre), `dim_poste`, `dim_diplome` |
-| OM3 — Temps travaillé | `fact_pointage`, `dim_heure`, `dim_date` (jours ouvrés, fériés), `dim_anomalie_pointage` |
+| OM3 — Temps travaillé | `fact_pointage`, `dim_heure`, `dim_date` (jours ouvrés, fériés) |
 | OM4 — Compétences | `fact_inscription_formation`, `dim_cours`, `dim_niveau_cours`, indicateurs de technologies |
 | OM5 — Congés | `fact_effectif_snapshot` (congés), `dim_type_conge` |
-| OM6 — Échéances | `fact_effectif_snapshot` (date de fin de contrat), `dim_anomalie_contrat` |
+| OM6 — Échéances | `fact_effectif_snapshot` (date de fin de contrat), `dim_contrat` |

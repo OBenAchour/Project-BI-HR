@@ -20,7 +20,7 @@
 | `eda_audit_report.html` | Audit report it generates: 42 anomalies, impact, proposed fix |
 | `Projet_EDA_BI_RH.pptx` | EDA presentation: business objectives OM1–OM6 and KPIs |
 | `sql/staging_area.sql` | Creates the 7 `stg` tables: file columns only, typed as SSIS reads them |
-| `sql/data_warehouse.sql` | Creates the DW v2 tables in `RH_Data_Warehouse` (19 tables; rows without a match are dropped at load time) |
+| `sql/data_warehouse.sql` | Creates the DW v2 tables in `RH_Data_Warehouse` (17 tables; rows without a match are dropped at load time) |
 | `Project BI HR/` | SSIS project (Visual Studio 2022) |
 | `docs/CONCEPTION_DW.md` | DW v2 design: model, bus matrix, every fact and dimension |
 | `docs/GUIDE_RECONSTRUCTION_DW.md` | Step-by-step guide to build the DW v2 load in SSDT (components, expressions, table fiches) |
@@ -39,12 +39,13 @@ The v2 tables are created in `RH_Data_Warehouse` and loaded by `Load_DW.dtsx` (4
 👉 **Design:** [docs/CONCEPTION_DW.md](docs/CONCEPTION_DW.md)
 👉 **How to load it:** [docs/GUIDE_RECONSTRUCTION_DW.md](docs/GUIDE_RECONSTRUCTION_DW.md)
 
-- **3 fact tables:** `fact_pointage` (employee × day, 271,074 rows), `fact_effectif_snapshot` (employee × snapshot, 2,726), `fact_inscription_formation` (employee × course × snapshot, 18,618)
-- **11 dimensions:** date, time, employee (SCD 2), department, contract, position, leave type, course, hourly rate, attendance anomalies, contract anomalies
+- **3 fact tables:** `fact_pointage` (employee × day, 168,766 rows), `fact_effectif_snapshot` (employee × snapshot, 2,726), `fact_inscription_formation` (employee × course × snapshot, 18,618)
+- **9 dimensions:** date, time, employee (SCD 2), department, contract, position, leave type, course, hourly rate
+- **Anomalies are dropped, not flagged:** attendance days with incoherent hours or after the contract end are not loaded
 - **5 sub-dimensions (snowflake):** diploma, hiring channel, pole, university, course level
 - **No bridge table:** languages and technologies become yes/no flags, enrolments are fact rows
 - **No "unknown" member:** a row whose key isn't found, or whose required value is unreadable, is dropped at load time
-- **Visual SSIS components** — SQL is used only to create the tables, generate the date/time/anomaly rows, empty the facts before reloading, and update existing rows of the 2 history-tracked (SCD 2) dimensions
+- **Visual SSIS components** — SQL is used only to create the tables, generate the date and time rows, empty the facts before reloading, and update existing rows of the 2 history-tracked (SCD 2) dimensions
 
 ## Tech stack
 

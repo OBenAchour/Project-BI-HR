@@ -16,7 +16,7 @@ article.Crit{border-left-color:#b42318}article.Aver{border-left-color:#b7791f}ar
 .t td,.t th{font-size:12px}
 </style></head><body>
 <header><h1>Audit qualité des données RH</h1><p>7 fichiers sources · lecture seule · préparation du chargement SSIS / Data Warehouse</p>
-<p>Généré le 22/10/2026 à 09:35</p></header>
+<p>Généré le 22/10/2026 à 17:18</p></header>
 <nav><a href="#synthese">Synthèse</a><a href="#sources">Sources</a><a href="#graphiques">Graphiques</a><a href="#anomalies">Anomalies</a><a href="#ok">Contrôles réussis</a><a href="#methode">Méthode</a></nav>
 <main>
 <section id="synthese"><h2>Synthèse</h2>
@@ -224,7 +224,7 @@ son volume, son impact et le traitement proposé pour le chargement.</p>
 <h3>Heure manquante ou illisible <span class="b Aver">Avertissement</span></h3>
 <p class="meta">attendance_dataset_2023.csv · StartTime, BreakTime, ResumeTime, EndTime · <b>49</b></p>
 <p><b>Constat :</b> Au moins une des 4 heures est vide ou hors format %H:%M:%S.</p><p><b>Impact :</b> Durée travaillée incalculable pour ces journées.</p>
-<p><b>Traitement proposé :</b> Indicateur « heure illisible » ; mesures à NULL.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
+<p><b>Traitement proposé :</b> Journée écartée au chargement du DW.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
   <thead>
     <tr style="text-align: right;">
       <th>ID_Employee</th>
@@ -679,7 +679,7 @@ son volume, son impact et le traitement proposé pour le chargement.</p>
 <h3>CDI avec une date de fin <span class="b Crit">Critique</span></h3>
 <p class="meta">emp_data + administration_data · TYPE_CONTRACT / CONTRACT_END · <b>468</b></p>
 <p><b>Constat :</b> 468 CDI portent une date de fin (emp_data 244, administration_data 224). Un CDI n'a pas de terme.</p><p><b>Impact :</b> Échéances de contrat faussées ; risque de compter des départs inexistants.</p>
-<p><b>Traitement proposé :</b> Indicateur d'anomalie ; correction à la source (soit le type, soit la date est fausse).</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
+<p><b>Traitement proposé :</b> Gardé dans le DW ; correction à la source (soit le type, soit la date est fausse).</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
   <thead>
     <tr style="text-align: right;">
       <th>_file</th>
@@ -816,7 +816,7 @@ son volume, son impact et le traitement proposé pour le chargement.</p>
 <h3>Vacataire déclaré en CDI <span class="b Crit">Critique</span></h3>
 <p class="meta">emp_data · POSITION / TYPE_CONTRACT · <b>221</b></p>
 <p><b>Constat :</b> Un vacataire (payé à l'heure, sans salaire) est déclaré en CDI.</p><p><b>Impact :</b> Statut et contrat contradictoires.</p>
-<p><b>Traitement proposé :</b> Faire valider la règle par les RH ; indicateur d'anomalie en attendant.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
+<p><b>Traitement proposé :</b> Gardé dans le DW ; faire valider la règle par les RH.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
   <thead>
     <tr style="text-align: right;">
       <th>CODE</th>
@@ -1099,7 +1099,7 @@ son volume, son impact et le traitement proposé pour le chargement.</p>
 <h3>Pointage après la fin du contrat <span class="b Crit">Critique</span></h3>
 <p class="meta">attendance_dataset_2023.csv · Date / CONTRACT_END · <b>61 302</b></p>
 <p><b>Constat :</b> 61302 pointages de 512 employés sont postérieurs à leur date de fin de contrat.</p><p><b>Impact :</b> Soit les dates de fin sont fausses, soit des personnes sorties pointent encore.</p>
-<p><b>Traitement proposé :</b> Indicateur « pointage hors contrat » ; arbitrage RH sur les dates de fin.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
+<p><b>Traitement proposé :</b> Pointage écarté au chargement du DW ; arbitrage RH sur les dates de fin.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
   <thead>
     <tr style="text-align: right;">
       <th>ID_Employee</th>
@@ -1188,7 +1188,7 @@ son volume, son impact et le traitement proposé pour le chargement.</p>
 <h3>Pointage après la fin du contrat <span class="b Crit">Critique</span></h3>
 <p class="meta">Administration_attendance.xlsx · Date / CONTRACT_END · <b>16 431</b></p>
 <p><b>Constat :</b> 16431 pointages de 283 employés sont postérieurs à leur date de fin de contrat.</p><p><b>Impact :</b> Soit les dates de fin sont fausses, soit des personnes sorties pointent encore.</p>
-<p><b>Traitement proposé :</b> Indicateur « pointage hors contrat » ; arbitrage RH sur les dates de fin.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
+<p><b>Traitement proposé :</b> Pointage écarté au chargement du DW ; arbitrage RH sur les dates de fin.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
   <thead>
     <tr style="text-align: right;">
       <th>ID_Employee</th>
@@ -1277,7 +1277,7 @@ son volume, son impact et le traitement proposé pour le chargement.</p>
 <h3>Fin de journée avant la reprise de l'après-midi <span class="b Crit">Critique</span></h3>
 <p class="meta">Administration_attendance.xlsx · ResumeTime / EndTime · <b>3 441</b></p>
 <p><b>Constat :</b> EndTime est antérieur à ResumeTime.</p><p><b>Impact :</b> Durée de l'après-midi négative.</p>
-<p><b>Traitement proposé :</b> Indicateur d'anomalie.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
+<p><b>Traitement proposé :</b> Journée écartée au chargement du DW.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
   <thead>
     <tr style="text-align: right;">
       <th>ID_Employee</th>
@@ -1414,7 +1414,7 @@ son volume, son impact et le traitement proposé pour le chargement.</p>
 <h3>Durée travaillée négative <span class="b Crit">Critique</span></h3>
 <p class="meta">Administration_attendance.xlsx · durée calculée · <b>27</b></p>
 <p><b>Constat :</b> (fin − début) − pause &lt; 0.</p><p><b>Impact :</b> Heures négatives dans les totaux.</p>
-<p><b>Traitement proposé :</b> Exclure des mesures ; indicateur.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
+<p><b>Traitement proposé :</b> Journée écartée au chargement du DW.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
   <thead>
     <tr style="text-align: right;">
       <th>ID_Employee</th>
@@ -1567,7 +1567,7 @@ son volume, son impact et le traitement proposé pour le chargement.</p>
 <h3>Pause de plus de 3 heures <span class="b Aver">Avertissement</span></h3>
 <p class="meta">Administration_attendance.xlsx · BreakTime / ResumeTime · <b>27 389</b></p>
 <p><b>Constat :</b> 27389 journées (32.9%) ont une pause de plus de 3 h (max 5.0 h).</p><p><b>Impact :</b> Pause irréaliste : les heures de pause ou de reprise ne sont pas fiables.</p>
-<p><b>Traitement proposé :</b> Indicateur d'anomalie ; seuil à valider par les RH.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
+<p><b>Traitement proposé :</b> Journée écartée au chargement du DW ; seuil à valider par les RH.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
   <thead>
     <tr style="text-align: right;">
       <th>ID_Employee</th>
@@ -1708,7 +1708,7 @@ son volume, son impact et le traitement proposé pour le chargement.</p>
 <h3>Journée de plus de 10 heures <span class="b Aver">Avertissement</span></h3>
 <p class="meta">Administration_attendance.xlsx · durée calculée · <b>2 509</b></p>
 <p><b>Constat :</b> Plus de 10 h travaillées (max 12.7 h).</p><p><b>Impact :</b> Charge excessive ou erreur de saisie.</p>
-<p><b>Traitement proposé :</b> Vérifier ; indicateur.</p></article><article id="a29" class="Aver">
+<p><b>Traitement proposé :</b> Journée écartée au chargement du DW.</p></article><article id="a29" class="Aver">
 <h3>Pointage un jour férié <span class="b Aver">Avertissement</span></h3>
 <p class="meta">Administration_attendance.xlsx · Date · <b>1 280</b></p>
 <p><b>Constat :</b> Pointages lors de fêtes nationales tunisiennes à date fixe : {&quot;Fête de l'Indépendance&quot;: 1280}.</p><p><b>Impact :</b> Soit le calendrier n'est pas tunisien, soit les données sont générées sans calendrier.</p>
@@ -1716,7 +1716,7 @@ son volume, son impact et le traitement proposé pour le chargement.</p>
 <h3>Journée de moins d'une heure <span class="b Aver">Avertissement</span></h3>
 <p class="meta">Administration_attendance.xlsx · durée calculée · <b>470</b></p>
 <p><b>Constat :</b> Moins d'une heure travaillée.</p><p><b>Impact :</b> Journées quasi vides.</p>
-<p><b>Traitement proposé :</b> Indicateur d'anomalie.</p></article><article id="a31" class="Info">
+<p><b>Traitement proposé :</b> Journée écartée au chargement du DW.</p></article><article id="a31" class="Info">
 <h3>Périodes de pointage différentes <span class="b Info">Info</span></h3>
 <p class="meta">attendance_dataset_2023.csv + Administration_attendance.xlsx · Date · <b>1</b></p>
 <p><b>Constat :</b> Techniques : 02/01/2023 au 30/06/2023. Administratifs : 02/01/2023 au 31/03/2023.</p><p><b>Impact :</b> Toute comparaison entre populations sur des cumuls est biaisée.</p>
