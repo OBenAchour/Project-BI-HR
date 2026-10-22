@@ -23,6 +23,7 @@
 | `sql/data_warehouse.sql` | Creates the DW v2 database `RH_Data_Warehouse_v2` (19 tables, unknown members) |
 | `Project BI HR/` | SSIS project (Visual Studio 2022) |
 | `docs/CONCEPTION_DW.md` | DW v2 design: model, bus matrix, every fact and dimension |
+| `docs/GUIDE_RECONSTRUCTION_DW.md` | Step-by-step guide to build the DW v2 load in SSDT (components, expressions, table fiches) |
 | `docs/` | Also: setup guide + team conventions |
 
 ## The staging area (schema `stg`)
@@ -36,7 +37,7 @@
 ⚠️ `Load_data_warehouse.dtsx` is the **v1** package: it no longer runs against the raw staging area. The v2 database `RH_Data_Warehouse_v2` is created (empty) and the team builds its loading package by hand in SSDT:
 
 👉 **Design:** [docs/CONCEPTION_DW.md](docs/CONCEPTION_DW.md)
-👉 **How to load it:** [Guide — Reconstruire le Data Warehouse RH (v2)](https://claude.ai/artifact/BR66GDu8mnFdRxUEx1nmeX)
+👉 **How to load it:** [docs/GUIDE_RECONSTRUCTION_DW.md](docs/GUIDE_RECONSTRUCTION_DW.md)
 
 - **3 fact tables:** `fact_pointage` (employee × day, 272,999 rows), `fact_effectif_snapshot` (employee × snapshot, 2,740), `fact_inscription_formation` (employee × course × snapshot, 18,685)
 - **11 dimensions:** date, time, employee (SCD 2), department, contract, position, leave type, course, hourly rate, attendance anomalies, contract anomalies
