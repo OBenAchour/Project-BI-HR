@@ -6,10 +6,9 @@
 
    - Le script crée la base si elle n'existe pas, puis (re)crée toutes les tables :
      les données éventuelles du DW v2 sont supprimées, à recharger par SSIS.
-   - Chaque dimension reçoit un membre « Inconnu » de clé 0 (les clés IDENTITY commencent
-     à 1), cible des faits dont la clé n'est pas trouvée. Exception : dim_heure, dont la clé
-     HHMM vaut déjà 0 pour minuit ; son membre « Inconnu » a la clé 9999.
-     Les deux dimensions d'anomalies n'en ont pas : toutes leurs combinaisons sont générées.
+   - Pas de membre « Inconnu » : une ligne dont une clé n'est pas trouvée, ou dont une valeur
+     obligatoire est illisible, est écartée par le package SSIS. Seules les clés « non
+     applicables » acceptent NULL (contrat sans date de fin, taux non applicable).
    ============================================================================= */
 
 IF HAS_PERMS_BY_NAME(NULL, NULL, 'CREATE ANY DATABASE') = 0 AND DB_ID(N'RH_Data_Warehouse') IS NULL
@@ -178,7 +177,6 @@ CREATE INDEX ix_employe_bk_courant ON dw.dim_employe (employe_bk, est_courant);
 
 CREATE TABLE dw.dim_anomalie_pointage (
     anomalie_pointage_sk  int IDENTITY(1,1) NOT NULL CONSTRAINT pk_dim_anomalie_pointage PRIMARY KEY,
-    heure_illisible       bit NOT NULL,
     duree_negative        bit NOT NULL,
     fin_avant_reprise     bit NOT NULL,
     pause_plus_3h         bit NOT NULL,
@@ -186,7 +184,7 @@ CREATE TABLE dw.dim_anomalie_pointage (
     journee_plus_10h      bit NOT NULL,
     hors_contrat          bit NOT NULL,
     jour_ferie            bit NOT NULL,
-    CONSTRAINT uq_dim_anomalie_pointage UNIQUE (heure_illisible, duree_negative, fin_avant_reprise, pause_plus_3h,
+    CONSTRAINT uq_dim_anomalie_pointage UNIQUE (duree_negative, fin_avant_reprise, pause_plus_3h,
                                                 journee_moins_1h, journee_plus_10h, hors_contrat, jour_ferie)
 );
 
@@ -202,61 +200,6 @@ CREATE TABLE dw.dim_anomalie_contrat (
 );
 GO
 
-/* ----------------------------------------------------------------- membres « Inconnu » (clé 0) */
-
-SET IDENTITY_INSERT dw.dim_pole ON;
-INSERT dw.dim_pole (pole_sk, pole_libelle) VALUES (0, N'Inconnu');
-SET IDENTITY_INSERT dw.dim_pole OFF;
-
-SET IDENTITY_INSERT dw.dim_diplome ON;
-INSERT dw.dim_diplome (diplome_sk, diplome_libelle) VALUES (0, N'Inconnu');
-SET IDENTITY_INSERT dw.dim_diplome OFF;
-
-SET IDENTITY_INSERT dw.dim_canal_recrutement ON;
-INSERT dw.dim_canal_recrutement (canal_sk, canal_code, canal_libelle) VALUES (0, N'inconnu', N'Inconnu');
-SET IDENTITY_INSERT dw.dim_canal_recrutement OFF;
-
-SET IDENTITY_INSERT dw.dim_universite ON;
-INSERT dw.dim_universite (universite_sk, universite) VALUES (0, N'Inconnue');
-SET IDENTITY_INSERT dw.dim_universite OFF;
-
-SET IDENTITY_INSERT dw.dim_niveau_cours ON;
-INSERT dw.dim_niveau_cours (niveau_sk, niveau_source, niveau_libelle) VALUES (0, N'Inconnu', N'Inconnu');
-SET IDENTITY_INSERT dw.dim_niveau_cours OFF;
-
-INSERT dw.dim_date (date_sk, jour_semaine, mois) VALUES (0, N'Inconnu', N'Inconnu');
-INSERT dw.dim_heure (heure_sk, tranche_15min) VALUES (9999, N'Inconnue');
-
-SET IDENTITY_INSERT dw.dim_departement ON;
-INSERT dw.dim_departement (departement_sk, departement_bk, departement, pole_sk) VALUES (0, N'INCONNU', N'Inconnu', 0);
-SET IDENTITY_INSERT dw.dim_departement OFF;
-
-SET IDENTITY_INSERT dw.dim_type_conge ON;
-INSERT dw.dim_type_conge (type_conge_sk, type_conge_code, type_conge_libelle) VALUES (0, N'inconnu', N'Inconnu');
-SET IDENTITY_INSERT dw.dim_type_conge OFF;
-
-SET IDENTITY_INSERT dw.dim_contrat ON;
-INSERT dw.dim_contrat (contrat_sk, type_contrat, statut_emploi, est_contrat_court) VALUES (0, N'Inconnu', N'Inconnu', 0);
-SET IDENTITY_INSERT dw.dim_contrat OFF;
-
-SET IDENTITY_INSERT dw.dim_poste ON;
-INSERT dw.dim_poste (poste_sk, intitule_poste, categorie_poste, rang, activite) VALUES (0, N'Inconnu', N'Inconnu', 0, N'Inconnu');
-SET IDENTITY_INSERT dw.dim_poste OFF;
-
-SET IDENTITY_INSERT dw.dim_cours ON;
-INSERT dw.dim_cours (cours_sk, cours_bk, intitule, universite_sk, niveau_sk) VALUES (0, N'INCONNU', N'Cours inconnu', 0, 0);
-SET IDENTITY_INSERT dw.dim_cours OFF;
-
-SET IDENTITY_INSERT dw.dim_taux_horaire ON;
-INSERT dw.dim_taux_horaire (taux_sk, code_taux, libelle) VALUES (0, N'INCONNU', N'Inconnu');
-SET IDENTITY_INSERT dw.dim_taux_horaire OFF;
-
-SET IDENTITY_INSERT dw.dim_employe ON;
-INSERT dw.dim_employe (employe_sk, employe_bk, population, nom, diplome_sk, canal_sk, departement_sk)
-VALUES (0, N'INCONNU', N'Inconnu', N'Inconnu', 0, 0, 0);
-SET IDENTITY_INSERT dw.dim_employe OFF;
-GO
-
 /* ----------------------------------------------------------------- faits */
 
 CREATE TABLE dw.fact_effectif_snapshot (
@@ -269,7 +212,7 @@ CREATE TABLE dw.fact_effectif_snapshot (
     anomalie_contrat_sk    int NOT NULL CONSTRAINT fk_eff_anomalie REFERENCES dw.dim_anomalie_contrat (anomalie_contrat_sk),
     date_embauche_sk       int NOT NULL CONSTRAINT fk_eff_embauche REFERENCES dw.dim_date (date_sk),
     date_debut_contrat_sk  int NOT NULL CONSTRAINT fk_eff_debut_contrat REFERENCES dw.dim_date (date_sk),
-    date_fin_contrat_sk    int NOT NULL CONSTRAINT fk_eff_fin_contrat REFERENCES dw.dim_date (date_sk),
+    date_fin_contrat_sk    int NULL CONSTRAINT fk_eff_fin_contrat REFERENCES dw.dim_date (date_sk),
     taux_vacataire_sk      int NULL CONSTRAINT fk_eff_taux_vac REFERENCES dw.dim_taux_horaire (taux_sk),
     taux_hs_admin_sk       int NULL CONSTRAINT fk_eff_taux_hs REFERENCES dw.dim_taux_horaire (taux_sk),
     salaire_mensuel        decimal(12,2) NULL,
