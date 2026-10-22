@@ -16,7 +16,7 @@ article.Crit{border-left-color:#b42318}article.Aver{border-left-color:#b7791f}ar
 .t td,.t th{font-size:12px}
 </style></head><body>
 <header><h1>Audit qualité des données RH</h1><p>7 fichiers sources · lecture seule · préparation du chargement SSIS / Data Warehouse</p>
-<p>Généré le 20/10/2026 à 08:43</p></header>
+<p>Généré le 22/10/2026 à 09:35</p></header>
 <nav><a href="#synthese">Synthèse</a><a href="#sources">Sources</a><a href="#graphiques">Graphiques</a><a href="#anomalies">Anomalies</a><a href="#ok">Contrôles réussis</a><a href="#methode">Méthode</a></nav>
 <main>
 <section id="synthese"><h2>Synthèse</h2>
@@ -115,11 +115,11 @@ son volume, son impact et le traitement proposé pour le chargement.</p>
 <h3>Pointages d'un employé absent des fiches <span class="b Crit">Critique</span></h3>
 <p class="meta">Administration_attendance.xlsx · ID_Employee · <b>65</b></p>
 <p><b>Constat :</b> 1 identifiant(s) pointe(nt) sans fiche dans administration_data : ['d1f3417f-6a3e-4a2d-92eb-cc768822f4f4'].</p><p><b>Impact :</b> Ces heures ne sont rattachées à aucun employé ni département connu.</p>
-<p><b>Traitement proposé :</b> Membre « Inconnu » dans le DW et signalement à la source.</p></article><article id="a9" class="Aver">
+<p><b>Traitement proposé :</b> Écarter ces pointages au chargement du DW et signaler l'employé à la source.</p></article><article id="a9" class="Aver">
 <h3>Valeurs réellement manquantes <span class="b Aver">Avertissement</span></h3>
 <p class="meta">emp_data · NAME_EMP, ADRESS, GRAD_UNIVERSITY, EXP_YEARS, EMAIL, LANGUAGE, GRADE, STARTING_DATE, REGISTRATION_NUMBER, TYPE_CONTRACT, DEP_ID, TECHNOLOGIES, LEAVE_CONSUMED, ID_TRAINING, ACTIVITY · <b>70</b></p>
-<p><b>Constat :</b> Valeurs absentes sans explication métier (les vides attendus, comme SALARY des vacataires, sont exclus du total).</p><p><b>Impact :</b> Lignes incomplètes : membre « Inconnu » dans le DW ou KPI faussés (ex. 4 employés sans département).</p>
-<p><b>Traitement proposé :</b> Remonter les cas à la source ; au chargement, rattacher à « Inconnu ».</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
+<p><b>Constat :</b> Valeurs absentes sans explication métier (les vides attendus, comme SALARY des vacataires, sont exclus du total).</p><p><b>Impact :</b> Lignes incomplètes : écartées au chargement du DW ou KPI faussés (ex. 4 employés sans département).</p>
+<p><b>Traitement proposé :</b> Remonter les cas à la source ; au chargement, écarter les lignes dont une valeur obligatoire manque.</p><details><summary>Exemples (15 premières lignes)</summary><table class="dataframe t">
   <thead>
     <tr style="text-align: right;">
       <th>fichier</th>
@@ -1894,7 +1894,7 @@ son volume, son impact et le traitement proposé pour le chargement.</p>
 <h3>Inscription à un cours absent du catalogue <span class="b Aver">Avertissement</span></h3>
 <p class="meta">emp_data → Coursera_trainings.csv · ID_TRAINING → course_id · <b>6</b></p>
 <p><b>Constat :</b> 6 inscriptions sur 18685 visent un identifiant absent : ['3523'].</p><p><b>Impact :</b> Inscriptions non rattachables à un cours.</p>
-<p><b>Traitement proposé :</b> Écarter ou rattacher à « Cours inconnu ».</p><details><summary>Exemples (6 premières lignes)</summary><table class="dataframe t">
+<p><b>Traitement proposé :</b> Écarter ces inscriptions au chargement du DW.</p><details><summary>Exemples (6 premières lignes)</summary><table class="dataframe t">
   <thead>
     <tr style="text-align: right;">
       <th>CODE</th>

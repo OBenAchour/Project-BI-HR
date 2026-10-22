@@ -221,8 +221,8 @@ def check_quality(a: Audit, s: dict):
     real = miss[miss["nature"] == "vide réel"]
     a.add(T, "emp_data", ", ".join(real["colonne"]), "Valeurs réellement manquantes", int(real["vides"].sum()), "Avertissement",
           "Valeurs absentes sans explication métier (les vides attendus, comme SALARY des vacataires, sont exclus du total).",
-          "Lignes incomplètes : membre « Inconnu » dans le DW ou KPI faussés (ex. 4 employés sans département).",
-          "Remonter les cas à la source ; au chargement, rattacher à « Inconnu ».", miss)
+          "Lignes incomplètes : écartées au chargement du DW ou KPI faussés (ex. 4 employés sans département).",
+          "Remonter les cas à la source ; au chargement, écarter les lignes dont une valeur obligatoire manque.", miss)
 
     for name, df, key in [("emp_data", emp, "CODE"), ("administration_data", s["adm_p"], "ID_Employee")]:
         a.add(T, name, key, "Identifiant employé en double", int(df[key].duplicated().sum()), "Critique",
@@ -261,7 +261,7 @@ def check_quality(a: Audit, s: dict):
           int(orphan.sum()), "Critique",
           f"{att_adm.loc[orphan, 'ID_Employee'].nunique()} identifiant(s) pointe(nt) sans fiche dans administration_data : "
           f"{sorted(att_adm.loc[orphan, 'ID_Employee'].unique())}.",
-          "Ces heures ne sont rattachées à aucun employé ni département connu.", "Membre « Inconnu » dans le DW et signalement à la source.")
+          "Ces heures ne sont rattachées à aucun employé ni département connu.", "Écarter ces pointages au chargement du DW et signaler l'employé à la source.")
     orphan_t = ~s["att_tech_p"]["ID_Employee"].isin(emp["CODE"])
     a.add(T, "attendance_dataset_2023.csv", "ID_Employee", "Pointages d'un employé absent des fiches", int(orphan_t.sum()),
           "Critique", "Identifiant sans fiche.", "Heures non rattachées.", "Signaler à la source.")
@@ -454,7 +454,7 @@ def check_departments_courses(a: Audit, s: dict):
     a.add(T, "emp_data → Coursera_trainings.csv", "ID_TRAINING → course_id", "Inscription à un cours absent du catalogue",
           len(unknown), "Avertissement",
           f"{len(unknown)} inscriptions sur {len(ids)} visent un identifiant absent : {sorted({x for _, x in unknown})}.",
-          "Inscriptions non rattachables à un cours.", "Écarter ou rattacher à « Cours inconnu ».",
+          "Inscriptions non rattachables à un cours.", "Écarter ces inscriptions au chargement du DW.",
           pd.DataFrame(unknown, columns=["CODE", "course_id"]))
 
     p = s["params_raw"]
