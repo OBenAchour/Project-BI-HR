@@ -1,7 +1,7 @@
 /* =============================================================================
    Data Warehouse RH v2 : base RH_Data_Warehouse, schéma dw
    -----------------------------------------------------------------------------
-   Constellation : 3 faits, 11 dimensions, 5 sous-dimensions, aucune table de pont.
+   Constellation : 3 faits, 9 dimensions, 5 sous-dimensions, aucune table de pont.
    Détail de chaque table : docs/CONCEPTION_DW.md.
 
    - Le script crée la base si elle n'existe pas, puis (re)crée toutes les tables :
@@ -9,6 +9,8 @@
    - Pas de membre « Inconnu » : une ligne dont une clé n'est pas trouvée, ou dont une valeur
      obligatoire est illisible, est écartée par le package SSIS. Seules les clés « non
      applicables » acceptent NULL (contrat sans date de fin, taux non applicable).
+   - Pas de dimension d'anomalies : un pointage aux heures incohérentes ou postérieur à la fin
+     du contrat est écarté par le package SSIS.
    ============================================================================= */
 
 IF HAS_PERMS_BY_NAME(NULL, NULL, 'CREATE ANY DATABASE') = 0 AND DB_ID(N'RH_Data_Warehouse') IS NULL
@@ -29,7 +31,8 @@ IF (OBJECT_ID(N'dw.fact_pointage') IS NOT NULL AND EXISTS (SELECT 1 FROM dw.fact
    OR (OBJECT_ID(N'dw.fact_inscription_formation') IS NOT NULL AND EXISTS (SELECT 1 FROM dw.fact_inscription_formation))
     THROW 50002, N'Le DW contient déjà des faits : script arrêté, aucune table supprimée.', 1;
 
--- Suppression dans l'ordre des dépendances (faits, dimensions, sous-dimensions)
+-- Suppression dans l'ordre des dépendances (faits, dimensions, sous-dimensions).
+-- dim_anomalie_pointage et dim_anomalie_contrat n'existent plus : elles sont supprimées si une version précédente les a créées.
 DROP TABLE IF EXISTS dw.fact_inscription_formation, dw.fact_pointage, dw.fact_effectif_snapshot;
 DROP TABLE IF EXISTS dw.dim_employe, dw.dim_cours, dw.dim_departement, dw.dim_contrat, dw.dim_poste,
                      dw.dim_type_conge, dw.dim_taux_horaire, dw.dim_anomalie_pointage,
@@ -175,29 +178,6 @@ CREATE TABLE dw.dim_employe (
 );
 CREATE INDEX ix_employe_bk_courant ON dw.dim_employe (employe_bk, est_courant);
 
-CREATE TABLE dw.dim_anomalie_pointage (
-    anomalie_pointage_sk  int IDENTITY(1,1) NOT NULL CONSTRAINT pk_dim_anomalie_pointage PRIMARY KEY,
-    duree_negative        bit NOT NULL,
-    fin_avant_reprise     bit NOT NULL,
-    pause_plus_3h         bit NOT NULL,
-    journee_moins_1h      bit NOT NULL,
-    journee_plus_10h      bit NOT NULL,
-    hors_contrat          bit NOT NULL,
-    jour_ferie            bit NOT NULL,
-    CONSTRAINT uq_dim_anomalie_pointage UNIQUE (duree_negative, fin_avant_reprise, pause_plus_3h,
-                                                journee_moins_1h, journee_plus_10h, hors_contrat, jour_ferie)
-);
-
-CREATE TABLE dw.dim_anomalie_contrat (
-    anomalie_contrat_sk     int IDENTITY(1,1) NOT NULL CONSTRAINT pk_dim_anomalie_contrat PRIMARY KEY,
-    cdi_avec_date_fin       bit NOT NULL,
-    cdd_civp_sans_date_fin  bit NOT NULL,
-    vacataire_en_cdi        bit NOT NULL,
-    contrat_echu            bit NOT NULL,
-    experience_incoherente  bit NOT NULL,
-    CONSTRAINT uq_dim_anomalie_contrat UNIQUE (cdi_avec_date_fin, cdd_civp_sans_date_fin, vacataire_en_cdi,
-                                               contrat_echu, experience_incoherente)
-);
 GO
 
 /* ----------------------------------------------------------------- faits */
@@ -209,7 +189,6 @@ CREATE TABLE dw.fact_effectif_snapshot (
     contrat_sk             int NOT NULL CONSTRAINT fk_eff_contrat REFERENCES dw.dim_contrat (contrat_sk),
     poste_sk               int NOT NULL CONSTRAINT fk_eff_poste REFERENCES dw.dim_poste (poste_sk),
     type_conge_sk          int NOT NULL CONSTRAINT fk_eff_type_conge REFERENCES dw.dim_type_conge (type_conge_sk),
-    anomalie_contrat_sk    int NOT NULL CONSTRAINT fk_eff_anomalie REFERENCES dw.dim_anomalie_contrat (anomalie_contrat_sk),
     date_embauche_sk       int NOT NULL CONSTRAINT fk_eff_embauche REFERENCES dw.dim_date (date_sk),
     date_debut_contrat_sk  int NOT NULL CONSTRAINT fk_eff_debut_contrat REFERENCES dw.dim_date (date_sk),
     date_fin_contrat_sk    int NULL CONSTRAINT fk_eff_fin_contrat REFERENCES dw.dim_date (date_sk),
@@ -237,7 +216,6 @@ CREATE TABLE dw.fact_pointage (
     departement_sk        int NOT NULL CONSTRAINT fk_pt_departement REFERENCES dw.dim_departement (departement_sk),
     heure_arrivee_sk      smallint NOT NULL CONSTRAINT fk_pt_heure REFERENCES dw.dim_heure (heure_sk),
     taux_hs_sk            int NOT NULL CONSTRAINT fk_pt_taux REFERENCES dw.dim_taux_horaire (taux_sk),
-    anomalie_pointage_sk  int NOT NULL CONSTRAINT fk_pt_anomalie REFERENCES dw.dim_anomalie_pointage (anomalie_pointage_sk),
     minutes_travaillees   int NULL,
     minutes_pause         int NULL,
     minutes_retard        int NULL,
