@@ -1,28 +1,34 @@
 /* =============================================================================
-   Data Warehouse RH v2 : base RH_Data_Warehouse_v2, schéma dw
+   Data Warehouse RH v2 : base RH_Data_Warehouse, schéma dw
    -----------------------------------------------------------------------------
    Constellation : 3 faits, 11 dimensions, 5 sous-dimensions, aucune table de pont.
    Détail de chaque table : docs/CONCEPTION_DW.md.
 
    - Le script crée la base si elle n'existe pas, puis (re)crée toutes les tables :
      les données éventuelles du DW v2 sont supprimées, à recharger par SSIS.
-   - Chaque dimension à clé IDENTITY reçoit un membre « Inconnu » (clé -1), cible des
-     faits dont la clé n'est pas trouvée. Les deux dimensions d'anomalies n'en ont pas :
-     toutes leurs combinaisons sont générées.
-   - Le DW v1 (base RH_Data_Warehouse) n'est pas modifié.
+   - Chaque dimension reçoit un membre « Inconnu » de clé 0 (les clés IDENTITY commencent
+     à 1), cible des faits dont la clé n'est pas trouvée. Exception : dim_heure, dont la clé
+     HHMM vaut déjà 0 pour minuit ; son membre « Inconnu » a la clé 9999.
+     Les deux dimensions d'anomalies n'en ont pas : toutes leurs combinaisons sont générées.
    ============================================================================= */
 
-IF HAS_PERMS_BY_NAME(NULL, NULL, 'CREATE ANY DATABASE') = 0 AND DB_ID(N'RH_Data_Warehouse_v2') IS NULL
-    THROW 50001, N'Droit CREATE DATABASE manquant : la base RH_Data_Warehouse_v2 ne peut pas être créée.', 1;
-IF DB_ID(N'RH_Data_Warehouse_v2') IS NULL
-    CREATE DATABASE RH_Data_Warehouse_v2;
+IF HAS_PERMS_BY_NAME(NULL, NULL, 'CREATE ANY DATABASE') = 0 AND DB_ID(N'RH_Data_Warehouse') IS NULL
+    THROW 50001, N'Droit CREATE DATABASE manquant : la base RH_Data_Warehouse ne peut pas être créée.', 1;
+IF DB_ID(N'RH_Data_Warehouse') IS NULL
+    CREATE DATABASE RH_Data_Warehouse;
 GO
 
-USE RH_Data_Warehouse_v2;
+USE RH_Data_Warehouse;
 GO
 
 IF SCHEMA_ID(N'dw') IS NULL EXEC (N'CREATE SCHEMA dw');
 GO
+
+-- Sécurité : ne jamais effacer un DW déjà chargé.
+IF (OBJECT_ID(N'dw.fact_pointage') IS NOT NULL AND EXISTS (SELECT 1 FROM dw.fact_pointage))
+   OR (OBJECT_ID(N'dw.fact_effectif_snapshot') IS NOT NULL AND EXISTS (SELECT 1 FROM dw.fact_effectif_snapshot))
+   OR (OBJECT_ID(N'dw.fact_inscription_formation') IS NOT NULL AND EXISTS (SELECT 1 FROM dw.fact_inscription_formation))
+    THROW 50002, N'Le DW contient déjà des faits : script arrêté, aucune table supprimée.', 1;
 
 -- Suppression dans l'ordre des dépendances (faits, dimensions, sous-dimensions)
 DROP TABLE IF EXISTS dw.fact_inscription_formation, dw.fact_pointage, dw.fact_effectif_snapshot;
@@ -196,58 +202,58 @@ CREATE TABLE dw.dim_anomalie_contrat (
 );
 GO
 
-/* ----------------------------------------------------------------- membres « Inconnu » (-1) */
+/* ----------------------------------------------------------------- membres « Inconnu » (clé 0) */
 
 SET IDENTITY_INSERT dw.dim_pole ON;
-INSERT dw.dim_pole (pole_sk, pole_libelle) VALUES (-1, N'Inconnu');
+INSERT dw.dim_pole (pole_sk, pole_libelle) VALUES (0, N'Inconnu');
 SET IDENTITY_INSERT dw.dim_pole OFF;
 
 SET IDENTITY_INSERT dw.dim_diplome ON;
-INSERT dw.dim_diplome (diplome_sk, diplome_libelle) VALUES (-1, N'Inconnu');
+INSERT dw.dim_diplome (diplome_sk, diplome_libelle) VALUES (0, N'Inconnu');
 SET IDENTITY_INSERT dw.dim_diplome OFF;
 
 SET IDENTITY_INSERT dw.dim_canal_recrutement ON;
-INSERT dw.dim_canal_recrutement (canal_sk, canal_code, canal_libelle) VALUES (-1, N'inconnu', N'Inconnu');
+INSERT dw.dim_canal_recrutement (canal_sk, canal_code, canal_libelle) VALUES (0, N'inconnu', N'Inconnu');
 SET IDENTITY_INSERT dw.dim_canal_recrutement OFF;
 
 SET IDENTITY_INSERT dw.dim_universite ON;
-INSERT dw.dim_universite (universite_sk, universite) VALUES (-1, N'Inconnue');
+INSERT dw.dim_universite (universite_sk, universite) VALUES (0, N'Inconnue');
 SET IDENTITY_INSERT dw.dim_universite OFF;
 
 SET IDENTITY_INSERT dw.dim_niveau_cours ON;
-INSERT dw.dim_niveau_cours (niveau_sk, niveau_source, niveau_libelle) VALUES (-1, N'Inconnu', N'Inconnu');
+INSERT dw.dim_niveau_cours (niveau_sk, niveau_source, niveau_libelle) VALUES (0, N'Inconnu', N'Inconnu');
 SET IDENTITY_INSERT dw.dim_niveau_cours OFF;
 
-INSERT dw.dim_date (date_sk, jour_semaine, mois) VALUES (-1, N'Inconnu', N'Inconnu');
-INSERT dw.dim_heure (heure_sk, tranche_15min) VALUES (-1, N'Inconnue');
+INSERT dw.dim_date (date_sk, jour_semaine, mois) VALUES (0, N'Inconnu', N'Inconnu');
+INSERT dw.dim_heure (heure_sk, tranche_15min) VALUES (9999, N'Inconnue');
 
 SET IDENTITY_INSERT dw.dim_departement ON;
-INSERT dw.dim_departement (departement_sk, departement_bk, departement, pole_sk) VALUES (-1, N'INCONNU', N'Inconnu', -1);
+INSERT dw.dim_departement (departement_sk, departement_bk, departement, pole_sk) VALUES (0, N'INCONNU', N'Inconnu', 0);
 SET IDENTITY_INSERT dw.dim_departement OFF;
 
 SET IDENTITY_INSERT dw.dim_type_conge ON;
-INSERT dw.dim_type_conge (type_conge_sk, type_conge_code, type_conge_libelle) VALUES (-1, N'inconnu', N'Inconnu');
+INSERT dw.dim_type_conge (type_conge_sk, type_conge_code, type_conge_libelle) VALUES (0, N'inconnu', N'Inconnu');
 SET IDENTITY_INSERT dw.dim_type_conge OFF;
 
 SET IDENTITY_INSERT dw.dim_contrat ON;
-INSERT dw.dim_contrat (contrat_sk, type_contrat, statut_emploi, est_contrat_court) VALUES (-1, N'Inconnu', N'Inconnu', 0);
+INSERT dw.dim_contrat (contrat_sk, type_contrat, statut_emploi, est_contrat_court) VALUES (0, N'Inconnu', N'Inconnu', 0);
 SET IDENTITY_INSERT dw.dim_contrat OFF;
 
 SET IDENTITY_INSERT dw.dim_poste ON;
-INSERT dw.dim_poste (poste_sk, intitule_poste, categorie_poste, rang, activite) VALUES (-1, N'Inconnu', N'Inconnu', 0, N'Inconnu');
+INSERT dw.dim_poste (poste_sk, intitule_poste, categorie_poste, rang, activite) VALUES (0, N'Inconnu', N'Inconnu', 0, N'Inconnu');
 SET IDENTITY_INSERT dw.dim_poste OFF;
 
 SET IDENTITY_INSERT dw.dim_cours ON;
-INSERT dw.dim_cours (cours_sk, cours_bk, intitule, universite_sk, niveau_sk) VALUES (-1, N'INCONNU', N'Cours inconnu', -1, -1);
+INSERT dw.dim_cours (cours_sk, cours_bk, intitule, universite_sk, niveau_sk) VALUES (0, N'INCONNU', N'Cours inconnu', 0, 0);
 SET IDENTITY_INSERT dw.dim_cours OFF;
 
 SET IDENTITY_INSERT dw.dim_taux_horaire ON;
-INSERT dw.dim_taux_horaire (taux_sk, code_taux, libelle) VALUES (-1, N'INCONNU', N'Inconnu');
+INSERT dw.dim_taux_horaire (taux_sk, code_taux, libelle) VALUES (0, N'INCONNU', N'Inconnu');
 SET IDENTITY_INSERT dw.dim_taux_horaire OFF;
 
 SET IDENTITY_INSERT dw.dim_employe ON;
 INSERT dw.dim_employe (employe_sk, employe_bk, population, nom, diplome_sk, canal_sk, departement_sk)
-VALUES (-1, N'INCONNU', N'Inconnu', N'Inconnu', -1, -1, -1);
+VALUES (0, N'INCONNU', N'Inconnu', N'Inconnu', 0, 0, 0);
 SET IDENTITY_INSERT dw.dim_employe OFF;
 GO
 
