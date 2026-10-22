@@ -8,7 +8,7 @@
 
 ```
 7 source files ──► RH_Staging_Area (stg) ──► RH_Data_Warehouse (dw) ──► Power BI
- (xlsx/csv/ods/txt)   Load_Staging_Area.dtsx   Load_DW.dtsx (in progress)
+ (xlsx/csv/ods/txt)   Load_Staging_Area.dtsx   Load_DW.dtsx
 ```
 
 ## What's inside
@@ -32,9 +32,9 @@
 - **Type differences are handled in the database:** each `stg` column has the type SSIS reads (`float` for Excel numbers, `datetime` for Excel dates, UTF-8 `varchar` for UTF-8 text).
 - **All cleaning happens in the DW load.**
 
-## The Data Warehouse (schema `dw`) — v2, being rebuilt
+## The Data Warehouse (schema `dw`) — v2
 
-⚠️ The v1 package was removed. The v2 tables are created (empty) in `RH_Data_Warehouse` and the team builds the new loading package, `Load_DW.dtsx`, by hand in SSDT:
+The v2 tables are created in `RH_Data_Warehouse` and loaded by `Load_DW.dtsx` (4 containers: generated tables, sub-dimensions, dimensions, facts):
 
 👉 **Design:** [docs/CONCEPTION_DW.md](docs/CONCEPTION_DW.md)
 👉 **How to load it:** [docs/GUIDE_RECONSTRUCTION_DW.md](docs/GUIDE_RECONSTRUCTION_DW.md)
@@ -44,7 +44,7 @@
 - **5 sub-dimensions (snowflake):** diploma, hiring channel, pole, university, course level
 - **No bridge table:** languages and technologies become yes/no flags, enrolments are fact rows
 - **No "unknown" member:** a row whose key isn't found, or whose required value is unreadable, is dropped at load time
-- **Visual SSIS components only** — SQL is used only to create the tables and empty the facts before reloading
+- **Visual SSIS components** — SQL is used only to create the tables, generate the date/time/anomaly rows, empty the facts before reloading, and update existing rows of the 2 history-tracked (SCD 2) dimensions
 
 ## Tech stack
 

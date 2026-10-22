@@ -2,6 +2,8 @@
 
 Mis à jour le 22/10/2026
 
+> **Le package est construit :** `Project BI HR/Load_DW.dtsx` suit ce guide. Il diffère sur trois points, faute de pouvoir créer certains composants hors de SSDT : tables générées par une requête source, historisation SCD 2 montée avec des composants standard, boucle *For Loop* à la place de l'Unpivot (sections 3 et 4).
+
 ## 1. En bref
 
 Ce guide décrit le DW v2 à construire à la main dans SSDT : **3 tables de faits, 11 dimensions et 5 sous-dimensions, sans aucune table de pont**. Chaque table indique sa source dans le SA, chaque colonne son origine, et chaque transformation sa raison, tirée de l'audit EDA (`eda_audit_report.html`).
@@ -12,7 +14,7 @@ Ce guide décrit le DW v2 à construire à la main dans SSDT : **3 tables de fai
    - les **langues** (4 valeurs possibles) et les **technologies** (2 valeurs possibles) deviennent des **indicateurs oui/non** dans `dim_employe` ;
    - les **formations suivies** (liste `ID_TRAINING`) deviennent des **lignes de fait** dans `fact_inscription_formation` (un fait sans mesure n'est pas un pont : c'est un événement « employé inscrit à un cours ») ;
    - les **compétences des cours** (`Skills`) restent un texte descriptif dans `dim_cours`.
-2. **Composants visuels plutôt que SQL.** Sources en mode « Table or view », Lookups en mode « Use a table or a view », nettoyage par **Derived Column**, **Data Conversion**, **Conditional Split**, **Aggregate**, **Union All**, **Unpivot**, **Slowly Changing Dimension**. Aucune requête SQL dans les data flows.
+2. **Composants visuels plutôt que SQL.** Sources en mode « Table or view », Lookups en mode « Use a table or a view », nettoyage par **Derived Column**, **Data Conversion**, **Conditional Split**, **Aggregate**, **Union All**, **Lookup**, **Multicast**, **OLE DB Command**. Aucune requête SQL dans les data flows, sauf les exceptions ci-dessous.
 3. **Chaque transformation a une raison écrite.** Les fiches des sections 5 et 6 donnent, pour chaque étape, l'anomalie de l'EDA qu'elle corrige ou la règle métier qu'elle applique.
 
 ### Les seules exceptions SQL, faute d'équivalent visuel
@@ -21,6 +23,8 @@ Ce guide décrit le DW v2 à construire à la main dans SSDT : **3 tables de fai
 | --- | --- |
 | Script de création des tables `dw` (une fois) | La structure d'une base ne se crée pas dans un data flow. Le concepteur de tables de SSMS est une alternative visuelle. |
 | *Execute SQL Task* `TRUNCATE` / `DELETE` avant le chargement des faits | Une destination OLE DB ajoute des lignes mais ne peut pas vider une table. Sans cette étape, relancer le package crée des doublons. |
+| Source des 4 tables générées (`dim_date`, `dim_heure`, `dim_anomalie_pointage`, `dim_anomalie_contrat`) | Aucun fichier ne contient ces lignes : une requête de la source OLE DB les génère (jours, minutes, combinaisons d'indicateurs). Choix de l'équipe à la place d'un Script Component C# |
+| *OLE DB Command* de l'historisation SCD 2 | Clôturer ou modifier une ligne déjà chargée exige un `UPDATE` : l'assistant Slowly Changing Dimension génère les mêmes OLE DB Command |
 
 ### Ce qui change par rapport au DW v1
 
@@ -93,11 +97,11 @@ Une douzaine de composants visuels suffisent pour tout le DW ; le tableau dit le
 | Filtrer ou aiguiller des lignes | **Conditional Split** | La sortie par défaut non reliée = lignes écartées |
 | Assembler techniques et administratifs | **Union All** | Aligner les colonnes par nom dans l'éditeur |
 | Obtenir les valeurs distinctes d'une dimension | **Aggregate** | *Group by* sur toutes les colonnes du membre |
-| Transformer une liste en lignes (formations) | **Unpivot** | Après une Derived Column qui découpe la liste en 25 colonnes |
+| Transformer une liste en lignes (formations) | **For Loop** + **Derived Column** | La boucle passe 25 fois (`User::RangCours` = 1 à 25) ; à chaque passe, `TOKEN` lit le cours de ce rang dans chaque liste |
 | Trouver une clé de substitution | **Lookup** | *Full cache*, connexion DW, **Use a table or a view** ; *No match* : **Redirect rows to no match output** |
 | Insérer les nouveaux membres d'une dimension | **OLE DB Destination** | *Table or view – fast load*, sur la sortie *No Match* du Lookup |
-| Historiser `dim_employe` et dim\_taux\_horaire | **Slowly Changing Dimension** | Assistant : attributs *Historical* (type 2) et *Changing* (type 1). Choisir « Use a single column to show current and expired records » avec est\_courant (True / False) : les Lookups des faits s'appuient sur cette colonne |
-| Générer `dim_date` et `dim_heure` | **Script Component** en mode *Source* | Une boucle C# qui produit une ligne par jour ou par minute |
+| Historiser `dim_employe` et dim\_taux\_horaire | **Lookup** + **Conditional Split** + **OLE DB Command** + **Union All** | Le montage que produit l'assistant Slowly Changing Dimension (voir « Historisation SCD 2 » ci-dessous) ; `est_courant` (True / False) repère la version courante, et les Lookups des faits s'appuient sur cette colonne |
+| Générer `dim_date`, `dim_heure` et les 2 dimensions d'anomalies | **OLE DB Source** en mode *SQL command* | Une requête qui produit une ligne par jour, par minute ou par combinaison (exception de la section 1) |
 | Vider un fait avant rechargement | **Execute SQL Task** | Seule exception SQL (section 1) |
 
 ### Ligne sans correspondance : écartée
@@ -113,6 +117,19 @@ Le DW n'a pas de membre « Inconnu ». Une ligne dont une clé n'est pas trouvé
 - **contrat sans date de fin** : `date_fin_contrat_sk` = NULL ;
 - **taux non applicable** (un permanent n'a pas de taux vacataire) : avant le Lookup du taux, un **Conditional Split** envoie les lignes sans code de taux directement à l'**Union All** qui suit le Lookup.
 
+### Historisation SCD 2 (dim\_employe, dim\_taux\_horaire)
+
+L'assistant Slowly Changing Dimension ne peut pas être créé hors de SSDT : le package utilise le montage qu'il génère, avec des composants standard.
+
+1. **Lookup `LKP_Version_Courante`** sur la dimension, joint sur (clé métier, `est_courant` = True). Il renvoie la clé et les valeurs actuelles (`actuel_…`).
+2. **No Match** (nouvel employé ou nouveau taux) → **Union All** → Derived Column `date_debut` = `DateSnapshot` → **Destination**.
+3. **Match** → **Conditional Split `CSPL_Type_De_Changement`** :
+   - *Attribut historisé modifié* (département, adresse, statut marital ; valeur du taux) → **Multicast** : une branche **OLE DB Command** clôt la version courante (`est_courant` = 0, `date_fin` = veille du snapshot), l'autre rejoint l'Union All et insère la nouvelle version ;
+   - *Attribut modifiable modifié* (les autres colonnes) → **OLE DB Command** qui met à jour la version courante ;
+   - sortie par défaut (rien n'a changé) : non reliée, aucune écriture.
+
+Pour revenir au composant de l'assistant, remplacez les étapes 1 à 3 par un **Slowly Changing Dimension** avec les mêmes attributs *Historical* et *Changing*, et l'option « Use a single column to show current and expired records » sur `est_courant`.
+
 ### Expressions SSIS prêtes à copier (Derived Column)
 
 | But | Expression |
@@ -127,7 +144,7 @@ Le DW n'a pas de membre « Inconnu ». Une ligne dont une clé n'est pas trouvé
 | Technologie maîtrisée | `ISNULL([TECHNOLOGIES]) ? FALSE : FINDSTRING([TECHNOLOGIES],"Telecom",1) > 0` |
 | Libellé sans casse ni espaces parasites | `LOWER(TRIM([LEAVE_TYPE]))` |
 | Liste de formations nettoyée | `REPLACE(REPLACE(REPLACE([ID_TRAINING],"[",""),"]","")," ","")` |
-| N-ième formation de la liste (n = 1 à 25) | `TOKEN([liste_formations],",",1)` … `TOKEN([liste_formations],",",25)` |
+| Formation du rang en cours de la boucle (1 à 25) | `TOKEN([liste_formations],",",@[User::RangCours])` |
 | Apostrophe perdue (« � ») dans un intitulé de cours | `REPLACE([Course Name],"\xFFFD","'")` |
 
 Les expressions SSIS ne travaillent pas sur les textes longs (`DT_TEXT` / `DT_NTEXT`). La description Coursera (jusqu'à 8 977 caractères) est donc seulement convertie en `DT_NTEXT` par **Data Conversion** et chargée telle quelle.
@@ -141,13 +158,14 @@ Le package `Load_DW.dtsx` enchaîne 4 conteneurs : chaque table n'est chargée q
 | `SEQ_1_Tables_generees` | `DFT_DIM_DATE`, `DFT_DIM_HEURE`, `DFT_DIM_ANOMALIE_POINTAGE`, `DFT_DIM_ANOMALIE_CONTRAT` | — |
 | `SEQ_2_Sous_dimensions` | `DFT_DIM_POLE`, `DFT_DIM_DIPLOME`, `DFT_DIM_CANAL_RECRUTEMENT`, `DFT_DIM_UNIVERSITE`, `DFT_DIM_NIVEAU_COURS`, `DFT_DIM_TAUX_HORAIRE` (dimension sans dépendance, chargée ici) | — |
 | `SEQ_3_Dimensions` | `DFT_DIM_DEPARTEMENT`, `DFT_DIM_TYPE_CONGE`, `DFT_DIM_CONTRAT`, `DFT_DIM_POSTE`, `DFT_DIM_COURS`, puis `DFT_DIM_EMPLOYE` | Sous-dimensions ; `dim_employe` attend `dim_departement` |
-| `SEQ_4_Faits` | `SQL_Vider_Snapshot_Effectif` → `DFT_FACT_EFFECTIF` → `SQL_Vider_Pointage` → `DFT_FACT_POINTAGE` (le pointage lit la fin de contrat dans l'effectif) ; en parallèle : `SQL_Vider_Snapshot_Formation` → `DFT_FACT_INSCRIPTION_FORMATION` | Toutes les dimensions |
+| `SEQ_4_Faits` | `SQL_Vider_Snapshot_Effectif` → `DFT_FACT_EFFECTIF` → `SQL_Vider_Pointage` → `DFT_FACT_POINTAGE` (le pointage lit la fin de contrat dans l'effectif) ; en parallèle : `SQL_Vider_Snapshot_Formation` → `FLC_Rang_Cours_1_a_25` (boucle *For Loop* qui exécute `DFT_FACT_INSCRIPTION_FORMATION` 25 fois) | Toutes les dimensions |
 
 ### Avant de construire
 
 1. **Les tables existent déjà :** la base `RH_Data_Warehouse` (schéma `dw`) a été créée sur le serveur Tailscale par `sql/data_warehouse.sql`, sans membre « Inconnu ». Le détail du modèle est dans [docs/CONCEPTION_DW.md](CONCEPTION_DW.md). Le script refuse de s'exécuter si des faits sont déjà chargés.
 2. **Créer deux connexions** : `OLEDB SA connection` (lecture `stg`) et `OLEDB DW connection` (base RH\_Data\_Warehouse : écriture `dw`, références des Lookups).
-3. **Créer la variable** `User::DateSnapshot` (DateTime) : la date de la photo de l'effectif et des inscriptions. Elle sert aussi à calculer l'ancienneté et le contrat échu.
+3. **Créer les variables** `User::DateSnapshot` (DateTime, expression `(DT_DATE)(DT_DBDATE)GETDATE()`) : la date de la photo de l'effectif et des inscriptions, qui sert aussi à calculer l'ancienneté et le contrat échu ; `User::DateSnapshotSk` (Int32) : sa clé AAAAMMJJ ; `User::RangCours` (Int32) : le compteur de la boucle des formations.
+4. **Régler la langue du package** (*LocaleID*) sur Anglais (États-Unis) : les nombres du SA (« 4.5 », « 35 ») utilisent le point décimal.
 
 ### Rendre le package relançable sans doublon
 
@@ -215,7 +233,7 @@ Une sous-dimension sort un groupe de valeurs répétées d'une dimension pour le
 
 #### dim\_date — dimension à rôles (jour de pointage, snapshot, embauche, début et fin de contrat)
 
-**Flux :** Script Component (*Source*) → Lookup `dim_date` sur `date_sk` (*No Match*) → Destination. Le script boucle du 01/01/2000 au 31/12/2030 et produit une ligne par jour. **Pourquoi 2000-2030 :** les embauches commencent en 2000, les fins de contrat vont jusqu'en 2024 et les snapshots sont datés du jour.
+**Flux :** OLE DB Source (requête de génération, connexion DW) → Lookup `dim_date` sur `date_sk` (*No Match*) → Destination. La requête produit une ligne par jour du 01/01/2000 au 31/12/2030. **Pourquoi 2000-2030 :** les embauches commencent en 2000, les fins de contrat vont jusqu'en 2024 et les snapshots sont datés du jour.
 
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
@@ -228,7 +246,7 @@ Une sous-dimension sort un groupe de valeurs répétées d'une dimension pour le
 
 #### dim\_heure — rôle : heure d'arrivée
 
-**Flux :** Script Component (*Source*, une ligne par minute de 0 à 1 439) → Lookup → Destination. **1 440 lignes.**
+**Flux :** OLE DB Source (requête de génération, une ligne par minute de 0 à 1 439) → Lookup → Destination. **1 440 lignes.**
 
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
@@ -261,7 +279,7 @@ Une sous-dimension sort un groupe de valeurs répétées d'une dimension pour le
 
 #### dim\_contrat
 
-**Flux :** 2 sources → Derived Column (une par source) → Union All → Aggregate (*group by* `type_contrat`, `statut_emploi`) → Lookup → Destination. **8 lignes environ.**
+**Flux :** 2 sources → Derived Column (une par source) → Union All → Aggregate (*group by* `type_contrat`, `statut_emploi`) → Lookup → Destination. **9 lignes** : 3 contrats × 2 statuts techniques, plus 3 contrats administratifs.
 
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
@@ -272,7 +290,7 @@ Une sous-dimension sort un groupe de valeurs répétées d'une dimension pour le
 
 #### dim\_poste
 
-**Flux :** 2 sources → Derived Column (une par source) → Union All → Aggregate → Lookup → Destination. **1 422 lignes environ.**
+**Flux :** 2 sources → Derived Column (une par source) → Union All → Aggregate → Lookup → Destination. **1 414 lignes.**
 
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
@@ -301,7 +319,7 @@ Une sous-dimension sort un groupe de valeurs répétées d'une dimension pour le
 
 #### dim\_taux\_horaire
 
-**Flux :** `stg.extrainfos` → Conditional Split (écarte la ligne vide finale) → Derived Column → Data Conversion → **Slowly Changing Dimension** (clé `code_taux`, `valeur` en *Historical*) → Destination. **3 lignes.**
+**Flux :** `stg.extrainfos` → Conditional Split (écarte la ligne vide finale) → Derived Column → Data Conversion → historisation SCD 2 (section 3 ; clé `code_taux`, `valeur` historisée, `libelle` modifiable) → Destination. **3 lignes.**
 
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
@@ -313,7 +331,7 @@ Une sous-dimension sort un groupe de valeurs répétées d'une dimension pour le
 
 #### dim\_employe — historisée (SCD 2)
 
-**Flux :** 2 sources → Derived Column (une par source : alignement des noms et des colonnes absentes) → Union All → Conditional Split (écarte la ligne vide de `administration_data`) → Derived Column (langues, technologies, statut marital) → Lookup `dim_diplome` → Lookup `dim_canal_recrutement` → Lookup `dim_departement` → **Slowly Changing Dimension**. **2 736 lignes** : les 4 techniques sans département sont écartés par le Lookup.
+**Flux :** 2 sources → Derived Column (une par source : alignement des noms et des colonnes absentes) → Union All → Conditional Split (écarte la ligne vide de `administration_data`) → Derived Column (langues, technologies, statut marital) → Lookup `dim_diplome` → Lookup `dim_canal_recrutement` → Lookup `dim_departement` → historisation SCD 2 (section 3) → Destination. **2 736 lignes** : les 4 techniques sans département sont écartés par le Lookup.
 
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
@@ -336,7 +354,7 @@ Une sous-dimension sort un groupe de valeurs répétées d'une dimension pour le
 
 #### dim\_anomalie\_pointage — dimension « junk »
 
-**Flux :** Script Component (*Source*) qui produit les 128 combinaisons des 7 indicateurs → Lookup → Destination. Les faits n'ont plus qu'à chercher leur combinaison.
+**Flux :** OLE DB Source (requête qui produit les 128 combinaisons des 7 indicateurs) → Lookup → Destination. Les faits n'ont plus qu'à chercher leur combinaison.
 
 | Indicateur (bit) | Règle | Anomalie EDA |
 | --- | --- | --- |
@@ -350,7 +368,7 @@ Une sous-dimension sort un groupe de valeurs répétées d'une dimension pour le
 
 #### dim\_anomalie\_contrat — dimension « junk »
 
-**Flux :** Script Component (*Source*, 32 combinaisons des 5 indicateurs) → Lookup → Destination.
+**Flux :** OLE DB Source (requête, 32 combinaisons des 5 indicateurs) → Lookup → Destination.
 
 | Indicateur (bit) | Règle | Anomalie EDA |
 | --- | --- | --- |
@@ -426,13 +444,13 @@ Les 3 faits partagent `dim_date`, `dim_employe` et `dim_departement` : c'est ce 
 
 **Grain :** 1 employé × 1 cours × 1 date de snapshot. **18 618 lignes** (67 écartées : 6 vers un cours absent du catalogue, 61 des employés sans département). Fait sans mesure (*factless*) : il enregistre l'événement « inscrit ». C'est lui qui remplace une table de pont employé-cours (Règle 1).
 
-**Flux :** `SQL_Vider_Snapshot_Formation` → `stg.emp_data` → Conditional Split (`ID_TRAINING` non vide) → Derived Column (liste nettoyée puis `cours_01` à `cours_25` avec `TOKEN`) → **Unpivot** (25 colonnes → une ligne par cours) → Conditional Split (écarte les colonnes vides) → Lookups `dim_employe`, `dim_cours` → Destination.
+**Flux :** `SQL_Vider_Snapshot_Formation` → boucle **For Loop** `RangCours` = 1 à 25, qui exécute à chaque passe : `stg.emp_data` → Conditional Split (`ID_TRAINING` non vide) → Derived Column (liste nettoyée, puis le cours du rang `RangCours` avec `TOKEN`) → Conditional Split (écarte les listes plus courtes que ce rang) → Lookups `dim_employe`, `dim_cours` → Destination.
 
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
 | `date_snapshot_sk` | int | `DateSnapshot` | La liste n'a pas de date : on la date du chargement |
 | `employe_sk`, `departement_sk` | int | `CODE` | Lookup version courante |
-| `cours_sk` | int | `ID_TRAINING` | Liste `[2466, 109, …]` → une ligne par identifiant, puis Lookup sur `cours_bk`. **25 cours au plus** par employé : 25 colonnes suffisent. **EDA :** 6 inscriptions visent le cours 3523, absent du catalogue : écartées |
+| `cours_sk` | int | `ID_TRAINING` | Liste `[2466, 109, …]` → une ligne par identifiant, puis Lookup sur `cours_bk`. **25 cours au plus** par employé : 25 passes suffisent. **EDA :** 6 inscriptions visent le cours 3523, absent du catalogue : écartées |
 | `nb_inscriptions` | smallint | constante | 1 |
 
 ## 7. Traçabilité EDA → DW
@@ -486,7 +504,9 @@ Après chaque exécution, comparez les volumes ci-dessous (calculés à partir d
 | `dim_departement` | 4 | idem |
 | `dim_type_conge` | 4 | idem |
 | `dim_cours` | 3 522 | idem |
-| `dim_employe` | 2 736 (premier chargement) | Sorties *New Output* du composant SCD |
+| `dim_contrat` | 9 | Chemin vers la destination |
+| `dim_poste` | 1 414 | idem |
+| `dim_employe` | 2 736 (premier chargement) | Chemin vers `DST_dim_employe` |
 | `dim_date` | 11 323 (2000-2030) | idem |
 | `dim_heure` | 1 440 | idem |
 | `dim_anomalie_pointage` / `dim_anomalie_contrat` | 128 / 32 | idem |

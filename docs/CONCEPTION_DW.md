@@ -124,8 +124,8 @@ flowchart TB
 | `dim_heure` | `heure_sk` (HHMM) | heure, minute, tranche de 15 min, après 8 h 30 | Statique | 1 440 |
 | `dim_employe` | `employe_bk` | population, nom, genre, statut marital, e-mail, adresses, 4 langues, 2 technologies, `code_tenure`, diplôme, canal, département | SCD 2 (`est_courant`) | 2 736 |
 | `dim_departement` | `departement_bk` | libellé, capacité, pôle | SCD 1 | 4 |
-| `dim_contrat` | (`type_contrat`, `statut_emploi`) | contrat court | SCD 1 | ≈ 8 |
-| `dim_poste` | (intitulé, catégorie, rang, activité) | `categorie_poste` : métier technique ou fonction administrative | SCD 1 | ≈ 1 422 |
+| `dim_contrat` | (`type_contrat`, `statut_emploi`) | contrat court | SCD 1 | 9 |
+| `dim_poste` | (intitulé, catégorie, rang, activité) | `categorie_poste` : métier technique ou fonction administrative | SCD 1 | 1 414 |
 | `dim_type_conge` | `type_conge_code` | libellé français | SCD 1 | 4 |
 | `dim_cours` | `cours_bk` (`course_id`) | intitulé, université, niveau, note, URL, description, compétences | SCD 1 | 3 522 |
 | `dim_taux_horaire` | `code_taux` | libellé, valeur | SCD 2 (`est_courant`) | 3 |
