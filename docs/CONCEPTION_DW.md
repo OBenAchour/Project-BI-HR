@@ -1,6 +1,6 @@
 # Conception du Data Warehouse RH — v2
 
-> Modèle en constellation de la base `RH_Data_Warehouse_v2`, schéma `dw`.
+> Modèle en constellation de la base `RH_Data_Warehouse`, schéma `dw`.
 > Création : [`sql/data_warehouse.sql`](../sql/data_warehouse.sql). Chargement pas à pas : [GUIDE_RECONSTRUCTION_DW.md](GUIDE_RECONSTRUCTION_DW.md).
 
 ## 1. Le modèle en bref
@@ -54,7 +54,7 @@ flowchart TB
 | Sous-dimensions (flocon) | Les valeurs répétées (diplôme, canal, pôle, université, niveau) sont normalisées une seule fois |
 | `dim_employe` en SCD 2 | Garder l'historique d'un changement de département, d'adresse ou de statut marital |
 | Dimensions « junk » d'anomalies | Regrouper les indicateurs de qualité des données (8 pour le pointage, 5 pour le contrat) en une seule clé par fait |
-| Membre « Inconnu » (-1) | Aucune ligne de fait perdue quand une clé n'est pas trouvée |
+| Membre « Inconnu » (clé 0) | Aucune ligne de fait perdue quand une clé n'est pas trouvée |
 
 ## 2. Matrice en bus (dimension × fait)
 
@@ -144,7 +144,7 @@ flowchart TB
 ## 5. Règles de modélisation
 
 - **Clés :** clé de substitution `_sk` (IDENTITY) sur chaque dimension, sauf `dim_date` et `dim_heure` dont la clé est lisible (AAAAMMJJ, HHMM). Les faits ne contiennent que des clés de substitution.
-- **Membre « Inconnu » :** clé -1 dans toutes les dimensions, sauf les deux dimensions d'anomalies (toutes leurs combinaisons existent).
+- **Membre « Inconnu » :** clé 0 dans toutes les dimensions (les clés IDENTITY commencent à 1), sauf `dim_heure` où 0 signifie minuit : son membre « Inconnu » a la clé 9999. Les deux dimensions d'anomalies n'en ont pas (toutes leurs combinaisons existent).
 - **Pas de NULL dans une clé de recherche :** un Lookup SSIS ne retrouve pas une valeur NULL. Les attributs utilisés comme clé reçoivent une valeur explicite (« Inconnu », rang 0…).
 - **Données personnelles :** nom, e-mail et adresses de `dim_employe` sont à masquer ou à filtrer dans Power BI.
 - **Source unique :** toutes les tables sont chargées depuis le SA brut (`RH_Staging_Area.stg`) ; chaque correction est justifiée par une anomalie de l'audit (`eda_audit_report.html`).
