@@ -54,7 +54,7 @@ flowchart TB
 | Sous-dimensions (flocon) | Les valeurs répétées (diplôme, canal, pôle, université, niveau) sont normalisées une seule fois |
 | `dim_employe` en SCD 2 | Garder l'historique d'un changement de département, d'adresse ou de statut marital |
 | Dimensions « junk » d'anomalies | Regrouper les indicateurs de qualité des données (8 pour le pointage, 5 pour le contrat) en une seule clé par fait |
-| Membre « Inconnu » (clé 0) | Aucune ligne de fait perdue quand une clé n'est pas trouvée |
+| Pas de membre « Inconnu » | Une ligne sans correspondance ou à valeur obligatoire illisible est écartée au chargement : le DW ne contient que des données complètes |
 
 ## 2. Matrice en bus (dimension × fait)
 
@@ -76,11 +76,12 @@ flowchart TB
 
 ### fact_effectif_snapshot
 
-**Grain :** 1 employé × 1 date de snapshot. **Volume :** 2 740 lignes par snapshot. **Clé primaire :** (`date_snapshot_sk`, `employe_sk`).
+**Grain :** 1 employé × 1 date de snapshot. **Volume :** 2 726 lignes par snapshot (14 employés écartés). **Clé primaire :** (`date_snapshot_sk`, `employe_sk`).
 
 | Colonne | Type | Rôle |
 | --- | --- | --- |
-| `date_snapshot_sk`, `date_embauche_sk`, `date_debut_contrat_sk`, `date_fin_contrat_sk` | int | → `dim_date` (dimension à rôles) |
+| `date_snapshot_sk`, `date_embauche_sk`, `date_debut_contrat_sk` | int | → `dim_date` (dimension à rôles) |
+| `date_fin_contrat_sk` | int NULL | → `dim_date` ; NULL = contrat sans date de fin |
 | `employe_sk`, `departement_sk`, `contrat_sk`, `poste_sk`, `type_conge_sk`, `anomalie_contrat_sk` | int | → dimensions |
 | `taux_vacataire_sk`, `taux_hs_admin_sk` | int NULL | → `dim_taux_horaire` ; NULL = non applicable |
 | `salaire_mensuel` | decimal(12,2) | Mesure semi-additive |
@@ -96,7 +97,7 @@ flowchart TB
 
 ### fact_pointage
 
-**Grain :** 1 employé × 1 jour pointé. **Volume :** 272 999 lignes. **Clé primaire :** `pointage_sk` (bigint IDENTITY).
+**Grain :** 1 employé × 1 jour pointé. **Volume :** 271 074 lignes (1 925 écartées). **Clé primaire :** `pointage_sk` (bigint IDENTITY).
 
 | Colonne | Type | Rôle |
 | --- | --- | --- |
@@ -108,7 +109,7 @@ flowchart TB
 
 ### fact_inscription_formation
 
-**Grain :** 1 employé × 1 cours × 1 date de snapshot. **Volume :** 18 685 lignes par snapshot. **Clé primaire :** (`date_snapshot_sk`, `employe_sk`, `cours_sk`). Fait sans mesure (*factless*) : il enregistre l'événement « inscrit ».
+**Grain :** 1 employé × 1 cours × 1 date de snapshot. **Volume :** 18 618 lignes par snapshot (67 écartées). **Clé primaire :** (`date_snapshot_sk`, `employe_sk`, `cours_sk`). Fait sans mesure (*factless*) : il enregistre l'événement « inscrit ».
 
 | Colonne | Type | Rôle |
 | --- | --- | --- |
@@ -121,14 +122,14 @@ flowchart TB
 | --- | --- | --- | --- | --- |
 | `dim_date` | `date_sk` (AAAAMMJJ) | date, jour, semaine ISO, mois, trimestre, année, jour ouvré, jour férié et libellé | Statique (2000-2030) | 11 323 |
 | `dim_heure` | `heure_sk` (HHMM) | heure, minute, tranche de 15 min, après 8 h 30 | Statique | 1 440 |
-| `dim_employe` | `employe_bk` | population, nom, genre, statut marital, e-mail, adresses, 4 langues, 2 technologies, `code_tenure`, diplôme, canal, département | SCD 2 (`est_courant`) | 2 740 |
+| `dim_employe` | `employe_bk` | population, nom, genre, statut marital, e-mail, adresses, 4 langues, 2 technologies, `code_tenure`, diplôme, canal, département | SCD 2 (`est_courant`) | 2 736 |
 | `dim_departement` | `departement_bk` | libellé, capacité, pôle | SCD 1 | 4 |
 | `dim_contrat` | (`type_contrat`, `statut_emploi`) | contrat court | SCD 1 | ≈ 8 |
 | `dim_poste` | (intitulé, catégorie, rang, activité) | `categorie_poste` : métier technique ou fonction administrative | SCD 1 | ≈ 1 422 |
 | `dim_type_conge` | `type_conge_code` | libellé français | SCD 1 | 4 |
 | `dim_cours` | `cours_bk` (`course_id`) | intitulé, université, niveau, note, URL, description, compétences | SCD 1 | 3 522 |
 | `dim_taux_horaire` | `code_taux` | libellé, valeur | SCD 2 (`est_courant`) | 3 |
-| `dim_anomalie_pointage` | 8 indicateurs | heure illisible, durée négative, fin avant reprise, pause > 3 h, journée < 1 h ou > 10 h, hors contrat, jour férié | Combinaisons générées | 256 |
+| `dim_anomalie_pointage` | 7 indicateurs | durée négative, fin avant reprise, pause > 3 h, journée < 1 h ou > 10 h, hors contrat, jour férié | Combinaisons générées | 128 |
 | `dim_anomalie_contrat` | 5 indicateurs | CDI avec date de fin, CDD/CIVP sans date de fin, vacataire en CDI, contrat échu, expérience incohérente | Combinaisons générées | 32 |
 
 ### Sous-dimensions
@@ -144,8 +145,8 @@ flowchart TB
 ## 5. Règles de modélisation
 
 - **Clés :** clé de substitution `_sk` (IDENTITY) sur chaque dimension, sauf `dim_date` et `dim_heure` dont la clé est lisible (AAAAMMJJ, HHMM). Les faits ne contiennent que des clés de substitution.
-- **Membre « Inconnu » :** clé 0 dans toutes les dimensions (les clés IDENTITY commencent à 1), sauf `dim_heure` où 0 signifie minuit : son membre « Inconnu » a la clé 9999. Les deux dimensions d'anomalies n'en ont pas (toutes leurs combinaisons existent).
-- **Pas de NULL dans une clé de recherche :** un Lookup SSIS ne retrouve pas une valeur NULL. Les attributs utilisés comme clé reçoivent une valeur explicite (« Inconnu », rang 0…).
+- **Lignes écartées :** pas de membre « Inconnu ». Une ligne de dimension ou de fait dont une clé n'est pas trouvée, ou dont une valeur obligatoire est vide ou illisible, n'est pas chargée. Seules les clés « non applicables » acceptent NULL : date de fin d'un contrat sans terme, taux vacataire ou taux d'heures sup admin.
+- **Pas de NULL dans une clé de recherche :** un Lookup SSIS ne retrouve pas une valeur NULL. Les attributs utilisés comme clé reçoivent une valeur explicite (rang 0 = sans rang pour les administratifs).
 - **Données personnelles :** nom, e-mail et adresses de `dim_employe` sont à masquer ou à filtrer dans Power BI.
 - **Source unique :** toutes les tables sont chargées depuis le SA brut (`RH_Staging_Area.stg`) ; chaque correction est justifiée par une anomalie de l'audit (`eda_audit_report.html`).
 

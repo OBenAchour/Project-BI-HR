@@ -1,6 +1,6 @@
 # Guide — Reconstruire le Data Warehouse RH (v2)
 
-Mis à jour le 21/10/2026
+Mis à jour le 22/10/2026
 
 ## 1. En bref
 
@@ -89,7 +89,7 @@ Une douzaine de composants visuels suffisent pour tout le DW ; le tableau dit le
 | --- | --- | --- |
 | Lire une table `stg` | **OLE DB Source** | *Data access mode* = **Table or view**, connexion SA |
 | Nettoyer, calculer, mapper des libellés | **Derived Column** | Une colonne par règle ; *Add as new column* pour garder la valeur brute lisible |
-| Convertir un type (texte → nombre ou date) | **Data Conversion** | *Configure Error Output* → **Ignore failure** : une valeur non convertible devient NULL au lieu de bloquer le chargement |
+| Convertir un type (texte → nombre ou date) | **Data Conversion** | *Configure Error Output* → **Redirect row** pour une valeur obligatoire (sortie d'erreur non reliée = ligne écartée) ; **Ignore failure** seulement pour un attribut facultatif, qui devient NULL (note d'un cours) |
 | Filtrer ou aiguiller des lignes | **Conditional Split** | La sortie par défaut non reliée = lignes écartées |
 | Assembler techniques et administratifs | **Union All** | Aligner les colonnes par nom dans l'éditeur |
 | Obtenir les valeurs distinctes d'une dimension | **Aggregate** | *Group by* sur toutes les colonnes du membre |
@@ -100,13 +100,18 @@ Une douzaine de composants visuels suffisent pour tout le DW ; le tableau dit le
 | Générer `dim_date` et `dim_heure` | **Script Component** en mode *Source* | Une boucle C# qui produit une ligne par jour ou par minute |
 | Vider un fait avant rechargement | **Execute SQL Task** | Seule exception SQL (section 1) |
 
-### Le motif des clés inconnues (dans chaque fait)
+### Ligne sans correspondance : écartée
 
-1. **Lookup** sur la dimension, sortie *No Match* redirigée.
-2. Sur la sortie *No Match* : **Derived Column** `employe_sk = 0` (même nom, même type que la colonne du Lookup).
-3. **Union All** des sorties *Match* et *No Match* corrigée.
+Le DW n'a pas de membre « Inconnu ». Une ligne dont une clé n'est pas trouvée, ou dont une valeur obligatoire est illisible, est **écartée** :
 
-Aucune ligne de fait n'est perdue : elle pointe vers le membre « Inconnu » (clé 0 ; 9999 pour `dim_heure`), créé avec les tables.
+1. **Lookup** : *Specify how to handle rows with no matching entries* → **Redirect rows to no match output**.
+2. La sortie *No Match* n'est reliée à rien : ses lignes ne sont pas chargées. Pour savoir combien de lignes sont perdues, reliez-la à un **Row Count** (variable `User::NbEcartees`).
+3. Seule la sortie *Match* continue vers la suite du flux.
+
+**Deux cas ne sont pas des erreurs et restent chargés avec une clé NULL :**
+
+- **contrat sans date de fin** : `date_fin_contrat_sk` = NULL ;
+- **taux non applicable** (un permanent n'a pas de taux vacataire) : avant le Lookup du taux, un **Conditional Split** envoie les lignes sans code de taux directement à l'**Union All** qui suit le Lookup.
 
 ### Expressions SSIS prêtes à copier (Derived Column)
 
@@ -140,7 +145,7 @@ Le package `Load_data_warehouse.dtsx` v2 enchaîne 4 conteneurs : chaque table n
 
 ### Avant de construire
 
-1. **Les tables existent déjà :** la base `RH_Data_Warehouse` (schéma `dw`) a été créée sur le serveur Tailscale par `sql/data_warehouse.sql`, avec la ligne « Inconnu » de clé `0` dans chaque dimension (`9999` pour `dim_heure`, où `0` signifie minuit). Le détail du modèle est dans [docs/CONCEPTION_DW.md](CONCEPTION_DW.md). Ne relancer le script que pour repartir de zéro : il vide le DW v2.
+1. **Les tables existent déjà :** la base `RH_Data_Warehouse` (schéma `dw`) a été créée sur le serveur Tailscale par `sql/data_warehouse.sql`, sans membre « Inconnu ». Le détail du modèle est dans [docs/CONCEPTION_DW.md](CONCEPTION_DW.md). Le script refuse de s'exécuter si des faits sont déjà chargés.
 2. **Créer deux connexions** : `OLEDB SA connection` (lecture `stg`) et `OLEDB DW connection` (base RH\_Data\_Warehouse : écriture `dw`, références des Lookups).
 3. **Créer la variable** `User::DateSnapshot` (DateTime) : la date de la photo de l'effectif et des inscriptions. Elle sert aussi à calculer l'ancienneté et le contrat échu.
 
@@ -151,7 +156,7 @@ Le package `Load_data_warehouse.dtsx` v2 enchaîne 4 conteneurs : chaque table n
 
 ## 5. Fiches des dimensions et sous-dimensions
 
-Chaque fiche donne la source `stg`, le flux de composants, puis chaque colonne avec son origine et la raison de sa transformation. Toutes les dimensions ont une clé de substitution `_sk` (IDENTITY) et une ligne « Inconnu » de clé `0` (`9999` pour `dim_heure`).
+Chaque fiche donne la source `stg`, le flux de composants, puis chaque colonne avec son origine et la raison de sa transformation. Toutes les dimensions ont une clé de substitution `_sk` (IDENTITY).
 
 ### 5.1 Sous-dimensions (le « flocon »)
 
@@ -261,7 +266,7 @@ Une sous-dimension sort un groupe de valeurs répétées d'une dimension pour le
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
 | `contrat_sk` | int IDENTITY | générée | Clé |
-| `type_contrat` | nvarchar(10) | `TYPE_CONTRACT` | CDD / CDI / CIVP, NULL → « Inconnu » (2 employés techniques sans contrat). Identique dans les deux fichiers |
+| `type_contrat` | nvarchar(10) | `TYPE_CONTRACT` | CDD / CDI / CIVP, identique dans les deux fichiers. Les 2 employés techniques sans type de contrat sont écartés (Conditional Split) |
 | `statut_emploi` | nvarchar(30) | `POSITION` (tech) / constante (admin) | Tech : Permanent ou Vacataire. Admin : « Salarié administratif ». **EDA :** `POSITION` vaut « Administration » côté admin, ce n'est pas un statut. Hypothèse à valider : les administratifs sont salariés (ils ont tous un salaire) |
 | `est_contrat_court` | bit | dérivée | CDD ou CIVP : KPI de l'EDA « part des contrats courts » |
 
@@ -272,7 +277,7 @@ Une sous-dimension sort un groupe de valeurs répétées d'une dimension pour le
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
 | `poste_sk` | int IDENTITY | générée | Clé |
-| `intitule_poste` | nvarchar(255) | `GRADE` (tech) / `Grade` (admin) | Repris tel quel, NULL → « Inconnu » |
+| `intitule_poste` | nvarchar(255) | `GRADE` (tech) / `Grade` (admin) | Repris tel quel ; la ligne sans intitulé est écartée (Conditional Split) |
 | `categorie_poste` | nvarchar(30) | dérivée | « Métier technique » ou « Fonction administrative ». **EDA :** `GRADE` contient 568 intitulés de métiers côté tech, mais 5 fonctions côté admin (RH, Director…) |
 | `rang` | tinyint | `RANK` (tech) | Nombre Excel (float) → entier ; 0 = « sans rang » pour les administratifs. Pas de NULL : un Lookup SSIS ne retrouve pas une ligne dont une colonne de jointure est NULL |
 | `activite` | nvarchar(30) | `ACTIVITY` (tech) | Mission, Technical, Research ; « Non applicable » pour les administratifs |
@@ -308,7 +313,7 @@ Une sous-dimension sort un groupe de valeurs répétées d'une dimension pour le
 
 #### dim\_employe — historisée (SCD 2)
 
-**Flux :** 2 sources → Derived Column (une par source : alignement des noms et des colonnes absentes) → Union All → Conditional Split (écarte la ligne vide de `administration_data`) → Derived Column (langues, technologies, statut marital) → Lookup `dim_diplome` → Lookup `dim_canal_recrutement` → Lookup `dim_departement` → **Slowly Changing Dimension**. **2 740 lignes.**
+**Flux :** 2 sources → Derived Column (une par source : alignement des noms et des colonnes absentes) → Union All → Conditional Split (écarte la ligne vide de `administration_data`) → Derived Column (langues, technologies, statut marital) → Lookup `dim_diplome` → Lookup `dim_canal_recrutement` → Lookup `dim_departement` → **Slowly Changing Dimension**. **2 736 lignes** : les 4 techniques sans département sont écartés par le Lookup.
 
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
@@ -324,18 +329,17 @@ Une sous-dimension sort un groupe de valeurs répétées d'une dimension pour le
 | `maitrise_software_engineering`, `maitrise_telecom` | bit | `TECHNOLOGIES` (tech) | 2 technologies possibles → 2 indicateurs (Règle 1). FALSE pour les administratifs |
 | `code_tenure` | tinyint | `TENURE` | Brut (0 / 1), sans libellé. **EDA :** son sens est inconnu (aucun lien avec l'ancienneté) ; ne pas l'interpréter |
 | `diplome_sk`, `canal_sk` | int | sous-dimensions | Normalisation |
-| `departement_sk` | int | `DEP_ID` → `dim_departement` | 0 pour les 4 techniques sans département |
+| `departement_sk` | int | `DEP_ID` → `dim_departement` | Les 4 techniques sans département n'ont pas de correspondance : écartés |
 | `date_debut`, `date_fin`, `est_courant` | date, date, bit | SCD | *Historical* : `departement_sk`, `adresse`, `statut_marital` ; *Changing* : les autres colonnes |
 
 **Données personnelles :** nom, e-mail et adresses ne doivent pas être visibles de tous dans Power BI (sécurité par ligne ou colonnes masquées).
 
 #### dim\_anomalie\_pointage — dimension « junk »
 
-**Flux :** Script Component (*Source*) qui produit les 256 combinaisons des 8 indicateurs → Lookup → Destination. Les faits n'ont plus qu'à chercher leur combinaison.
+**Flux :** Script Component (*Source*) qui produit les 128 combinaisons des 7 indicateurs → Lookup → Destination. Les faits n'ont plus qu'à chercher leur combinaison.
 
 | Indicateur (bit) | Règle | Anomalie EDA |
 | --- | --- | --- |
-| `heure_illisible` | Une des 4 heures est vide ou illisible | 49 journées techniques |
 | `duree_negative` | Durée travaillée < 0 | 27 journées admin |
 | `fin_avant_reprise` | `EndTime` < `ResumeTime` | 3 441 journées admin |
 | `pause_plus_3h` | Pause > 180 minutes | 27 389 journées admin |
@@ -363,23 +367,23 @@ Les 3 faits partagent `dim_date`, `dim_employe` et `dim_departement` : c'est ce 
 ### Deux motifs communs aux 3 faits
 
 - **Version courante d'un employé :** Derived Column `est_courant = (DT_BOOL)1`, puis Lookup sur `dim_employe` joint sur (`employe_bk`, `est_courant`). Le mode « table ou vue » ne peut pas filtrer : la colonne constante remplace le filtre SQL.
-- **Clé introuvable :** sortie *No Match* → Derived Column `= 0` → Union All avec la sortie *Match* (section 3).
+- **Clé introuvable :** sortie *No Match* non reliée, la ligne est écartée (section 3).
 
 ### 6.1 fact\_effectif\_snapshot — la photo de l'effectif
 
-**Grain :** 1 employé × 1 date de snapshot. **2 740 lignes par snapshot.** Chargé **avant** `fact_pointage`, qui lui emprunte la date de fin de contrat.
+**Grain :** 1 employé × 1 date de snapshot. **2 726 lignes par snapshot** : les 4 employés sans département, et 10 autres sans date d'embauche, type de contrat, intitulé ou activité, sont écartés. Chargé **avant** `fact_pointage`, qui lui emprunte la date de fin de contrat.
 
 **Flux :** `SQL_Vider_Snapshot_Effectif` (supprime les lignes de `DateSnapshot`) → 2 sources (`stg.emp_data`, `stg.administration_data`) → Derived Column par source (alignement, `population`, `statut_emploi`, `categorie_poste`, `rang = 0` pour l'admin) → Union All → Conditional Split (écarte la ligne sans identifiant) → Data Conversion (nombres) → Derived Column (dates, ancienneté, 5 indicateurs, codes de taux) → Lookups `dim_employe`, `dim_contrat`, `dim_poste`, `dim_type_conge`, `dim_anomalie_contrat`, `dim_taux_horaire` × 2 → Derived Column (coûts) → Destination.
 
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
 | `date_snapshot_sk` | int | variable `DateSnapshot` | AAAAMMJJ de la date de la photo |
-| `employe_sk`, `departement_sk` | int | Lookup `dim_employe` | Version courante ; 0 si introuvable |
+| `employe_sk`, `departement_sk` | int | Lookup `dim_employe` | Version courante ; ligne écartée si introuvable |
 | `contrat_sk` | int | `TYPE_CONTRACT` + statut | Lookup sur (`type_contrat`, `statut_emploi`) |
 | `poste_sk` | int | `GRADE`/`Grade`, `RANK`, `ACTIVITY` | Lookup sur les 4 colonnes de `dim_poste` |
 | `type_conge_sk` | int | dernier congé | Lookup sur le code en minuscules |
 | `anomalie_contrat_sk` | int | 5 indicateurs | Lookup sur la combinaison (section 5) |
-| `date_embauche_sk`, `date_debut_contrat_sk`, `date_fin_contrat_sk` | int | `STARTING_DATE`, `CONTRACT_START`, `CONTRACT_END` | Tech : date Excel ; admin : texte ISO → `(DT_DBDATE)`. 0 si vide (7 embauches inconnues, contrats sans terme) |
+| `date_embauche_sk`, `date_debut_contrat_sk`, `date_fin_contrat_sk` | int | `STARTING_DATE`, `CONTRACT_START`, `CONTRACT_END` | Tech : date Excel ; admin : texte ISO → `(DT_DBDATE)`. Embauche ou début de contrat vide : ligne écartée (7 embauches manquantes). Fin de contrat vide : `date_fin_contrat_sk` NULL, ligne gardée (contrat sans terme) |
 | `taux_vacataire_sk`, `taux_hs_admin_sk` | int NULL | `dim_taux_horaire` | Seulement pour les vacataires / les administratifs ; NULL = non applicable |
 | `salaire_mensuel` | decimal(12,2) | `SALARY` | Permanents et administratifs ; NULL pour les vacataires (payés à l'heure) |
 | `heures_payees` | decimal(8,2) | `HOURS` (tech) | Vacataires seulement |
@@ -397,17 +401,17 @@ Les 3 faits partagent `dim_date`, `dim_employe` et `dim_departement` : c'est ce 
 
 ### 6.2 fact\_pointage — l'assiduité au jour le jour
 
-**Grain :** 1 employé × 1 jour pointé. **272 999 lignes** (189 799 techniques + 83 200 administratifs).
+**Grain :** 1 employé × 1 jour pointé. **271 074 lignes** sur 272 999 : 1 925 sont écartées (employé sans fiche, employé absent de l'effectif, heure illisible).
 
-**Flux :** `SQL_Vider_Pointage` (TRUNCATE) → 2 sources (`stg.attendance_tech_2023`, `stg.attendance_admin_2023`) → Derived Column par source (date selon le format du fichier, 4 heures en minutes, `source_pointage`) → Union All → Derived Column (mesures, clé d'heure) → Lookup `dim_employe` → Lookup `fact_effectif_snapshot` (date de fin de contrat, `contrat_sk`) → Lookup `dim_contrat` (statut) → Derived Column (code de taux) → Lookup `dim_taux_horaire` → Lookup `dim_date` (jour férié) → Derived Column (8 indicateurs, coût) → Lookup `dim_anomalie_pointage` → Destination.
+**Flux :** `SQL_Vider_Pointage` (TRUNCATE) → 2 sources (`stg.attendance_tech_2023`, `stg.attendance_admin_2023`) → Derived Column par source (date selon le format du fichier, 4 heures en minutes, `source_pointage`) → Union All → Conditional Split (écarte les journées dont une date ou une heure est illisible) → Derived Column (mesures, clé d'heure) → Lookup `dim_employe` → Lookup `fact_effectif_snapshot` (date de fin de contrat, `contrat_sk`) → Lookup `dim_contrat` (statut) → Derived Column (code de taux) → Lookup `dim_taux_horaire` → Lookup `dim_date` (jour férié) → Derived Column (8 indicateurs, coût) → Lookup `dim_anomalie_pointage` → Destination.
 
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
 | `date_sk` | int | `Date` | Tech `1/2/2023` (mois/jour) et admin `2023-01-02` lus chacun avec leur format. **EDA :** un parseur unique inverse jour et mois |
-| `employe_sk`, `departement_sk` | int | `ID_Employee` | Lookup version courante. **EDA :** 65 pointages d'un administratif sans fiche → 0 |
-| `heure_arrivee_sk` | smallint | `StartTime` | HHMM ; 9999 si l'heure est illisible |
+| `employe_sk`, `departement_sk` | int | `ID_Employee` | Lookup version courante. **EDA :** les 65 pointages d'un administratif sans fiche sont écartés |
+| `heure_arrivee_sk` | smallint | `StartTime` | HHMM (les journées à heure illisible sont déjà écartées) |
 | `taux_hs_sk` | int | statut | Permanent → HS\_PERMANENT (25), Vacataire → VACATAIRE (35), Administratif → HS\_ADMIN (22) |
-| `anomalie_pointage_sk` | int | 8 indicateurs | Lookup sur la combinaison |
+| `anomalie_pointage_sk` | int | 7 indicateurs | Lookup sur la combinaison |
 | `minutes_travaillees` | int NULL | 4 heures | (fin − début) − (reprise − pause) ; NULL si une heure manque |
 | `minutes_pause` | int NULL | `BreakTime`, `ResumeTime` | reprise − pause |
 | `minutes_retard` | int NULL | `StartTime` | Minutes au-delà de 8 h 30 (510 minutes), sinon 0 : règle de l'EDA |
@@ -420,7 +424,7 @@ Les 3 faits partagent `dim_date`, `dim_employe` et `dim_departement` : c'est ce 
 
 ### 6.3 fact\_inscription\_formation — qui suit quel cours
 
-**Grain :** 1 employé × 1 cours × 1 date de snapshot. **18 685 lignes.** Fait sans mesure (*factless*) : il enregistre l'événement « inscrit ». C'est lui qui remplace une table de pont employé-cours (Règle 1).
+**Grain :** 1 employé × 1 cours × 1 date de snapshot. **18 618 lignes** (67 écartées : 6 vers un cours absent du catalogue, 61 des employés sans département). Fait sans mesure (*factless*) : il enregistre l'événement « inscrit ». C'est lui qui remplace une table de pont employé-cours (Règle 1).
 
 **Flux :** `SQL_Vider_Snapshot_Formation` → `stg.emp_data` → Conditional Split (`ID_TRAINING` non vide) → Derived Column (liste nettoyée puis `cours_01` à `cours_25` avec `TOKEN`) → **Unpivot** (25 colonnes → une ligne par cours) → Conditional Split (écarte les colonnes vides) → Lookups `dim_employe`, `dim_cours` → Destination.
 
@@ -428,7 +432,7 @@ Les 3 faits partagent `dim_date`, `dim_employe` et `dim_departement` : c'est ce 
 | --- | --- | --- | --- |
 | `date_snapshot_sk` | int | `DateSnapshot` | La liste n'a pas de date : on la date du chargement |
 | `employe_sk`, `departement_sk` | int | `CODE` | Lookup version courante |
-| `cours_sk` | int | `ID_TRAINING` | Liste `[2466, 109, …]` → une ligne par identifiant, puis Lookup sur `cours_bk`. **25 cours au plus** par employé : 25 colonnes suffisent. **EDA :** 6 inscriptions visent le cours 3523, absent du catalogue → 0 |
+| `cours_sk` | int | `ID_TRAINING` | Liste `[2466, 109, …]` → une ligne par identifiant, puis Lookup sur `cours_bk`. **25 cours au plus** par employé : 25 colonnes suffisent. **EDA :** 6 inscriptions visent le cours 3523, absent du catalogue : écartées |
 | `nb_inscriptions` | smallint | constante | 1 |
 
 ## 7. Traçabilité EDA → DW
@@ -443,7 +447,7 @@ Chaque anomalie de l'audit (`eda_audit_report.html`) a un traitement dans le DW 
 | Libellés en casse différente (congés, canaux, langues) | 8 + 7 + 8 libellés | Minuscules + libellé français | `dim_type_conge`, `dim_canal_recrutement`, indicateurs de langue |
 | Noms de colonnes différents (CODE / ID\_Employee…) | 4 paires | Alignement dans une Derived Column par source avant l'Union All | Tous les flux employés |
 | Ligne entièrement vide (administration\_data) | 1 | Écartée (Conditional Split) | `dim_employe`, `fact_effectif_snapshot` |
-| Pointages d'un employé sans fiche | 65 | Gardés, employé 0 | `fact_pointage` |
+| Pointages d'un employé sans fiche | 65 | Écartés | `fact_pointage` |
 | CDI avec date de fin | 468 | Indicateur | `dim_anomalie_contrat` |
 | CDD ou CIVP sans date de fin | 943 | Indicateur | `dim_anomalie_contrat` |
 | Vacataire en CDI | 221 | Indicateur | `dim_anomalie_contrat` |
@@ -453,7 +457,7 @@ Chaque anomalie de l'audit (`eda_audit_report.html`) a un traitement dans le DW 
 | Fin de journée avant la reprise | 3 441 | Indicateur | `dim_anomalie_pointage` |
 | Pause de plus de 3 h | 27 389 | Indicateur | `dim_anomalie_pointage` |
 | Durée négative, moins d'1 h, plus de 10 h | 27 / 470 / 2 509 | Indicateurs | `dim_anomalie_pointage` |
-| Heure illisible | 49 | Mesures NULL + indicateur | `fact_pointage` |
+| Heure illisible | 49 | Journées écartées | `fact_pointage` |
 | Date à format différent (`21/02/2023`) | 1 | Expression à deux formats | `fact_pointage` |
 | Pointage un jour férié | 4 200 | Indicateur | `dim_anomalie_pointage` |
 | Effectif supérieur à la capacité | 2 départements | Capacité chargée ; taux calculé dans Power BI | `dim_departement` |
@@ -462,7 +466,7 @@ Chaque anomalie de l'audit (`eda_audit_report.html`) a un traitement dans le DW 
 | Même cours sous plusieurs `course_id` | 188 | Gardés distincts ; regroupement par intitulé dans Power BI | `dim_cours` |
 | Niveaux hors échelle (Conversant, Not Calibrated) | 236 | Gardés, `ordre_niveau` NULL | `dim_niveau_cours` |
 | Note non numérique | 82 | NULL | `dim_cours` |
-| Inscription à un cours absent du catalogue | 6 | Cours 0 | `fact_inscription_formation` |
+| Inscription à un cours absent du catalogue | 6 | Écartées | `fact_inscription_formation` |
 | Fichier de taux non structuré, « permenant » | 1 | Code dérivé sans dépendre de l'orthographe | `dim_taux_horaire` |
 | E-mails partagés | 34 | Aucun : l'e-mail n'est pas une clé | — |
 | Périodes de pointage différentes | — | Aucun : règle de lecture dans Power BI | — |
@@ -471,7 +475,7 @@ Chaque anomalie de l'audit (`eda_audit_report.html`) a un traitement dans le DW 
 
 Après chaque exécution, comparez les volumes ci-dessous (calculés à partir des fichiers). Un écart signifie qu'une ligne a été perdue ou dupliquée en route.
 
-| Table | Lignes attendues (sans la ligne « Inconnu ») | Comment vérifier dans SSDT |
+| Table | Lignes attendues | Comment vérifier dans SSDT |
 | --- | --- | --- |
 | `dim_pole` | 2 | Nombre de lignes affiché sur le chemin vers la destination |
 | `dim_diplome` | 4 | idem |
@@ -482,16 +486,16 @@ Après chaque exécution, comparez les volumes ci-dessous (calculés à partir d
 | `dim_departement` | 4 | idem |
 | `dim_type_conge` | 4 | idem |
 | `dim_cours` | 3 522 | idem |
-| `dim_employe` | 2 740 (premier chargement) | Sorties *New Output* du composant SCD |
+| `dim_employe` | 2 736 (premier chargement) | Sorties *New Output* du composant SCD |
 | `dim_date` | 11 323 (2000-2030) | idem |
 | `dim_heure` | 1 440 | idem |
-| `dim_anomalie_pointage` / `dim_anomalie_contrat` | 256 / 32 | idem |
-| `fact_effectif_snapshot` | 2 740 par snapshot | Chemin vers la destination |
-| `fact_pointage` | 272 999 | idem |
-| `fact_inscription_formation` | 18 685 par snapshot | idem |
+| `dim_anomalie_pointage` / `dim_anomalie_contrat` | 128 / 32 | idem |
+| `fact_effectif_snapshot` | 2 726 par snapshot | Chemin vers la destination |
+| `fact_pointage` | 271 074 | idem |
+| `fact_inscription_formation` | 18 618 par snapshot | idem |
 
 ### Trois contrôles de cohérence à refaire
 
 1. **Relance :** un 2e passage le même jour ne change aucun volume, et le SCD ne crée aucune nouvelle version.
-2. **Membres inconnus attendus :** 65 pointages sur l'employé 0 ; 4 employés, et leurs pointages et inscriptions, sur le département 0 ; 6 inscriptions sur le cours 0.
+2. **Lignes écartées attendues** (Row Count sur les sorties *No Match*) : 4 employés dans `dim_employe`, 14 lignes d'effectif, 1 925 pointages, 67 inscriptions.
 3. **Totaux de coûts :** `cout_total_estime` doit redonner environ 11,3 millions pour un snapshot (salaires techniques 2,08 M + vacataires 2,63 M + salaires admin 3,77 M + heures sup admin 2,86 M), comme dans l'EDA.
