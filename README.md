@@ -8,7 +8,7 @@
 
 ```
 7 source files ──► RH_Staging_Area (stg) ──► RH_Data_Warehouse (dw) ──► Power BI
- (xlsx/csv/ods/txt)   Load_Staging_Area.dtsx   Load_data_warehouse.dtsx
+ (xlsx/csv/ods/txt)   Load_Staging_Area.dtsx   Load_DW.dtsx (in progress)
 ```
 
 ## What's inside
@@ -34,15 +34,16 @@
 
 ## The Data Warehouse (schema `dw`) — v2, being rebuilt
 
-⚠️ `Load_data_warehouse.dtsx` is the **v1** package: it no longer runs against the raw staging area. The v2 tables are created (empty) in `RH_Data_Warehouse` and the team builds its loading package by hand in SSDT:
+⚠️ The v1 package was removed. The v2 tables are created (empty) in `RH_Data_Warehouse` and the team builds the new loading package, `Load_DW.dtsx`, by hand in SSDT:
 
 👉 **Design:** [docs/CONCEPTION_DW.md](docs/CONCEPTION_DW.md)
 👉 **How to load it:** [docs/GUIDE_RECONSTRUCTION_DW.md](docs/GUIDE_RECONSTRUCTION_DW.md)
 
-- **3 fact tables:** `fact_pointage` (employee × day, 272,999 rows), `fact_effectif_snapshot` (employee × snapshot, 2,740), `fact_inscription_formation` (employee × course × snapshot, 18,685)
+- **3 fact tables:** `fact_pointage` (employee × day, 271,074 rows), `fact_effectif_snapshot` (employee × snapshot, 2,726), `fact_inscription_formation` (employee × course × snapshot, 18,618)
 - **11 dimensions:** date, time, employee (SCD 2), department, contract, position, leave type, course, hourly rate, attendance anomalies, contract anomalies
 - **5 sub-dimensions (snowflake):** diploma, hiring channel, pole, university, course level
 - **No bridge table:** languages and technologies become yes/no flags, enrolments are fact rows
+- **No "unknown" member:** a row whose key isn't found, or whose required value is unreadable, is dropped at load time
 - **Visual SSIS components only** — SQL is used only to create the tables and empty the facts before reloading
 
 ## Tech stack

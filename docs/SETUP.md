@@ -44,7 +44,7 @@ In **both** packages, double-click each connection manager → login `BI` → pa
    - `sql/staging_area.sql` on `RH_Staging_Area`: recreates the 7 `stg` tables (SQL Server 2019+);
    - `sql/data_warehouse.sql`: creates the DW v2 tables in `RH_Data_Warehouse`. It refuses to run once facts are loaded.
 1. `Load_Staging_Area.dtsx` → F5
-2. `Load_data_warehouse.dtsx` → **don't run it for now**: it's the v1 package, which no longer matches the raw staging area. The DW v2 is being rebuilt following the [guide](GUIDE_RECONSTRUCTION_DW.md).
+2. `Load_DW.dtsx` → F5 once it is built (in progress, following the [guide](GUIDE_RECONSTRUCTION_DW.md)). Then compare the row counts with section 8 of the guide.
 3. All boxes green = done ✅
 
 > ⚠️ Everyone uses the **same server**. One run is enough for the whole team — don't run it at the same time as someone else.

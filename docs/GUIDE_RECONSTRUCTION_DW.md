@@ -134,7 +134,7 @@ Les expressions SSIS ne travaillent pas sur les textes longs (`DT_TEXT` / `DT_NT
 
 ## 4. Ordre de construction et de chargement
 
-Le package `Load_data_warehouse.dtsx` v2 enchaîne 4 conteneurs : chaque table n'est chargée qu'une fois que toutes les tables qu'elle référence existent. À l'intérieur d'un conteneur, les data flows sans dépendance tournent en parallèle.
+Le package `Load_DW.dtsx` enchaîne 4 conteneurs : chaque table n'est chargée qu'une fois que toutes les tables qu'elle référence existent. À l'intérieur d'un conteneur, les data flows sans dépendance tournent en parallèle.
 
 | Conteneur | Data flows (parallèles) | Dépend de |
 | --- | --- | --- |

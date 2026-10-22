@@ -45,7 +45,7 @@ A package is a huge XML file → two people editing it = merge nightmare.
 
 ```bash
 git status                       # look first
-git add "Project BI HR/Load_data_warehouse.dtsx"
+git add "Project BI HR/Load_DW.dtsx"
 git commit -m "feat: ..."
 git push -u origin feature/...
 ```
