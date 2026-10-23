@@ -1,11 +1,11 @@
 /* =============================================================================
-   Data Warehouse RH v2 : base RH_Data_Warehouse, schéma dw
+   Data Warehouse RH : base RH_Data_Warehouse, schéma dw
    -----------------------------------------------------------------------------
    Constellation : 3 faits, 9 dimensions, 5 sous-dimensions, aucune table de pont.
    Détail de chaque table : docs/CONCEPTION_DW.md.
 
    - Le script crée la base si elle n'existe pas, puis (re)crée toutes les tables :
-     les données éventuelles du DW v2 sont supprimées, à recharger par SSIS.
+     les données éventuelles du DW sont supprimées, à recharger par SSIS.
    - Pas de membre « Inconnu » : une ligne dont une clé n'est pas trouvée, ou dont une valeur
      obligatoire est illisible, est écartée par le package SSIS. Seules les clés « non
      applicables » acceptent NULL (contrat sans date de fin, taux non applicable).
@@ -31,12 +31,10 @@ IF (OBJECT_ID(N'dw.fact_pointage') IS NOT NULL AND EXISTS (SELECT 1 FROM dw.fact
    OR (OBJECT_ID(N'dw.fact_inscription_formation') IS NOT NULL AND EXISTS (SELECT 1 FROM dw.fact_inscription_formation))
     THROW 50002, N'Le DW contient déjà des faits : script arrêté, aucune table supprimée.', 1;
 
--- Suppression dans l'ordre des dépendances (faits, dimensions, sous-dimensions).
--- dim_anomalie_pointage et dim_anomalie_contrat n'existent plus : elles sont supprimées si une version précédente les a créées.
+-- Suppression dans l'ordre des dépendances (faits, dimensions, sous-dimensions)
 DROP TABLE IF EXISTS dw.fact_inscription_formation, dw.fact_pointage, dw.fact_effectif_snapshot;
 DROP TABLE IF EXISTS dw.dim_employe, dw.dim_cours, dw.dim_departement, dw.dim_contrat, dw.dim_poste,
-                     dw.dim_type_conge, dw.dim_taux_horaire, dw.dim_anomalie_pointage,
-                     dw.dim_anomalie_contrat, dw.dim_date, dw.dim_heure;
+                     dw.dim_type_conge, dw.dim_taux_horaire, dw.dim_date, dw.dim_heure;
 DROP TABLE IF EXISTS dw.dim_pole, dw.dim_diplome, dw.dim_canal_recrutement, dw.dim_universite, dw.dim_niveau_cours;
 GO
 

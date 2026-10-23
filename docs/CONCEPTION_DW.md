@@ -1,4 +1,4 @@
-# Conception du Data Warehouse RH — v2
+# Conception du Data Warehouse RH
 
 > Modèle en constellation de la base `RH_Data_Warehouse`, schéma `dw`.
 > Création : [`sql/data_warehouse.sql`](../sql/data_warehouse.sql). Chargement pas à pas : [GUIDE_RECONSTRUCTION_DW.md](GUIDE_RECONSTRUCTION_DW.md).

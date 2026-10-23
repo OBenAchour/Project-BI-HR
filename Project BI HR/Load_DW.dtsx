@@ -5,7 +5,7 @@
   DTS:CreationName="Microsoft.Package"
   DTS:CreatorComputerName=""
   DTS:CreatorName=""
-  DTS:Description="Chargement du Data Warehouse RH v2 (RH_Data_Warehouse.dw) depuis la zone de staging (RH_Staging_Area.stg)."
+  DTS:Description="Chargement du Data Warehouse RH (RH_Data_Warehouse.dw) depuis la zone de staging (RH_Staging_Area.stg)."
   DTS:DTSID="{B18F10A1-7CFB-40B2-966E-455CCB63B259}"
   DTS:ExecutableType="Microsoft.Package"
   DTS:LastModifiedProductVersion="16.0.1000.6"

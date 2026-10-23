@@ -1,14 +1,12 @@
-# Guide — Reconstruire le Data Warehouse RH (v2)
+# Guide — Chargement du Data Warehouse RH
 
-Mis à jour le 22/10/2026
-
-> **Le package est construit :** `Project BI HR/Load_DW.dtsx` suit ce guide. Il diffère sur trois points, faute de pouvoir créer certains composants hors de SSDT : tables générées par une requête source, historisation SCD 2 montée avec des composants standard, boucle *For Loop* à la place de l'Unpivot (sections 3 et 4).
+> Le package `Project BI HR/Load_DW.dtsx` applique ce guide.
 
 ## 1. En bref
 
-Ce guide décrit le DW v2 à construire à la main dans SSDT : **3 tables de faits, 9 dimensions et 5 sous-dimensions, sans aucune table de pont**. Chaque table indique sa source dans le SA, chaque colonne son origine, et chaque transformation sa raison, tirée de l'audit EDA (`eda_audit_report.html`).
+Ce guide décrit le DW et son chargement dans SSDT : **3 tables de faits, 9 dimensions et 5 sous-dimensions, sans aucune table de pont**. Chaque table indique sa source dans le SA, chaque colonne son origine, et chaque transformation sa raison, tirée de l'audit EDA (`eda_audit_report.html`).
 
-### Les 3 règles du v2
+### Les 3 règles
 
 1. **Pas de table de pont.** Le DW ne contient que des faits, des dimensions et des sous-dimensions (flocon). Les listes multi-valeurs de la source sont résolues autrement :
    - les **langues** (4 valeurs possibles) et les **technologies** (2 valeurs possibles) deviennent des **indicateurs oui/non** dans `dim_employe` ;
@@ -23,23 +21,10 @@ Ce guide décrit le DW v2 à construire à la main dans SSDT : **3 tables de fai
 | --- | --- |
 | Script de création des tables `dw` (une fois) | La structure d'une base ne se crée pas dans un data flow. Le concepteur de tables de SSMS est une alternative visuelle. |
 | *Execute SQL Task* `TRUNCATE` / `DELETE` avant le chargement des faits | Une destination OLE DB ajoute des lignes mais ne peut pas vider une table. Sans cette étape, relancer le package crée des doublons. |
-| Source des 2 tables générées (`dim_date`, `dim_heure`) | Aucun fichier ne contient ces lignes : une requête de la source OLE DB les génère (jours, minutes). Choix de l'équipe à la place d'un Script Component C# |
+| Source des 2 tables générées (`dim_date`, `dim_heure`) | Aucun fichier ne contient ces lignes : une requête de la source OLE DB les génère (jours, minutes). |
 | *OLE DB Command* de l'historisation SCD 2 | Clôturer ou modifier une ligne déjà chargée exige un `UPDATE` : l'assistant Slowly Changing Dimension génère les mêmes OLE DB Command |
 
-### Ce qui change par rapport au DW v1
-
-| v1 | v2 | Raison |
-| --- | --- | --- |
-| 2 tables de pont (employé-technologie, cours-compétence) | Indicateurs dans `dim_employe`, texte dans `dim_cours` | Règle 1 |
-| Requêtes SQL dans chaque source | Composants visuels | Règle 2 |
-| `POSITION` copiée telle quelle (Permanent, Vacataire, Administration mélangés) | `statut_emploi` et `population` séparés | EDA : POSITION n'a pas le même sens dans les deux fichiers |
-| « Ingeneering » et « Engineer » = 2 diplômes | Sous-dimension `dim_diplome` avec un seul « Ingénieur » | EDA : référentiel de diplômes différent |
-| `grade` mélange métiers et fonctions | `dim_poste.categorie_poste` les distingue | EDA : GRADE ne désigne pas la même chose |
-| `TENURE` lu comme « titularisé » | Gardé brut (`code_tenure`), sans interprétation | EDA : sens de TENURE inconnu |
-| Pointages anormaux chargés sans distinction | Écartés au chargement (heures incohérentes, après la fin du contrat) | EDA : 31 436 journées aux heures incohérentes, 77 733 pointages après la fin du contrat |
-| Audit `src_load_date`, `src_batch_id` venant du SA | Supprimé ; `source_fichier` écrit par le DW | Le SA ne contient plus que les fichiers |
-
-## 2. Le schéma en constellation v2
+## 2. Le schéma en constellation
 
 Les 3 faits partagent `dim_date`, `dim_employe` et `dim_departement`, ce qui permet de croiser effectif, assiduité et formation ; les sous-dimensions (pointillés) normalisent les valeurs répétées sans aucune table de pont.
 
@@ -119,7 +104,7 @@ Le DW n'a pas de membre « Inconnu ». Une ligne dont une clé n'est pas trouvé
 
 ### Historisation SCD 2 (dim\_employe, dim\_taux\_horaire)
 
-L'assistant Slowly Changing Dimension ne peut pas être créé hors de SSDT : le package utilise le montage qu'il génère, avec des composants standard.
+Le package utilise le montage que génère l'assistant Slowly Changing Dimension, avec des composants standard.
 
 1. **Lookup `LKP_Version_Courante`** sur la dimension, joint sur (clé métier, `est_courant` = True). Il renvoie la clé et les valeurs actuelles (`actuel_…`).
 2. **No Match** (nouvel employé ou nouveau taux) → **Union All** → Derived Column `date_debut` = `DateSnapshot` → **Destination**.
@@ -128,7 +113,7 @@ L'assistant Slowly Changing Dimension ne peut pas être créé hors de SSDT : le
    - *Attribut modifiable modifié* (les autres colonnes) → **OLE DB Command** qui met à jour la version courante ;
    - sortie par défaut (rien n'a changé) : non reliée, aucune écriture.
 
-Pour revenir au composant de l'assistant, remplacez les étapes 1 à 3 par un **Slowly Changing Dimension** avec les mêmes attributs *Historical* et *Changing*, et l'option « Use a single column to show current and expired records » sur `est_courant`.
+Variante : un composant **Slowly Changing Dimension** peut remplacer les étapes 1 à 3, avec les mêmes attributs *Historical* et *Changing*, et l'option « Use a single column to show current and expired records » sur `est_courant`.
 
 ### Expressions SSIS prêtes à copier (Derived Column)
 
@@ -427,9 +412,9 @@ Les 3 faits partagent `dim_date`, `dim_employe` et `dim_departement` : c'est ce 
 
 ## 7. Traçabilité EDA → DW
 
-Chaque anomalie de l'audit (`eda_audit_report.html`) a un traitement dans le DW v2 : corrigée, écartée, ou laissée telle quelle volontairement.
+Chaque anomalie de l'audit (`eda_audit_report.html`) a un traitement dans le DW : corrigée, écartée, ou laissée telle quelle volontairement.
 
-| Anomalie de l'audit | Volume | Traitement v2 | Où |
+| Anomalie de l'audit | Volume | Traitement | Où |
 | --- | --- | --- | --- |
 | `POSITION` n'a pas le même sens dans les deux fichiers | 1 279 | Séparé en `population` et `statut_emploi` | `dim_employe`, `dim_contrat` |
 | Diplômes écrits différemment (Ingeneering / Engineer) | 920 | Harmonisés | `dim_diplome` |

@@ -20,10 +20,10 @@
 | `eda_audit_report.html` | Audit report it generates: 42 anomalies, impact, proposed fix |
 | `Projet_EDA_BI_RH.pptx` | EDA presentation: business objectives OM1–OM6 and KPIs |
 | `sql/staging_area.sql` | Creates the 7 `stg` tables: file columns only, typed as SSIS reads them |
-| `sql/data_warehouse.sql` | Creates the DW v2 tables in `RH_Data_Warehouse` (17 tables; rows without a match are dropped at load time) |
+| `sql/data_warehouse.sql` | Creates the DW tables in `RH_Data_Warehouse` (17 tables; rows without a match are dropped at load time) |
 | `Project BI HR/` | SSIS project (Visual Studio 2022) |
-| `docs/CONCEPTION_DW.md` | DW v2 design: model, bus matrix, every fact and dimension |
-| `docs/GUIDE_RECONSTRUCTION_DW.md` | Step-by-step guide to build the DW v2 load in SSDT (components, expressions, table fiches) |
+| `docs/CONCEPTION_DW.md` | DW design: model, bus matrix, every fact and dimension |
+| `docs/GUIDE_RECONSTRUCTION_DW.md` | Step-by-step guide to the DW load in SSDT (components, expressions, table fiches) |
 | `docs/` | Also: setup guide + team conventions |
 
 ## The staging area (schema `stg`)
@@ -32,9 +32,9 @@
 - **Type differences are handled in the database:** each `stg` column has the type SSIS reads (`float` for Excel numbers, `datetime` for Excel dates, UTF-8 `varchar` for UTF-8 text).
 - **All cleaning happens in the DW load.**
 
-## The Data Warehouse (schema `dw`) — v2
+## The Data Warehouse (schema `dw`)
 
-The v2 tables are created in `RH_Data_Warehouse` and loaded by `Load_DW.dtsx` (4 containers: generated tables, sub-dimensions, dimensions, facts):
+The tables are created in `RH_Data_Warehouse` and loaded by `Load_DW.dtsx` (4 containers: generated tables, sub-dimensions, dimensions, facts):
 
 👉 **Design:** [docs/CONCEPTION_DW.md](docs/CONCEPTION_DW.md)
 👉 **How to load it:** [docs/GUIDE_RECONSTRUCTION_DW.md](docs/GUIDE_RECONSTRUCTION_DW.md)

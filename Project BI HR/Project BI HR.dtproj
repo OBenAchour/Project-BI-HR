@@ -1114,7 +1114,7 @@
                 </SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionGUID">{DB5944EF-AEFC-49E6-9709-C9359469499F}</SSIS:Property>
                 <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
-                <SSIS:Property SSIS:Name="Description">Chargement du Data Warehouse RH v2 (RH_Data_Warehouse.dw) depuis la zone de staging (RH_Staging_Area.stg).</SSIS:Property>
+                <SSIS:Property SSIS:Name="Description">Chargement du Data Warehouse RH (RH_Data_Warehouse.dw) depuis la zone de staging (RH_Staging_Area.stg).</SSIS:Property>
                 <SSIS:Property SSIS:Name="ProtectionLevel">1</SSIS:Property>
               </SSIS:Properties>
               <SSIS:Parameters />
