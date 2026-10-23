@@ -13,7 +13,7 @@
   DTS:ObjectName="Load_DW"
   DTS:PackageType="5"
   DTS:VersionBuild="3"
-  DTS:VersionGUID="{A3D0152F-8A5C-461D-B5E2-595658729D9C}">
+  DTS:VersionGUID="{DB5944EF-AEFC-49E6-9709-C9359469499F}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -30,7 +30,7 @@
           <DTS:Password
             DTS:Name="Password"
             Sensitive="1"
-            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAADBbM4wcc296MmHyJXfKwTKsphoIIiHzqIf1Rv31MC5jwAAAAAOgAAAAAIAACAAAACkae3BDnp7KJDFrrmhr98TaiMELFWxIL8hbipbovBNmiAAAADuwqQPjskwdIQ+xiGf1kFd6Q4Jb155mv/Ku3kJZGDuiEAAAAAQ5XkTp1f92nE0W+ziYblD64M29LPUutLB2+XwoYUdFrkMxv72MiRGHjHi9Fu7nSEsTzTExtpDhKOcqHoh8YgC</DTS:Password>
+            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAAAmIzi4ltWXVteNt/hk2mw0nxMi7g/HimqXcrfrssZGrQAAAAAOgAAAAAIAACAAAAD7OMUfacgoEHOhQDSZaWdOs/WfP3DTOHdfk6eQ0ilCdiAAAABO1jGYCh/kbSrtLy32gFYYqZE9u52UbkbxloiyNGsh60AAAABpoUweCB8oqA2M4mRKjQrzvAUOQi6IXhXsWIau1coYz3Dm8p9icG92XFxJ+OXdvFIe2y1lK9Fp10ZUcRUn6TK/</DTS:Password>
         </DTS:ConnectionManager>
       </DTS:ObjectData>
     </DTS:ConnectionManager>
@@ -47,7 +47,7 @@
           <DTS:Password
             DTS:Name="Password"
             Sensitive="1"
-            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAAAqCqMYFMqw4Ks+pqsQ+NbeIzog5GBJlQdXpocRL7InAgAAAAAOgAAAAAIAACAAAAC9ySjud/T7s/i4APfzirXYrnW2AGXYGs1/NUBP952CuyAAAAAdqttbh78PE4gIQh+4ZVGKWG9HuqEahjUxEX9wtv+xnEAAAADKWwySo7HPiOJClt8ejVZzDs8Yq9qSzaHv1PQHDjLUnZ3vwTlQDEpj1RKO1ncWhx9KBU8OCapRVU9gnAYWuTqh</DTS:Password>
+            Encrypted="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAaLrT5AKFyE6aZVdKWPGZsgAAAAAIAAAARABUAFMAAAAQZgAAAAEAACAAAACWFzeNQQw3Zx/GgsYt8qsr3sPWFiinyXLOT+4j/FqGyQAAAAAOgAAAAAIAACAAAACLhCoybFRfODMoJ42tyb/2VyWTolBsLO28S/GJPkE/QyAAAADk4Ug3MMED/SNFvnfUoYBLtErOOjnZoo/zNgiFGZwQjUAAAABiFjjgKAsxkxVU14r8ZetLfijfwqo11PS7WslB5FoSnPfTgnaAOSiaMN8NI1dBBFLvE8pZjoRwisTS4tQxMdsD</DTS:Password>
         </DTS:ConnectionManager>
       </DTS:ObjectData>
     </DTS:ConnectionManager>
@@ -56,31 +56,31 @@
     <DTS:Variable
       DTS:CreationName=""
       DTS:Description="Date de la photo de l'effectif et des inscriptions (jour d'exécution)."
-      DTS:DTSID="{C91851B1-662A-4B7A-AF9A-732B29156A0B}"
+      DTS:DTSID="{74485B2C-52D2-4498-BF73-4E27583C9E5F}"
       DTS:EvaluateAsExpression="True"
       DTS:Expression="(DT_DATE)(DT_DBDATE)GETDATE()"
       DTS:IncludeInDebugDump="2345"
       DTS:Namespace="User"
       DTS:ObjectName="DateSnapshot">
       <DTS:VariableValue
-        DTS:DataType="7">10/22/2026</DTS:VariableValue>
+        DTS:DataType="7">10/23/2026</DTS:VariableValue>
     </DTS:Variable>
     <DTS:Variable
       DTS:CreationName=""
       DTS:Description="Clé dim_date de DateSnapshot (AAAAMMJJ)."
-      DTS:DTSID="{CF6F2E0A-FBAE-40A8-9F9E-53C81E64EF78}"
+      DTS:DTSID="{3D7FC37E-AC52-4CD0-A753-896D9AD3569B}"
       DTS:EvaluateAsExpression="True"
       DTS:Expression="YEAR(@[User::DateSnapshot]) * 10000 + MONTH(@[User::DateSnapshot]) * 100 + DAY(@[User::DateSnapshot])"
       DTS:IncludeInDebugDump="2345"
       DTS:Namespace="User"
       DTS:ObjectName="DateSnapshotSk">
       <DTS:VariableValue
-        DTS:DataType="3">20261022</DTS:VariableValue>
+        DTS:DataType="3">20261023</DTS:VariableValue>
     </DTS:Variable>
     <DTS:Variable
       DTS:CreationName=""
       DTS:Description="Rang du cours lu dans la liste ID_TRAINING (boucle 1 à 25)."
-      DTS:DTSID="{E352EB36-3BF1-48A5-AF2F-9E9302F427CC}"
+      DTS:DTSID="{39CC03B4-D008-4DD4-B13A-587845048E48}"
       DTS:IncludeInDebugDump="6789"
       DTS:Namespace="User"
       DTS:ObjectName="RangCours">
@@ -93,7 +93,7 @@
       DTS:refId="Package\SEQ_1_Tables_generees"
       DTS:CreationName="STOCK:SEQUENCE"
       DTS:Description="Tables sans fichier source : dates et heures."
-      DTS:DTSID="{54C0A652-9A45-4EFF-BC0D-FC40CF7A05F7}"
+      DTS:DTSID="{BDDAA8F7-55F5-407A-89DB-80927964D764}"
       DTS:ExecutableType="STOCK:SEQUENCE"
       DTS:LocaleID="-1"
       DTS:ObjectName="SEQ_1_Tables_generees">
@@ -103,7 +103,7 @@
           DTS:refId="Package\SEQ_1_Tables_generees\DFT_DIM_DATE"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Une ligne par jour du 01/01/2000 au 31/12/2030, fériés tunisiens à date fixe."
-          DTS:DTSID="{EFBAA3AB-A3DD-4BF8-8E33-5617D4F4009D}"
+          DTS:DTSID="{80E8BA9F-AE78-4C77-80EE-3437CE3D9568}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_DATE"
@@ -906,7 +906,7 @@ FROM f</property>
           DTS:refId="Package\SEQ_1_Tables_generees\DFT_DIM_HEURE"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Une ligne par minute de la journée (0 à 1 439)."
-          DTS:DTSID="{10279102-A760-4F57-8A70-992A89A9BF66}"
+          DTS:DTSID="{97C485C1-38A9-43F0-AC99-1FE55925FD2F}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_HEURE"
@@ -1423,7 +1423,7 @@ FROM n</property>
       DTS:refId="Package\SEQ_2_Sous_dimensions"
       DTS:CreationName="STOCK:SEQUENCE"
       DTS:Description="Sous-dimensions (flocon) et dim_taux_horaire, sans dépendance."
-      DTS:DTSID="{B44D1864-F7EE-4B49-981F-E3E838D1286D}"
+      DTS:DTSID="{7C0BC887-8402-4562-8005-631B3A5863E3}"
       DTS:ExecutableType="STOCK:SEQUENCE"
       DTS:LocaleID="-1"
       DTS:ObjectName="SEQ_2_Sous_dimensions">
@@ -1433,7 +1433,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_CANAL_RECRUTEMENT"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Canaux de recrutement, codes unifiés et libellés français."
-          DTS:DTSID="{258E65B9-9E5C-4632-A299-628585B5D3CE}"
+          DTS:DTSID="{6DC692FB-BE74-478A-A104-1584AEEBD302}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_CANAL_RECRUTEMENT"
@@ -3477,7 +3477,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_DIPLOME"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Diplômes harmonisés des deux fichiers employés."
-          DTS:DTSID="{0BCFD3E8-C176-4D91-A771-E56D806DF1FB}"
+          DTS:DTSID="{006864C0-DB21-4A3E-9380-90C42535B8B8}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_DIPLOME"
@@ -5452,7 +5452,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_NIVEAU_COURS"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Niveaux de difficulté : libellé français et ordre (NULL hors échelle)."
-          DTS:DTSID="{766C9EB9-17CE-437E-AF4B-22BF88EFBB0D}"
+          DTS:DTSID="{61D5A7B6-6EC5-4BAB-90E2-B38C4794E64B}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_NIVEAU_COURS"
@@ -6211,11 +6211,11 @@ FROM n</property>
                     <property
                       dataType="System.Int32"
                       description="Specifies the column code page to use when code page information is unavailable from the data source."
-                      name="DefaultCodePage">1252</property>
+                      name="DefaultCodePage">65001</property>
                     <property
                       dataType="System.Boolean"
                       description="Forces the use of the DefaultCodePage property value when describing character data."
-                      name="AlwaysUseDefaultCodePage">false</property>
+                      name="AlwaysUseDefaultCodePage">true</property>
                     <property
                       dataType="System.Int32"
                       description="Specifies the mode used to access the database."
@@ -6311,7 +6311,7 @@ FROM n</property>
                           truncationRowDisposition="FailComponent" />
                         <outputColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_NIVEAU_COURS\SRC_stg_coursera_trainings.Outputs[OLE DB Source Output].Columns[Course Description]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="text"
                           errorOrTruncationOperation="Conversion"
                           errorRowDisposition="FailComponent"
@@ -6369,7 +6369,7 @@ FROM n</property>
                           name="Course URL" />
                         <externalMetadataColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_NIVEAU_COURS\SRC_stg_coursera_trainings.Outputs[OLE DB Source Output].ExternalColumns[Course Description]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="text"
                           name="Course Description" />
                         <externalMetadataColumn
@@ -6428,7 +6428,7 @@ FROM n</property>
                           name="Course URL" />
                         <outputColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_NIVEAU_COURS\SRC_stg_coursera_trainings.Outputs[OLE DB Source Error Output].Columns[Course Description]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="text"
                           lineageId="Package\SEQ_2_Sous_dimensions\DFT_DIM_NIVEAU_COURS\SRC_stg_coursera_trainings.Outputs[OLE DB Source Error Output].Columns[Course Description]"
                           name="Course Description" />
@@ -6495,7 +6495,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_POLE"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Pôle Technique / Administratif déduit du département."
-          DTS:DTSID="{ABC30560-3B7D-45A8-B43B-2BA387989FFE}"
+          DTS:DTSID="{446738FC-8CE2-4B09-A6C2-6CD666CA5B53}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_POLE"
@@ -7122,7 +7122,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_TAUX_HORAIRE"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Taux horaires d'extrainfos.txt, historisés (SCD 2 sur la valeur)."
-          DTS:DTSID="{81BDD3A7-84CE-44D4-9422-310E52F54C35}"
+          DTS:DTSID="{1801C778-C9E9-4D21-87E9-21EBD0F722EC}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_TAUX_HORAIRE"
@@ -7373,7 +7373,7 @@ FROM n</property>
                       <inputColumns>
                         <inputColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_TAUX_HORAIRE\CSPL_Ligne_Non_Vide.Inputs[Conditional Split Input].Columns[libelle]"
-                          cachedCodepage="1252"
+                          cachedCodepage="65001"
                           cachedDataType="str"
                           cachedLength="50"
                           cachedName="libelle"
@@ -7680,14 +7680,14 @@ FROM n</property>
                       <inputColumns>
                         <inputColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_TAUX_HORAIRE\DER_Code_Libelle.Inputs[Derived Column Input].Columns[libelle]"
-                          cachedCodepage="1252"
+                          cachedCodepage="65001"
                           cachedDataType="str"
                           cachedLength="50"
                           cachedName="libelle"
                           lineageId="Package\SEQ_2_Sous_dimensions\DFT_DIM_TAUX_HORAIRE\SRC_stg_extrainfos.Outputs[OLE DB Source Output].Columns[libelle]" />
                         <inputColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_TAUX_HORAIRE\DER_Code_Libelle.Inputs[Derived Column Input].Columns[valeur]"
-                          cachedCodepage="1252"
+                          cachedCodepage="65001"
                           cachedDataType="str"
                           cachedLength="50"
                           cachedName="valeur"
@@ -8421,11 +8421,11 @@ FROM n</property>
                     <property
                       dataType="System.Int32"
                       description="Specifies the column code page to use when code page information is unavailable from the data source."
-                      name="DefaultCodePage">1252</property>
+                      name="DefaultCodePage">65001</property>
                     <property
                       dataType="System.Boolean"
                       description="Forces the use of the DefaultCodePage property value when describing character data."
-                      name="AlwaysUseDefaultCodePage">false</property>
+                      name="AlwaysUseDefaultCodePage">true</property>
                     <property
                       dataType="System.Int32"
                       description="Specifies the mode used to access the database."
@@ -8451,7 +8451,7 @@ FROM n</property>
                       <outputColumns>
                         <outputColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_TAUX_HORAIRE\SRC_stg_extrainfos.Outputs[OLE DB Source Output].Columns[libelle]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="str"
                           errorOrTruncationOperation="Conversion"
                           errorRowDisposition="FailComponent"
@@ -8462,7 +8462,7 @@ FROM n</property>
                           truncationRowDisposition="FailComponent" />
                         <outputColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_TAUX_HORAIRE\SRC_stg_extrainfos.Outputs[OLE DB Source Output].Columns[valeur]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="str"
                           errorOrTruncationOperation="Conversion"
                           errorRowDisposition="FailComponent"
@@ -8476,13 +8476,13 @@ FROM n</property>
                         isUsed="True">
                         <externalMetadataColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_TAUX_HORAIRE\SRC_stg_extrainfos.Outputs[OLE DB Source Output].ExternalColumns[libelle]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="str"
                           length="50"
                           name="libelle" />
                         <externalMetadataColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_TAUX_HORAIRE\SRC_stg_extrainfos.Outputs[OLE DB Source Output].ExternalColumns[valeur]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="str"
                           length="50"
                           name="valeur" />
@@ -8495,14 +8495,14 @@ FROM n</property>
                       <outputColumns>
                         <outputColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_TAUX_HORAIRE\SRC_stg_extrainfos.Outputs[OLE DB Source Error Output].Columns[libelle]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="str"
                           length="50"
                           lineageId="Package\SEQ_2_Sous_dimensions\DFT_DIM_TAUX_HORAIRE\SRC_stg_extrainfos.Outputs[OLE DB Source Error Output].Columns[libelle]"
                           name="libelle" />
                         <outputColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_TAUX_HORAIRE\SRC_stg_extrainfos.Outputs[OLE DB Source Error Output].Columns[valeur]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="str"
                           length="50"
                           lineageId="Package\SEQ_2_Sous_dimensions\DFT_DIM_TAUX_HORAIRE\SRC_stg_extrainfos.Outputs[OLE DB Source Error Output].Columns[valeur]"
@@ -8776,7 +8776,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_UNIVERSITE"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Universités du catalogue Coursera."
-          DTS:DTSID="{16310153-9219-4AA7-9EE0-53005BC2542A}"
+          DTS:DTSID="{5E04A378-498B-4B58-BA29-9B9DF4F7A083}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_UNIVERSITE"
@@ -9345,11 +9345,11 @@ FROM n</property>
                     <property
                       dataType="System.Int32"
                       description="Specifies the column code page to use when code page information is unavailable from the data source."
-                      name="DefaultCodePage">1252</property>
+                      name="DefaultCodePage">65001</property>
                     <property
                       dataType="System.Boolean"
                       description="Forces the use of the DefaultCodePage property value when describing character data."
-                      name="AlwaysUseDefaultCodePage">false</property>
+                      name="AlwaysUseDefaultCodePage">true</property>
                     <property
                       dataType="System.Int32"
                       description="Specifies the mode used to access the database."
@@ -9445,7 +9445,7 @@ FROM n</property>
                           truncationRowDisposition="FailComponent" />
                         <outputColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_UNIVERSITE\SRC_stg_coursera_trainings.Outputs[OLE DB Source Output].Columns[Course Description]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="text"
                           errorOrTruncationOperation="Conversion"
                           errorRowDisposition="FailComponent"
@@ -9503,7 +9503,7 @@ FROM n</property>
                           name="Course URL" />
                         <externalMetadataColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_UNIVERSITE\SRC_stg_coursera_trainings.Outputs[OLE DB Source Output].ExternalColumns[Course Description]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="text"
                           name="Course Description" />
                         <externalMetadataColumn
@@ -9562,7 +9562,7 @@ FROM n</property>
                           name="Course URL" />
                         <outputColumn
                           refId="Package\SEQ_2_Sous_dimensions\DFT_DIM_UNIVERSITE\SRC_stg_coursera_trainings.Outputs[OLE DB Source Error Output].Columns[Course Description]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="text"
                           lineageId="Package\SEQ_2_Sous_dimensions\DFT_DIM_UNIVERSITE\SRC_stg_coursera_trainings.Outputs[OLE DB Source Error Output].Columns[Course Description]"
                           name="Course Description" />
@@ -9626,7 +9626,7 @@ FROM n</property>
       DTS:refId="Package\SEQ_3_Dimensions"
       DTS:CreationName="STOCK:SEQUENCE"
       DTS:Description="Dimensions qui référencent les sous-dimensions."
-      DTS:DTSID="{3F61041B-43BE-40EE-95DE-CE5C373E10FF}"
+      DTS:DTSID="{1EF87002-C1F1-4D0D-9924-7CAA94A1C5D3}"
       DTS:ExecutableType="STOCK:SEQUENCE"
       DTS:LocaleID="-1"
       DTS:ObjectName="SEQ_3_Dimensions">
@@ -9636,7 +9636,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_3_Dimensions\DFT_DIM_CONTRAT"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Couples (type de contrat, statut d'emploi)."
-          DTS:DTSID="{BB645693-070D-4D5B-91B1-77EA789B006A}"
+          DTS:DTSID="{B882C48B-E0F8-4D4D-AF09-32C0A0893B6C}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_CONTRAT"
@@ -11916,7 +11916,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_3_Dimensions\DFT_DIM_COURS"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Catalogue Coursera : intitulé corrigé, note numérique, sous-dimensions."
-          DTS:DTSID="{86765813-E4BF-41F8-AA26-060F68355865}"
+          DTS:DTSID="{9BC016B0-D0DF-4EB1-ABA9-EF665271F7EA}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_COURS"
@@ -12036,7 +12036,7 @@ FROM n</property>
                           lineageId="Package\SEQ_3_Dimensions\DFT_DIM_COURS\SRC_stg_coursera_trainings.Outputs[OLE DB Source Output].Columns[Course Rating]" />
                         <inputColumn
                           refId="Package\SEQ_3_Dimensions\DFT_DIM_COURS\DCONV_Note_Description.Inputs[Data Conversion Input].Columns[Course Description]"
-                          cachedCodepage="1252"
+                          cachedCodepage="65001"
                           cachedDataType="text"
                           cachedName="Course Description"
                           lineageId="Package\SEQ_3_Dimensions\DFT_DIM_COURS\SRC_stg_coursera_trainings.Outputs[OLE DB Source Output].Columns[Course Description]" />
@@ -13034,11 +13034,11 @@ FROM n</property>
                     <property
                       dataType="System.Int32"
                       description="Specifies the column code page to use when code page information is unavailable from the data source."
-                      name="DefaultCodePage">1252</property>
+                      name="DefaultCodePage">65001</property>
                     <property
                       dataType="System.Boolean"
                       description="Forces the use of the DefaultCodePage property value when describing character data."
-                      name="AlwaysUseDefaultCodePage">false</property>
+                      name="AlwaysUseDefaultCodePage">true</property>
                     <property
                       dataType="System.Int32"
                       description="Specifies the mode used to access the database."
@@ -13134,7 +13134,7 @@ FROM n</property>
                           truncationRowDisposition="FailComponent" />
                         <outputColumn
                           refId="Package\SEQ_3_Dimensions\DFT_DIM_COURS\SRC_stg_coursera_trainings.Outputs[OLE DB Source Output].Columns[Course Description]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="text"
                           errorOrTruncationOperation="Conversion"
                           errorRowDisposition="FailComponent"
@@ -13192,7 +13192,7 @@ FROM n</property>
                           name="Course URL" />
                         <externalMetadataColumn
                           refId="Package\SEQ_3_Dimensions\DFT_DIM_COURS\SRC_stg_coursera_trainings.Outputs[OLE DB Source Output].ExternalColumns[Course Description]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="text"
                           name="Course Description" />
                         <externalMetadataColumn
@@ -13251,7 +13251,7 @@ FROM n</property>
                           name="Course URL" />
                         <outputColumn
                           refId="Package\SEQ_3_Dimensions\DFT_DIM_COURS\SRC_stg_coursera_trainings.Outputs[OLE DB Source Error Output].Columns[Course Description]"
-                          codePage="1252"
+                          codePage="65001"
                           dataType="text"
                           lineageId="Package\SEQ_3_Dimensions\DFT_DIM_COURS\SRC_stg_coursera_trainings.Outputs[OLE DB Source Error Output].Columns[Course Description]"
                           name="Course Description" />
@@ -13323,7 +13323,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_3_Dimensions\DFT_DIM_DEPARTEMENT"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Départements, capacité en entier et pôle."
-          DTS:DTSID="{91C608FA-59C3-4EC1-8E76-E604BD647248}"
+          DTS:DTSID="{9F9E658F-4FA6-4018-9736-3D1B7D1C219D}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_DEPARTEMENT"
@@ -14178,7 +14178,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_3_Dimensions\DFT_DIM_EMPLOYE"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Employés des deux fichiers, historisés (SCD 2 sur département, adresse, statut marital)."
-          DTS:DTSID="{D3AC56E5-6F82-4E01-9BF4-2F8FBD315404}"
+          DTS:DTSID="{4289D341-44A8-4094-8ED7-EE6FC8FBF1D2}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_EMPLOYE"
@@ -20131,7 +20131,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_3_Dimensions\DFT_DIM_POSTE"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Postes : intitulé, catégorie (métier / fonction), rang, activité."
-          DTS:DTSID="{660B8483-6EB4-4275-8E4C-837A3171855A}"
+          DTS:DTSID="{F0DB359C-4BDB-491F-A07A-56369B44CC8A}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_POSTE"
@@ -22563,7 +22563,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_3_Dimensions\DFT_DIM_TYPE_CONGE"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Types de congé : code en minuscules, libellé français."
-          DTS:DTSID="{91E56D5F-C92D-4645-A9D5-E947410A2D0A}"
+          DTS:DTSID="{85D01B8E-953C-416E-A96B-278AEBF00D49}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_DIM_TYPE_CONGE"
@@ -24780,12 +24780,12 @@ FROM n</property>
       </DTS:Executables>
       <DTS:PrecedenceConstraints>
         <DTS:PrecedenceConstraint
-          DTS:refId="Package\SEQ_3_Dimensions.PrecedenceConstraints[{511A2A0B-731F-4987-9B92-D877595D68AC\}]"
+          DTS:refId="Package\SEQ_3_Dimensions.PrecedenceConstraints[{B15F3298-384F-462A-A0E7-42BA55B6E59A\}]"
           DTS:CreationName=""
-          DTS:DTSID="{511A2A0B-731F-4987-9B92-D877595D68AC}"
+          DTS:DTSID="{B15F3298-384F-462A-A0E7-42BA55B6E59A}"
           DTS:From="Package\SEQ_3_Dimensions\DFT_DIM_DEPARTEMENT"
           DTS:LogicalAnd="True"
-          DTS:ObjectName="{511A2A0B-731F-4987-9B92-D877595D68AC}"
+          DTS:ObjectName="{B15F3298-384F-462A-A0E7-42BA55B6E59A}"
           DTS:To="Package\SEQ_3_Dimensions\DFT_DIM_EMPLOYE" />
       </DTS:PrecedenceConstraints>
     </DTS:Executable>
@@ -24793,7 +24793,7 @@ FROM n</property>
       DTS:refId="Package\SEQ_4_Faits"
       DTS:CreationName="STOCK:SEQUENCE"
       DTS:Description="Faits : effectif puis pointage ; inscriptions en parallèle."
-      DTS:DTSID="{968B84FF-E74E-43A2-BDE5-E09F174C4DA0}"
+      DTS:DTSID="{6BE9A7ED-1690-450B-8AF6-2D9BD9B93DDD}"
       DTS:ExecutableType="STOCK:SEQUENCE"
       DTS:LocaleID="-1"
       DTS:ObjectName="SEQ_4_Faits">
@@ -24803,7 +24803,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_4_Faits\DFT_FACT_EFFECTIF"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Photo de l'effectif à la date DateSnapshot (1 ligne par employé)."
-          DTS:DTSID="{D46E0B81-A058-41F2-8967-F184153A3DCC}"
+          DTS:DTSID="{B6B95517-815F-4638-9722-22AF202158B9}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_FACT_EFFECTIF"
@@ -33116,7 +33116,7 @@ FROM n</property>
           DTS:refId="Package\SEQ_4_Faits\DFT_FACT_POINTAGE"
           DTS:CreationName="Microsoft.Pipeline"
           DTS:Description="Pointages techniques et administratifs (1 ligne par employé et par jour)."
-          DTS:DTSID="{1AFF5E60-DA57-471D-84DE-1EFDFA3ED113}"
+          DTS:DTSID="{4B27D80C-241D-4A17-90E8-228DFD0F7BAE}"
           DTS:ExecutableType="Microsoft.Pipeline"
           DTS:LocaleID="-1"
           DTS:ObjectName="DFT_FACT_POINTAGE"
@@ -36169,7 +36169,7 @@ FROM n</property>
           DTS:AssignExpression="@[User::RangCours] = @[User::RangCours] + 1"
           DTS:CreationName="STOCK:FORLOOP"
           DTS:Description="Une passe par rang de cours dans la liste ID_TRAINING (25 cours au plus par employé)."
-          DTS:DTSID="{B38E67C1-6C2B-45E9-A6A1-FCB6F22F4256}"
+          DTS:DTSID="{E2F12002-CA2A-4B64-B9FB-65A8913303CD}"
           DTS:EvalExpression="@[User::RangCours] &lt;= 25"
           DTS:ExecutableType="STOCK:FORLOOP"
           DTS:InitExpression="@[User::RangCours] = 1"
@@ -36182,7 +36182,7 @@ FROM n</property>
               DTS:refId="Package\SEQ_4_Faits\FLC_Rang_Cours_1_a_25\DFT_FACT_INSCRIPTION_FORMATION"
               DTS:CreationName="Microsoft.Pipeline"
               DTS:Description="Inscriptions : le cours n° RangCours de chaque liste ID_TRAINING."
-              DTS:DTSID="{BFDA4A19-3144-445B-927B-5F24E5F418BF}"
+              DTS:DTSID="{0BA41A53-D80B-4F0A-AB4A-05E90AC41A0D}"
               DTS:ExecutableType="Microsoft.Pipeline"
               DTS:LocaleID="-1"
               DTS:ObjectName="DFT_FACT_INSCRIPTION_FORMATION"
@@ -37865,7 +37865,7 @@ FROM n</property>
         <DTS:Executable
           DTS:refId="Package\SEQ_4_Faits\SQL_Vider_Pointage"
           DTS:CreationName="Microsoft.ExecuteSQLTask"
-          DTS:DTSID="{46F62658-090D-486E-AED7-6AD7F20D04AD}"
+          DTS:DTSID="{D17A74FA-938E-4D3C-A536-F2CA795C54FC}"
           DTS:ExecutableType="Microsoft.ExecuteSQLTask"
           DTS:LocaleID="-1"
           DTS:ObjectName="SQL_Vider_Pointage"
@@ -37880,7 +37880,7 @@ FROM n</property>
         <DTS:Executable
           DTS:refId="Package\SEQ_4_Faits\SQL_Vider_Snapshot_Effectif"
           DTS:CreationName="Microsoft.ExecuteSQLTask"
-          DTS:DTSID="{CB04A7C1-91F1-4685-9248-2D184FEA2665}"
+          DTS:DTSID="{D8137A59-72C6-4634-ABAD-D0DE941A8128}"
           DTS:ExecutableType="Microsoft.ExecuteSQLTask"
           DTS:LocaleID="-1"
           DTS:ObjectName="SQL_Vider_Snapshot_Effectif"
@@ -37891,13 +37891,13 @@ FROM n</property>
           <DTS:ObjectData>
             <SQLTask:SqlTaskData
               SQLTask:Connection="{B5071B8C-A235-4DCF-85B0-81A9207C9340}"
-              SQLTask:SqlStatementSource="DELETE FROM dw.fact_effectif_snapshot WHERE date_snapshot_sk = 20261022" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+              SQLTask:SqlStatementSource="DELETE FROM dw.fact_effectif_snapshot WHERE date_snapshot_sk = 20261023" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
           </DTS:ObjectData>
         </DTS:Executable>
         <DTS:Executable
           DTS:refId="Package\SEQ_4_Faits\SQL_Vider_Snapshot_Formation"
           DTS:CreationName="Microsoft.ExecuteSQLTask"
-          DTS:DTSID="{A53D37BC-E302-45F5-93A5-001C12546C8B}"
+          DTS:DTSID="{FAE3C2C9-61CB-40E0-AD67-5DA3442D3FDA}"
           DTS:ExecutableType="Microsoft.ExecuteSQLTask"
           DTS:LocaleID="-1"
           DTS:ObjectName="SQL_Vider_Snapshot_Formation"
@@ -37908,71 +37908,71 @@ FROM n</property>
           <DTS:ObjectData>
             <SQLTask:SqlTaskData
               SQLTask:Connection="{B5071B8C-A235-4DCF-85B0-81A9207C9340}"
-              SQLTask:SqlStatementSource="DELETE FROM dw.fact_inscription_formation WHERE date_snapshot_sk = 20261022" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+              SQLTask:SqlStatementSource="DELETE FROM dw.fact_inscription_formation WHERE date_snapshot_sk = 20261023" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
           </DTS:ObjectData>
         </DTS:Executable>
       </DTS:Executables>
       <DTS:PrecedenceConstraints>
         <DTS:PrecedenceConstraint
-          DTS:refId="Package\SEQ_4_Faits.PrecedenceConstraints[{8437A982-B7B3-47D1-8A55-0958EF4FA1CA\}]"
+          DTS:refId="Package\SEQ_4_Faits.PrecedenceConstraints[{23879F6F-5220-4A13-99CE-AA2EA207A1F9\}]"
           DTS:CreationName=""
-          DTS:DTSID="{8437A982-B7B3-47D1-8A55-0958EF4FA1CA}"
-          DTS:From="Package\SEQ_4_Faits\SQL_Vider_Snapshot_Effectif"
-          DTS:LogicalAnd="True"
-          DTS:ObjectName="{8437A982-B7B3-47D1-8A55-0958EF4FA1CA}"
-          DTS:To="Package\SEQ_4_Faits\DFT_FACT_EFFECTIF" />
-        <DTS:PrecedenceConstraint
-          DTS:refId="Package\SEQ_4_Faits.PrecedenceConstraints[{AFBFADC6-14C9-4867-96B9-CAB3C1BBD906\}]"
-          DTS:CreationName=""
-          DTS:DTSID="{AFBFADC6-14C9-4867-96B9-CAB3C1BBD906}"
-          DTS:From="Package\SEQ_4_Faits\DFT_FACT_EFFECTIF"
-          DTS:LogicalAnd="True"
-          DTS:ObjectName="{AFBFADC6-14C9-4867-96B9-CAB3C1BBD906}"
-          DTS:To="Package\SEQ_4_Faits\SQL_Vider_Pointage" />
-        <DTS:PrecedenceConstraint
-          DTS:refId="Package\SEQ_4_Faits.PrecedenceConstraints[{F6DE5818-10C7-44D1-A858-5A62A642270B\}]"
-          DTS:CreationName=""
-          DTS:DTSID="{F6DE5818-10C7-44D1-A858-5A62A642270B}"
+          DTS:DTSID="{23879F6F-5220-4A13-99CE-AA2EA207A1F9}"
           DTS:From="Package\SEQ_4_Faits\SQL_Vider_Snapshot_Formation"
           DTS:LogicalAnd="True"
-          DTS:ObjectName="{F6DE5818-10C7-44D1-A858-5A62A642270B}"
+          DTS:ObjectName="{23879F6F-5220-4A13-99CE-AA2EA207A1F9}"
           DTS:To="Package\SEQ_4_Faits\FLC_Rang_Cours_1_a_25" />
         <DTS:PrecedenceConstraint
-          DTS:refId="Package\SEQ_4_Faits.PrecedenceConstraints[{FADB8C12-7DD3-4AC3-8772-14D402FE5C4B\}]"
+          DTS:refId="Package\SEQ_4_Faits.PrecedenceConstraints[{87FE8BAC-F587-4355-844C-FED393ADD2E4\}]"
           DTS:CreationName=""
-          DTS:DTSID="{FADB8C12-7DD3-4AC3-8772-14D402FE5C4B}"
+          DTS:DTSID="{87FE8BAC-F587-4355-844C-FED393ADD2E4}"
+          DTS:From="Package\SEQ_4_Faits\DFT_FACT_EFFECTIF"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="{87FE8BAC-F587-4355-844C-FED393ADD2E4}"
+          DTS:To="Package\SEQ_4_Faits\SQL_Vider_Pointage" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQ_4_Faits.PrecedenceConstraints[{AB611AE1-1075-4C83-B144-4D454136B0CB\}]"
+          DTS:CreationName=""
+          DTS:DTSID="{AB611AE1-1075-4C83-B144-4D454136B0CB}"
+          DTS:From="Package\SEQ_4_Faits\SQL_Vider_Snapshot_Effectif"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="{AB611AE1-1075-4C83-B144-4D454136B0CB}"
+          DTS:To="Package\SEQ_4_Faits\DFT_FACT_EFFECTIF" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQ_4_Faits.PrecedenceConstraints[{C0E03D43-031B-4193-8A48-601E3A3FE63F\}]"
+          DTS:CreationName=""
+          DTS:DTSID="{C0E03D43-031B-4193-8A48-601E3A3FE63F}"
           DTS:From="Package\SEQ_4_Faits\SQL_Vider_Pointage"
           DTS:LogicalAnd="True"
-          DTS:ObjectName="{FADB8C12-7DD3-4AC3-8772-14D402FE5C4B}"
+          DTS:ObjectName="{C0E03D43-031B-4193-8A48-601E3A3FE63F}"
           DTS:To="Package\SEQ_4_Faits\DFT_FACT_POINTAGE" />
       </DTS:PrecedenceConstraints>
     </DTS:Executable>
   </DTS:Executables>
   <DTS:PrecedenceConstraints>
     <DTS:PrecedenceConstraint
-      DTS:refId="Package.PrecedenceConstraints[{A6EA626D-6F5E-4B27-BA26-6EC61CF7201C\}]"
+      DTS:refId="Package.PrecedenceConstraints[{19DD10EF-6F29-4581-A1E6-BB1B208455E0\}]"
       DTS:CreationName=""
-      DTS:DTSID="{A6EA626D-6F5E-4B27-BA26-6EC61CF7201C}"
+      DTS:DTSID="{19DD10EF-6F29-4581-A1E6-BB1B208455E0}"
       DTS:From="Package\SEQ_2_Sous_dimensions"
       DTS:LogicalAnd="True"
-      DTS:ObjectName="{A6EA626D-6F5E-4B27-BA26-6EC61CF7201C}"
+      DTS:ObjectName="{19DD10EF-6F29-4581-A1E6-BB1B208455E0}"
       DTS:To="Package\SEQ_3_Dimensions" />
     <DTS:PrecedenceConstraint
-      DTS:refId="Package.PrecedenceConstraints[{AA4CCDB3-463E-4DE6-B47C-96806C6C3619\}]"
+      DTS:refId="Package.PrecedenceConstraints[{54F7BC3B-F34F-4FF6-B6C2-8A6810ACD980\}]"
       DTS:CreationName=""
-      DTS:DTSID="{AA4CCDB3-463E-4DE6-B47C-96806C6C3619}"
-      DTS:From="Package\SEQ_3_Dimensions"
-      DTS:LogicalAnd="True"
-      DTS:ObjectName="{AA4CCDB3-463E-4DE6-B47C-96806C6C3619}"
-      DTS:To="Package\SEQ_4_Faits" />
-    <DTS:PrecedenceConstraint
-      DTS:refId="Package.PrecedenceConstraints[{BC9AB7A0-2215-4635-855F-E3BE2150E322\}]"
-      DTS:CreationName=""
-      DTS:DTSID="{BC9AB7A0-2215-4635-855F-E3BE2150E322}"
+      DTS:DTSID="{54F7BC3B-F34F-4FF6-B6C2-8A6810ACD980}"
       DTS:From="Package\SEQ_1_Tables_generees"
       DTS:LogicalAnd="True"
-      DTS:ObjectName="{BC9AB7A0-2215-4635-855F-E3BE2150E322}"
+      DTS:ObjectName="{54F7BC3B-F34F-4FF6-B6C2-8A6810ACD980}"
       DTS:To="Package\SEQ_2_Sous_dimensions" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{990B6DA0-D463-4C06-9912-76928A9FD1D2\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{990B6DA0-D463-4C06-9912-76928A9FD1D2}"
+      DTS:From="Package\SEQ_3_Dimensions"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{990B6DA0-D463-4C06-9912-76928A9FD1D2}"
+      DTS:To="Package\SEQ_4_Faits" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
