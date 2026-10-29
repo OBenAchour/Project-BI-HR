@@ -41,7 +41,7 @@ In **both** packages, double-click each connection manager → login `BI` → pa
 
 0. **Only once per server** — already done on the Tailscale server, so skip unless you start a new one:
    - `sql/staging_area.sql` on `RH_Staging_Area`: recreates the 7 `stg` tables (SQL Server 2019+);
-   - `sql/data_warehouse.sql`: creates the DW tables in `RH_Data_Warehouse`. It refuses to run once facts are loaded.
+   - `sql/data_warehouse.sql`: creates the DW tables that don't exist yet in `RH_Data_Warehouse`. It never drops anything, so it is safe to re-run.
 1. `Load_Staging_Area.dtsx` → F5
 2. `Load_DW.dtsx` → F5. Then compare the row counts with section 8 of the [guide](GUIDE_RECONSTRUCTION_DW.md).
 3. All boxes green = done ✅

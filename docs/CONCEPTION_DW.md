@@ -93,7 +93,7 @@ flowchart TB
 
 ### fact_pointage
 
-**Grain :** 1 employé × 1 jour pointé. **Volume :** 168 766 lignes (104 233 écartées : heure illisible ou incohérente, employé absent de l'effectif, jour après la fin du contrat). **Clé primaire :** `pointage_sk` (bigint IDENTITY).
+**Grain :** 1 employé × 1 jour pointé. **Volume :** 169 561 lignes (103 438 écartées : heure illisible ou incohérente, employé sans fiche, jour après la fin du contrat). **Clé primaire :** `pointage_sk` (bigint IDENTITY).
 
 | Colonne | Type | Rôle |
 | --- | --- | --- |
@@ -140,6 +140,8 @@ flowchart TB
 
 - **Clés :** clé de substitution `_sk` (IDENTITY) sur chaque dimension, sauf `dim_date` et `dim_heure` dont la clé est lisible (AAAAMMJJ, HHMM). Les faits ne contiennent que des clés de substitution.
 - **Anomalies :** pas de dimension d'anomalies. Un pointage est **écarté** quand ses heures sont incohérentes (durée négative, de moins d'1 h ou de plus de 10 h, fin avant la reprise, pause de plus de 3 h) ou quand il est postérieur à la fin du contrat. Les incohérences de contrat (CDI avec date de fin, CDD ou CIVP sans date de fin, vacataire en CDI, expérience incohérente) concernent 2 105 employés sur 2 740 : elles sont gardées telles quelles, sinon le DW serait presque vide.
+- **Aucune suppression :** ni table ni ligne n'est supprimée, dans les dimensions comme dans les faits. Le chargement n'ajoute que les lignes absentes ; une version de `dim_employe` ou de `dim_taux_horaire` est clôturée (`est_courant` = 0), jamais supprimée.
+- **Un Lookup par liaison, plus un :** le flux d'une table compte un Lookup par clé étrangère, plus un dernier Lookup sur la table elle-même dont la sortie *No Match* alimente la destination.
 - **Lignes écartées :** pas de membre « Inconnu ». Une ligne de dimension ou de fait dont une clé n'est pas trouvée, ou dont une valeur obligatoire est vide ou illisible, n'est pas chargée. Seules les clés « non applicables » acceptent NULL : date de fin d'un contrat sans terme, taux vacataire ou taux d'heures sup admin.
 - **Pas de NULL dans une clé de recherche :** un Lookup SSIS ne retrouve pas une valeur NULL. Les attributs utilisés comme clé reçoivent une valeur explicite (rang 0 = sans rang pour les administratifs).
 - **Données personnelles :** nom, e-mail et adresses de `dim_employe` sont à masquer ou à filtrer dans Power BI.

@@ -39,13 +39,15 @@ The tables are created in `RH_Data_Warehouse` and loaded by `Load_DW.dtsx` (4 co
 👉 **Design:** [docs/CONCEPTION_DW.md](docs/CONCEPTION_DW.md)
 👉 **How to load it:** [docs/GUIDE_RECONSTRUCTION_DW.md](docs/GUIDE_RECONSTRUCTION_DW.md)
 
-- **3 fact tables:** `fact_pointage` (employee × day, 168,766 rows), `fact_effectif_snapshot` (employee × snapshot, 2,726), `fact_inscription_formation` (employee × course × snapshot, 18,618)
+- **3 fact tables:** `fact_pointage` (employee × day, 169,561 rows), `fact_effectif_snapshot` (employee × snapshot, 2,726), `fact_inscription_formation` (employee × course × snapshot, 18,618)
 - **9 dimensions:** date, time, employee (SCD 2), department, contract, position, leave type, course, hourly rate
 - **Anomalies are dropped, not flagged:** attendance days with incoherent hours or after the contract end are not loaded
 - **5 sub-dimensions (snowflake):** diploma, hiring channel, pole, university, course level
 - **No bridge table:** languages and technologies become yes/no flags, enrolments are fact rows
 - **No "unknown" member:** a row whose key isn't found, or whose required value is unreadable, is dropped at load time
-- **Visual SSIS components** — SQL is used only to create the tables, generate the date and time rows, empty the facts before reloading, and update existing rows of the 2 history-tracked (SCD 2) dimensions
+- **Visual SSIS components** — SQL is used only to create the tables, generate the date and time rows, and update existing rows of the 2 history-tracked (SCD 2) dimensions
+- **Nothing is ever deleted:** no table or row is removed from dimensions or facts; a reload only adds missing rows
+- **One Lookup per link, plus one:** each load has one Lookup per foreign key, then a last Lookup on the table itself whose *No Match* output feeds the destination
 
 ## Tech stack
 

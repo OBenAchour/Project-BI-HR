@@ -6,7 +6,7 @@
 
 Ce guide décrit le DW et son chargement dans SSDT : **3 tables de faits, 9 dimensions et 5 sous-dimensions, sans aucune table de pont**. Chaque table indique sa source dans le SA, chaque colonne son origine, et chaque transformation sa raison, tirée de l'audit EDA (`eda_audit_report.html`).
 
-### Les 3 règles
+### Les 5 règles
 
 1. **Pas de table de pont.** Le DW ne contient que des faits, des dimensions et des sous-dimensions (flocon). Les listes multi-valeurs de la source sont résolues autrement :
    - les **langues** (4 valeurs possibles) et les **technologies** (2 valeurs possibles) deviennent des **indicateurs oui/non** dans `dim_employe` ;
@@ -14,13 +14,14 @@ Ce guide décrit le DW et son chargement dans SSDT : **3 tables de faits, 9 dime
    - les **compétences des cours** (`Skills`) restent un texte descriptif dans `dim_cours`.
 2. **Composants visuels plutôt que SQL.** Sources en mode « Table or view », Lookups en mode « Use a table or a view », nettoyage par **Derived Column**, **Data Conversion**, **Conditional Split**, **Aggregate**, **Union All**, **Lookup**, **Multicast**, **OLE DB Command**. Aucune requête SQL dans les data flows, sauf les exceptions ci-dessous.
 3. **Chaque transformation a une raison écrite.** Les fiches des sections 5 et 6 donnent, pour chaque étape, l'anomalie de l'EDA qu'elle corrige ou la règle métier qu'elle applique.
+4. **Aucune suppression, ni dans les dimensions ni dans les faits.** Le package ne vide jamais une table et ne supprime aucune ligne (pas de `TRUNCATE`, pas de `DELETE`) ; le script SQL ne supprime aucune table. Une dimension historisée clôt une version (`est_courant` = 0) au lieu de la supprimer.
+5. **Un Lookup par liaison, plus un.** Le flux d'une table compte autant de Lookups que de liaisons (clés étrangères) vers d'autres tables, plus un dernier Lookup sur la table elle-même : sa sortie *No Match* alimente la destination, ce qui n'insère que les lignes absentes. Exemple : `fact_effectif_snapshot` a 11 liaisons, donc 11 Lookups + 1.
 
 ### Les seules exceptions SQL, faute d'équivalent visuel
 
 | Où | Pourquoi aucun composant visuel ne convient |
 | --- | --- |
 | Script de création des tables `dw` (une fois) | La structure d'une base ne se crée pas dans un data flow. Le concepteur de tables de SSMS est une alternative visuelle. |
-| *Execute SQL Task* `TRUNCATE` / `DELETE` avant le chargement des faits | Une destination OLE DB ajoute des lignes mais ne peut pas vider une table. Sans cette étape, relancer le package crée des doublons. |
 | Source des 2 tables générées (`dim_date`, `dim_heure`) | Aucun fichier ne contient ces lignes : une requête de la source OLE DB les génère (jours, minutes). |
 | *OLE DB Command* de l'historisation SCD 2 | Clôturer ou modifier une ligne déjà chargée exige un `UPDATE` : l'assistant Slowly Changing Dimension génère les mêmes OLE DB Command |
 
@@ -85,7 +86,8 @@ Une douzaine de composants visuels suffisent pour tout le DW ; le tableau dit le
 | Insérer les nouveaux membres d'une dimension | **OLE DB Destination** | *Table or view – fast load*, sur la sortie *No Match* du Lookup |
 | Historiser `dim_employe` et dim\_taux\_horaire | **Lookup** + **Conditional Split** + **OLE DB Command** + **Union All** | Le montage que produit l'assistant Slowly Changing Dimension (voir « Historisation SCD 2 » ci-dessous) ; `est_courant` (True / False) repère la version courante, et les Lookups des faits s'appuient sur cette colonne |
 | Générer `dim_date` et `dim_heure` | **OLE DB Source** en mode *SQL command* | Une requête qui produit une ligne par jour ou par minute (exception de la section 1) |
-| Vider un fait avant rechargement | **Execute SQL Task** | Seule exception SQL (section 1) |
+| Ne pas réinsérer une ligne déjà chargée | **Lookup** sur la table elle-même | Dernier Lookup du flux (Règle 5) ; sa sortie *No Match* alimente la destination |
+| Rapprocher deux flux sans Lookup (pointage et fiche employé) | **Sort** + **Merge Join** | Tri sur la clé métier des deux côtés, jointure *Inner* : une ligne sans fiche est écartée |
 
 ### Ligne sans correspondance : écartée
 
@@ -143,11 +145,11 @@ Le package `Load_DW.dtsx` enchaîne 4 conteneurs : chaque table n'est chargée q
 | `SEQ_1_Tables_generees` | `DFT_DIM_DATE`, `DFT_DIM_HEURE` | — |
 | `SEQ_2_Sous_dimensions` | `DFT_DIM_POLE`, `DFT_DIM_DIPLOME`, `DFT_DIM_CANAL_RECRUTEMENT`, `DFT_DIM_UNIVERSITE`, `DFT_DIM_NIVEAU_COURS`, `DFT_DIM_TAUX_HORAIRE` (dimension sans dépendance, chargée ici) | — |
 | `SEQ_3_Dimensions` | `DFT_DIM_DEPARTEMENT`, `DFT_DIM_TYPE_CONGE`, `DFT_DIM_CONTRAT`, `DFT_DIM_POSTE`, `DFT_DIM_COURS`, puis `DFT_DIM_EMPLOYE` | Sous-dimensions ; `dim_employe` attend `dim_departement` |
-| `SEQ_4_Faits` | `SQL_Vider_Snapshot_Effectif` → `DFT_FACT_EFFECTIF` → `SQL_Vider_Pointage` → `DFT_FACT_POINTAGE` (le pointage lit la fin de contrat dans l'effectif) ; en parallèle : `SQL_Vider_Snapshot_Formation` → `FLC_Rang_Cours_1_a_25` (boucle *For Loop* qui exécute `DFT_FACT_INSCRIPTION_FORMATION` 25 fois) | Toutes les dimensions |
+| `SEQ_4_Faits` | `DFT_FACT_EFFECTIF`, `DFT_FACT_POINTAGE`, `FLC_Rang_Cours_1_a_25` (boucle *For Loop* qui exécute `DFT_FACT_INSCRIPTION_FORMATION` 25 fois) | Toutes les dimensions |
 
 ### Avant de construire
 
-1. **Les tables existent déjà :** la base `RH_Data_Warehouse` (schéma `dw`) a été créée sur le serveur Tailscale par `sql/data_warehouse.sql`, sans membre « Inconnu ». Le détail du modèle est dans [docs/CONCEPTION_DW.md](CONCEPTION_DW.md). Le script refuse de s'exécuter si des faits sont déjà chargés.
+1. **Les tables existent déjà :** la base `RH_Data_Warehouse` (schéma `dw`) a été créée sur le serveur Tailscale par `sql/data_warehouse.sql`, sans membre « Inconnu ». Le détail du modèle est dans [docs/CONCEPTION_DW.md](CONCEPTION_DW.md). Le script ne crée que les tables absentes et peut être relancé sans risque.
 2. **Créer deux connexions** : `OLEDB SA connection` (lecture `stg`) et `OLEDB DW connection` (base RH\_Data\_Warehouse : écriture `dw`, références des Lookups).
 3. **Créer les variables** `User::DateSnapshot` (DateTime, expression `(DT_DATE)(DT_DBDATE)GETDATE()`) : la date de la photo de l'effectif et des inscriptions, qui sert aussi à calculer l'ancienneté et le contrat échu ; `User::DateSnapshotSk` (Int32) : sa clé AAAAMMJJ ; `User::RangCours` (Int32) : le compteur de la boucle des formations.
 4. **Régler la langue du package** (*LocaleID*) sur Anglais (États-Unis) : les nombres du SA (« 4.5 », « 35 ») utilisent le point décimal.
@@ -155,7 +157,7 @@ Le package `Load_DW.dtsx` enchaîne 4 conteneurs : chaque table n'est chargée q
 ### Rendre le package relançable sans doublon
 
 - **Dimensions :** le Lookup sur la clé métier n'insère que les membres absents (sortie *No Match*) ; un deuxième passage n'ajoute rien.
-- **Faits :** l'*Execute SQL Task* qui précède chaque fait le vide (`fact_pointage`) ou supprime la photo du jour (`DateSnapshot`) avant de recharger.
+- **Faits :** le dernier Lookup, sur le fait lui-même, ne laisse passer que les lignes absentes (sortie *No Match*) : un deuxième passage le même jour n'ajoute rien, et rien n'est supprimé.
 
 ## 5. Fiches des dimensions et sous-dimensions
 
@@ -341,21 +343,23 @@ Une sous-dimension sort un groupe de valeurs répétées d'une dimension pour le
 
 Les 3 faits partagent `dim_date`, `dim_employe` et `dim_departement` : c'est ce partage qui fait la constellation. Chaque fiche donne le grain, le flux complet et chaque colonne.
 
-### Deux motifs communs aux 3 faits
+### Trois motifs communs aux 3 faits
 
 - **Version courante d'un employé :** Derived Column `est_courant = (DT_BOOL)1`, puis Lookup sur `dim_employe` joint sur (`employe_bk`, `est_courant`). Le mode « table ou vue » ne peut pas filtrer : la colonne constante remplace le filtre SQL.
 - **Clé introuvable :** sortie *No Match* non reliée, la ligne est écartée (section 3).
+- **Un Lookup par liaison, plus un (Règle 5) :** le dernier Lookup porte sur le fait lui-même et seule sa sortie *No Match* rejoint la destination.
 
 ### 6.1 fact\_effectif\_snapshot — la photo de l'effectif
 
-**Grain :** 1 employé × 1 date de snapshot. **2 726 lignes par snapshot** : les 4 employés sans département, et 10 autres sans date d'embauche, type de contrat, intitulé ou activité, sont écartés. Chargé **avant** `fact_pointage`, qui lui emprunte la date de fin de contrat.
+**Grain :** 1 employé × 1 date de snapshot. **2 726 lignes par snapshot** : les 4 employés sans département, et 10 autres sans date d'embauche, type de contrat, intitulé ou activité, sont écartés.
 
-**Flux :** `SQL_Vider_Snapshot_Effectif` (supprime les lignes de `DateSnapshot`) → 2 sources (`stg.emp_data`, `stg.administration_data`) → Derived Column par source (alignement, `population`, `statut_emploi`, `categorie_poste`, `rang = 0` pour l'admin) → Union All → Conditional Split (écarte la ligne sans identifiant) → Data Conversion (nombres) → Derived Column (dates, ancienneté, codes de taux) → Lookups `dim_employe`, `dim_contrat`, `dim_poste`, `dim_type_conge`, `dim_taux_horaire` × 2 → Derived Column (coûts) → Destination.
+**Flux :** 2 sources (`stg.emp_data`, `stg.administration_data`) → Derived Column par source (alignement, `population`, `statut_emploi`, `categorie_poste`, `rang = 0` pour l'admin) → Union All → Conditional Split (écarte la ligne sans identifiant) → Data Conversion (nombres) → Derived Column (dates, ancienneté, codes de taux) → 11 Lookups, un par liaison : `dim_date` × 4 (snapshot, embauche, début et fin de contrat), `dim_employe`, `dim_departement`, `dim_contrat`, `dim_poste`, `dim_type_conge`, `dim_taux_horaire` × 2 → Derived Column (coûts) → Lookup `fact_effectif_snapshot` (*No Match*) → Destination. La fin de contrat et les 2 taux sont facultatifs : un Conditional Split envoie les lignes sans valeur directement à l'Union All qui suit leur Lookup.
 
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
 | `date_snapshot_sk` | int | variable `DateSnapshot` | AAAAMMJJ de la date de la photo |
-| `employe_sk`, `departement_sk` | int | Lookup `dim_employe` | Version courante ; ligne écartée si introuvable |
+| `employe_sk` | int | Lookup `dim_employe` | Version courante ; ligne écartée si introuvable |
+| `departement_sk` | int | `DEP_ID` → Lookup `dim_departement` | Ligne écartée si introuvable |
 | `contrat_sk` | int | `TYPE_CONTRACT` + statut | Lookup sur (`type_contrat`, `statut_emploi`) |
 | `poste_sk` | int | `GRADE`/`Grade`, `RANK`, `ACTIVITY` | Lookup sur les 4 colonnes de `dim_poste` |
 | `type_conge_sk` | int | dernier congé | Lookup sur le code en minuscules |
@@ -377,14 +381,15 @@ Les 3 faits partagent `dim_date`, `dim_employe` et `dim_departement` : c'est ce 
 
 ### 6.2 fact\_pointage — l'assiduité au jour le jour
 
-**Grain :** 1 employé × 1 jour pointé. **168 766 lignes** sur 272 999 : 104 233 sont écartées (49 à heure illisible, 31 436 aux heures incohérentes, 1 855 d'un employé sans fiche ou absent de l'effectif, 70 893 après la fin du contrat).
+**Grain :** 1 employé × 1 jour pointé. **169 561 lignes** sur 272 999 : 103 438 sont écartées (49 à heure illisible, 31 436 aux heures incohérentes, 565 d'un employé sans fiche ou absent de `dim_employe`, 71 388 après la fin du contrat).
 
-**Flux :** `SQL_Vider_Pointage` (TRUNCATE) → 2 sources (`stg.attendance_tech_2023`, `stg.attendance_admin_2023`) → Derived Column par source (date selon le format du fichier, 4 heures en minutes, `source_pointage`) → Union All → Conditional Split (écarte les journées dont une date ou une heure est illisible) → Derived Column (mesures, clé d'heure) → **Conditional Split `CSPL_Heures_Coherentes`** (garde 60 ≤ durée ≤ 600 minutes, fin ≥ reprise, pause ≤ 180 minutes) → Lookup `dim_employe` → Lookup `fact_effectif_snapshot` (date de fin de contrat, `contrat_sk`) → Lookup `dim_contrat` (statut) → **Conditional Split `CSPL_Dans_Le_Contrat`** (garde les jours ≤ fin de contrat, ou sans fin) → Derived Column (code de taux) → Lookup `dim_taux_horaire` → Derived Column (coût) → Destination.
+**Flux :** 2 sources (`stg.attendance_tech_2023`, `stg.attendance_admin_2023`) → Derived Column par source (date selon le format du fichier, 4 heures en minutes, `source_pointage`) → Union All → Conditional Split (écarte les journées dont une date ou une heure est illisible) → Derived Column (mesures, clé d'heure) → **Conditional Split `CSPL_Heures_Coherentes`** (garde 60 ≤ durée ≤ 600 minutes, fin ≥ reprise, pause ≤ 180 minutes) → **Sort** + **Merge Join** avec les fiches employés (`stg.emp_data` et `stg.administration_data` : département, statut, fin de contrat) → **Conditional Split `CSPL_Dans_Le_Contrat`** (garde les jours ≤ fin de contrat, ou sans fin) → Derived Column (code de taux) → 5 Lookups, un par liaison : `dim_date`, `dim_employe`, `dim_departement`, `dim_heure`, `dim_taux_horaire` → Derived Column (coût) → Lookup `fact_pointage` (*No Match*) → Destination.
 
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
 | `date_sk` | int | `Date` | Tech `1/2/2023` (mois/jour) et admin `2023-01-02` lus chacun avec leur format. **EDA :** un parseur unique inverse jour et mois |
-| `employe_sk`, `departement_sk` | int | `ID_Employee` | Lookup version courante. **EDA :** les 65 pointages d'un administratif sans fiche sont écartés |
+| `employe_sk` | int | `ID_Employee` | Lookup version courante. **EDA :** les 65 pointages d'un administratif sans fiche sont écartés (Merge Join) |
+| `departement_sk` | int | `DEP_ID` de la fiche → Lookup `dim_departement` | Département de la fiche employé |
 | `heure_arrivee_sk` | smallint | `StartTime` | HHMM (les journées à heure illisible sont déjà écartées) |
 | `taux_hs_sk` | int | statut | Permanent → HS\_PERMANENT (25), Vacataire → VACATAIRE (35), Administratif → HS\_ADMIN (22) |
 | `minutes_travaillees` | int | 4 heures | (fin − début) − (reprise − pause), entre 60 et 600 après le filtre |
@@ -401,12 +406,13 @@ Les 3 faits partagent `dim_date`, `dim_employe` et `dim_departement` : c'est ce 
 
 **Grain :** 1 employé × 1 cours × 1 date de snapshot. **18 618 lignes** (67 écartées : 6 vers un cours absent du catalogue, 61 des employés sans département). Fait sans mesure (*factless*) : il enregistre l'événement « inscrit ». C'est lui qui remplace une table de pont employé-cours (Règle 1).
 
-**Flux :** `SQL_Vider_Snapshot_Formation` → boucle **For Loop** `RangCours` = 1 à 25, qui exécute à chaque passe : `stg.emp_data` → Conditional Split (`ID_TRAINING` non vide) → Derived Column (liste nettoyée, puis le cours du rang `RangCours` avec `TOKEN`) → Conditional Split (écarte les listes plus courtes que ce rang) → Lookups `dim_employe`, `dim_cours` → Destination.
+**Flux :** boucle **For Loop** `RangCours` = 1 à 25, qui exécute à chaque passe : `stg.emp_data` → Conditional Split (`ID_TRAINING` non vide) → Derived Column (liste nettoyée, puis le cours du rang `RangCours` avec `TOKEN`) → Conditional Split (écarte les listes plus courtes que ce rang) → 4 Lookups, un par liaison : `dim_date`, `dim_employe`, `dim_departement`, `dim_cours` → Lookup `fact_inscription_formation` (*No Match*) → Destination.
 
 | Colonne | Type | Origine | Transformation et raison |
 | --- | --- | --- | --- |
 | `date_snapshot_sk` | int | `DateSnapshot` | La liste n'a pas de date : on la date du chargement |
-| `employe_sk`, `departement_sk` | int | `CODE` | Lookup version courante |
+| `employe_sk` | int | `CODE` | Lookup version courante |
+| `departement_sk` | int | `DEP_ID` → Lookup `dim_departement` | Ligne écartée si introuvable |
 | `cours_sk` | int | `ID_TRAINING` | Liste `[2466, 109, …]` → une ligne par identifiant, puis Lookup sur `cours_bk`. **25 cours au plus** par employé : 25 passes suffisent. **EDA :** 6 inscriptions visent le cours 3523, absent du catalogue : écartées |
 | `nb_inscriptions` | smallint | constante | 1 |
 
@@ -467,11 +473,11 @@ Après chaque exécution, comparez les volumes ci-dessous (calculés à partir d
 | `dim_date` | 11 323 (2000-2030) | idem |
 | `dim_heure` | 1 440 | idem |
 | `fact_effectif_snapshot` | 2 726 par snapshot | Chemin vers la destination |
-| `fact_pointage` | 168 766 | idem |
+| `fact_pointage` | 169 561 | idem |
 | `fact_inscription_formation` | 18 618 par snapshot | idem |
 
 ### Trois contrôles de cohérence à refaire
 
-1. **Relance :** un 2e passage le même jour ne change aucun volume, et le SCD ne crée aucune nouvelle version.
-2. **Lignes écartées attendues** (Row Count sur les sorties *No Match*) : 4 employés dans `dim_employe`, 14 lignes d'effectif, 104 233 pointages, 67 inscriptions.
+1. **Relance :** un 2e passage le même jour n'ajoute aucune ligne et ne crée aucune nouvelle version ; aucune ligne n'est jamais supprimée.
+2. **Lignes écartées attendues** (Row Count sur les sorties *No Match*) : 4 employés dans `dim_employe`, 14 lignes d'effectif, 103 438 pointages, 67 inscriptions.
 3. **Totaux de coûts :** `cout_total_estime` doit redonner environ 11,3 millions pour un snapshot (salaires techniques 2,08 M + vacataires 2,63 M + salaires admin 3,77 M + heures sup admin 2,86 M), comme dans l'EDA.
