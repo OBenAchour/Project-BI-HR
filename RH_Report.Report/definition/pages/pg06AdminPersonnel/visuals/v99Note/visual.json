@@ -19,7 +19,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Limites : dates de fin peu fiables (contrats échus avant 2023, CDI datés) · congés connus par le dernier congé seulement · nom, e-mail et adresse exclus de l’analyse.",
+                    "value": "À noter : dates de fin à fiabiliser (contrats échus avant 2023, CDI datés) · congés connus par le dernier congé seulement · nom, e-mail et adresse exclus de l’analyse.",
                     "textStyle": {
                       "fontSize": "8pt",
                       "color": "#5B6478",

@@ -12,25 +12,25 @@ table Mesures
 		displayFolder: Sécurité
 		lineageTag: 854fe98f-ca56-4e1e-82b5-d550980b2cea
 
-	/// Nom affiché de la première page de l'acteur : destination du bouton de l'accueil (vide = bouton inactif)
-	measure 'Page de l''acteur' = IF(HASONEVALUE(Acteurs[acteur]), MINX(TOPN(1, Acteurs, Acteurs[ordre], ASC), Acteurs[page]))
+	/// Nom affiché de la première page visible : destination du bouton de l'accueil (accès complet : Direction générale)
+	measure 'Page de l''acteur' = MINX(TOPN(1, Acteurs, Acteurs[ordre], ASC), Acteurs[page])
 		displayFolder: Sécurité
 		lineageTag: 80adff44-5dd6-4245-aa47-fd28e9c5792b
 
-	measure 'Accueil titre' = IF(ISBLANK([Acteur]), "Mode conception : aucun rôle actif", "Bienvenue · " & [Acteur])
+	measure 'Accueil titre' = IF(ISBLANK([Acteur]), "Bienvenue", "Bienvenue · " & [Acteur])
 		displayFolder: Sécurité
 		lineageTag: 2417be02-b3d6-42c5-931b-666c05f526d0
 
-	measure 'Accueil décision' = IF(ISBLANK([Acteur]), "Modélisation → Afficher en tant que → cochez un seul rôle", "Vous pouvez : " & MAX(Acteurs[decide]))
+	measure 'Accueil décision' = IF(ISBLANK([Acteur]), "Accès complet à l'ensemble des tableaux de bord RH", "Vos décisions : " & MAX(Acteurs[decide]))
 		displayFolder: Sécurité
 		lineageTag: 18164a5a-69e7-4216-bc4b-681d89d76ea2
 
-	measure 'Accueil vue' = IF(ISBLANK([Acteur]), "Le bouton s'active dès qu'un rôle est choisi", MAX(Acteurs[vue]))
+	measure 'Accueil vue' = IF(ISBLANK([Acteur]), "Vue consolidée · 4 départements", MAX(Acteurs[vue]))
 		displayFolder: Sécurité
 		lineageTag: f2846839-7177-45d6-b398-a03896a072fc
 
 	/// Bandeau affiché sur une page qui n'appartient pas au rôle (une espace sinon, pour rester invisible)
-	measure 'Message accès' = IF([Accès page] = 1, " ", "Accès réservé : cette page ne fait pas partie de votre rôle · revenez à l'accueil")
+	measure 'Message accès' = IF([Accès page] = 1, " ", "Accès non autorisé pour votre profil · retour à l'accueil")
 		displayFolder: Sécurité
 		lineageTag: febf9fd3-156c-457f-a52f-ee9b4a73097f
 

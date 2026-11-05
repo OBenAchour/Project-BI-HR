@@ -205,7 +205,7 @@ const header = (a, { subtitle = null, extra = [] } = {}) => [
   textbox('v00Entete', [0, 0, W, 56], [
     para(run(a.acteur, { size: 16, colorHex: C.white, bold: true }),
       ...(subtitle ? [run(`   ${subtitle}`, { size: 12, colorHex: '#C9D6E3', bold: true })] : [])),
-    para(run(`Vous pouvez ${a.decide}  ·  ${a.vue}`, { size: 9, colorHex: '#C9D6E3' })),
+    para(run(`Décisions : ${a.decide}  ·  ${a.vue}`, { size: 9, colorHex: '#C9D6E3' })),
   ], { bg: C.navy, radius: 0 }),
   ...pill('v01Accueil', [MX, 66, 120, 34], '←  Accueil', ACCUEIL),
   ...extra,
@@ -280,7 +280,7 @@ const pageOf = (a, i = 0) => a.pages[i];
     textbox('v00Hero', [0, 0, W, 112], [
       para(run('PILOTAGE RH PAR LA DONNÉE', { size: 9, colorHex: C.amber, bold: true })),
       para(run('Tableau de bord RH', { size: 24, colorHex: C.white, bold: true })),
-      para(run('Un seul rapport : chaque rôle ne voit que son tableau de bord · source : RH_Data_Warehouse', { size: 10, colorHex: '#C9D6E3' })),
+      para(run('Direction des ressources humaines · 4 départements · source : entrepôt de données RH', { size: 10, colorHex: '#C9D6E3' })),
     ], { bg: C.navy, radius: 0 }),
     textbox('v10Panneau', [MX + 140, 140, W - 2 * MX - 280, 300], [para(run(' ', { size: 8 }))], { bg: C.white, radius: 16 }),
     textCard('v11Titre', [MX + 160, 160, W - 2 * MX - 320, 56], 'Accueil titre', { size: 26, colorHex: C.navy, bold: true }),
@@ -288,12 +288,12 @@ const pageOf = (a, i = 0) => a.pages[i];
     textCard('v13Vue', [MX + 160, 266, W - 2 * MX - 320, 30], 'Accueil vue', { size: 11, colorHex: C.muted }),
     ...pill('v14Ouvrir', [BX, 330, BW, 56], 'Ouvrir mon tableau de bord   →', { measure: "Page de l'acteur" }, { bg: C.teal, fg: C.white, size: 14 }),
     textbox('v20ASavoir', [MX + 140, 470, W - 2 * MX - 280, 150], [
-      para(run('À savoir avant de lire', { size: 11, colorHex: C.ink, bold: true })),
-      para(run('• Chaque rôle ouvre uniquement son tableau de bord ; une autre page affiche « Accès réservé » et aucune donnée.', { size: 9, colorHex: C.muted })),
-      para(run('• Les managers ne voient que leur département (sécurité par ligne).', { size: 9, colorHex: C.muted })),
-      para(run('• Données synthétiques : retenir les écarts structurels, pas les signaux faibles.', { size: 9, colorHex: C.muted })),
-      para(run('• Une seule photo RH : pas de tendance sur l’effectif · date de référence : 1er janvier 2023.', { size: 9, colorHex: C.muted })),
-      para(run('• Pointages : techniques janvier–juin 2023, administratifs janvier–mars 2023 · seuil de retard 8 h 30 à valider.', { size: 9, colorHex: C.muted })),
+      para(run('Repères de lecture', { size: 11, colorHex: C.ink, bold: true })),
+      para(run('• Effectifs, coûts et congés : dernière photo RH de l’entrepôt de données.', { size: 9, colorHex: C.muted })),
+      para(run('• Pointages : janvier–juin 2023 pour le pôle technique, janvier–mars 2023 pour le pôle administratif.', { size: 9, colorHex: C.muted })),
+      para(run('• Échéances de contrat calculées à partir du 1er janvier 2023 · retard : arrivée après 8 h 30.', { size: 9, colorHex: C.muted })),
+      para(run('• Coûts mensuels estimés : vacataires à 35 €/h, heures supplémentaires administratives à 22 €/h.', { size: 9, colorHex: C.muted })),
+      para(run('• Document interne : nom, e-mail et adresse des collaborateurs ne sont pas diffusés.', { size: 9, colorHex: C.muted })),
     ], { bg: C.white }),
   ], { hidden: false, filtre: null });
 }
@@ -313,7 +313,7 @@ const pageOf = (a, i = 0) => a.pages[i];
     V.echeancesMois('v23EcheancesMois', at(r2[1], ROW2)),
     table('v24Synthese', at(r2[2], ROW2), 'Synthèse par département',
       [DEP(), mea('Effectif'), mea("Taux d'occupation", 'Occupation'), mea('Coût total estimé', 'Coût total'), mea('Échéances à 90 jours', 'Échéances 90 j'), mea("Taux d'anomalies contractuelles", 'Anomalies')], mea('Coût total estimé')),
-    note("Limites : chiffres indicatifs, ni budget ni cible · capacité de l'Administration douteuse (640 %) · aucune mesure de performance."),
+    note("À noter : chiffres indicatifs, sans budget ni cible · référentiel de capacité de l'Administration à mettre à jour (640 %) · pas encore de mesure de performance."),
   ]);
 }
 
@@ -333,7 +333,7 @@ const pageOf = (a, i = 0) => a.pages[i];
     V.heuresMois('v24HeuresMois', at(r2[1], ROW2)),
     table('v25DetailTemps', at(r2[2], ROW2), 'Temps travaillé par département',
       [DEP(), mea('Heures par jour', 'Heures / jour'), mea('Taux de retard', 'Retard'), mea('% jours > 8 h')], mea('Heures par jour')),
-    note('Limites : une seule photo, donc pas de tendance · turnover non mesurable · données synthétiques : écarts structurels seulement · formation, congés et échéances : page suivante.'),
+    note('À noter : une seule photo RH, donc pas de tendance · taux de rotation non mesurable sans historique des départs · formation, congés et échéances : page suivante.'),
   ]);
 }
 
@@ -353,7 +353,7 @@ const pageOf = (a, i = 0) => a.pages[i];
     V.consoSolde('v23ConsoSolde', at(r2[0], ROW2)),
     V.echeancesMois('v24EcheancesMois', at(r2[1], ROW2)),
     V.anomalies('v25Anomalies', at(r2[2], ROW2)),
-    note('Limites : une seule photo, donc pas de tendance · administratifs sans donnée de formation · seul le dernier congé est connu, sans date ni durée · turnover non mesurable.'),
+    note('À noter : une seule photo RH, donc pas de tendance · pas de donnée de formation pour le pôle administratif · seul le dernier congé est connu, sans date ni durée.'),
   ]);
 }
 
@@ -373,7 +373,7 @@ const pageOf = (a, i = 0) => a.pages[i];
     V.plus8h('v23Plus8h', at(r2[1], ROW2)),
     table('v24DetailCouts', at(r2[2], ROW2), 'Détail par département',
       [DEP(), mea('Masse salariale'), mea('Coût total estimé', 'Coût total'), mea('% heures sup dans le coût', '% HS admin'), mea('Heures sup (h)', 'HS pointées (h)'), mea('Coût heures sup pointées', 'Coût HS pointées')], mea('Coût total estimé')),
-    note('Limites : coût estimé sous hypothèses (vacataires × 35, heures sup admin × 22, période et devise à confirmer) · charges et primes absentes · heures sup pointées = au-delà de 8 h × taux, sur la période des pointages, hors coût total.'),
+    note('À noter : coût estimé sous hypothèses (vacataires × 35, heures sup admin × 22, période et devise à confirmer) · charges et primes absentes · heures sup pointées = au-delà de 8 h × taux, sur la période des pointages, hors coût total.'),
   ]);
 }
 
@@ -394,7 +394,7 @@ const pageOf = (a, i = 0) => a.pages[i];
         mea('Date de fin de contrat', 'Fin de contrat'), mea('Anomalies de contrat (détail)', 'Anomalies'),
         col('dw dim_type_conge', 'type_conge_libelle', 'Dernier congé'), mea('Congés consommés (moyenne)', 'Pris (j)'), mea('Solde moyen (jours)', 'Solde (j)')],
       mea('Anomalies de contrat (détail)')),
-    note('Limites : dates de fin peu fiables (contrats échus avant 2023, CDI datés) · congés connus par le dernier congé seulement · nom, e-mail et adresse exclus de l’analyse.'),
+    note('À noter : dates de fin à fiabiliser (contrats échus avant 2023, CDI datés) · congés connus par le dernier congé seulement · nom, e-mail et adresse exclus de l’analyse.'),
   ]);
 }
 
@@ -415,7 +415,7 @@ const pageOf = (a, i = 0) => a.pages[i];
       [col('dw dim_cours', 'intitule', 'Cours'), col('dw dim_niveau_cours', 'niveau_libelle', 'Niveau'), mea('Inscriptions'), mea('% des inscriptions')], mea('Inscriptions')),
     chart('v24ParEmploye', at(r2[1], ROW2), 'clusteredBarChart', 'Formations par employé formé',
       { cat: DEP(), y: [mea('Formations par employé')], colors: [C.teal], sort: mea('Formations par employé') }),
-    note('Limites : ni date, ni coût, ni réussite des formations · administratifs non couverts · table de correspondance compétences à construire · aucun cours ne dépasse 0,25 % des inscriptions.'),
+    note('À noter : ni date, ni coût, ni réussite des formations · pôle administratif non couvert · table de correspondance compétences à construire · aucun cours ne dépasse 0,25 % des inscriptions.'),
   ]);
 }
 
@@ -434,7 +434,7 @@ const pageOf = (a, i = 0) => a.pages[i];
       { cat: DEP(), y: [mea('Effectif')], series: col('dw dim_canal_recrutement', 'canal_libelle', 'Canal'), opts: { legend: true, stacked: true } }),
     V.effectifCapacite('v23EffectifCapacite', at(r2[1], ROW2)),
     V.contrats('v24Contrats', at(r2[2], ROW2)),
-    note('Limites : entrées seules, sans sorties · ni coût ni qualité par canal · vue agrégée, sans détail par employé.'),
+    note('À noter : entrées seules, sans historique des départs · ni coût ni qualité par canal · vue agrégée, sans détail par employé.'),
   ]);
 }
 
@@ -452,7 +452,7 @@ const pageOf = (a, i = 0) => a.pages[i];
     V.contrats('v22Contrats', at(r2[0], ROW2)),
     V.typeConge('v23TypeConge', at(r2[1], ROW2)),
     V.echeancesMois('v24EcheancesMois', at(r2[2], ROW2)),
-    note('Limites : pointages admin sur 3 mois · seuil de retard (8 h 30) non validé · aucun motif d’absence.'),
+    note('À noter : pointages administratifs sur janvier–mars 2023 · retard : arrivée après 8 h 30 · motifs d’absence non disponibles.'),
   ]);
 }
 

@@ -19,7 +19,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Limites : entrées seules, sans sorties · ni coût ni qualité par canal · vue agrégée, sans détail par employé.",
+                    "value": "À noter : entrées seules, sans historique des départs · ni coût ni qualité par canal · vue agrégée, sans détail par employé.",
                     "textStyle": {
                       "fontSize": "8pt",
                       "color": "#5B6478",

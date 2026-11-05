@@ -1,7 +1,7 @@
 // Test complet du rapport RH, rôle par rôle, sur le modèle ouvert dans Power BI Desktop.
 // Pour chaque rôle (et sans rôle) et chaque page, rejoue la requête de chaque visuel (mêmes champs, même filtre de page) et vérifie :
 //   - aucune erreur DAX ;
-//   - page du rôle : des données ; page d'un autre rôle : aucune donnée, bandeau « Accès réservé », cartes en blanc ;
+//   - page du rôle : des données ; page d'un autre rôle : aucune donnée, bandeau « Accès non autorisé », cartes en blanc ;
 //   - managers : un seul département visible ;
 //   - accueil : bienvenue et destination du bouton propres au rôle.
 // Usage : node powerbi/scripts/test_report.mjs <port>   (port : msmdsrv.port.txt du dossier AnalysisServicesWorkspaces)
@@ -93,7 +93,11 @@ for (const t of tests) {
     else if (ds.length !== 4) fails.push(`${who} : ${ds.length} départements visibles au lieu de 4`);
   } else if (m.kind === 'accueil') {
     const [titre, , , pageDest, act] = r.rows[0] || [];
-    if (!m.role.acteur) { if (!isBlank(pageDest)) fails.push(`sans rôle : le bouton de l'accueil devrait être inactif (${pageDest})`); }
+    if (!m.role.acteur) {
+      const first = [...ACTEURS].sort((x, y) => x.ordre - y.ordre)[0].pages[0].nom;
+      if (pageDest !== first) fails.push(`sans rôle : bouton vers « ${pageDest} » au lieu de « ${first} »`);
+      if (titre !== 'Bienvenue') fails.push(`sans rôle : titre d'accueil « ${titre} »`);
+    }
     else {
       if (act !== m.role.acteur.acteur) fails.push(`${who} : acteur « ${act} » au lieu de « ${m.role.acteur.acteur} »`);
       if (pageDest !== m.role.acteur.pages[0].nom) fails.push(`${who} : bouton vers « ${pageDest} » au lieu de « ${m.role.acteur.pages[0].nom} »`);
@@ -110,7 +114,7 @@ for (const t of tests) {
       const val = r.rows[0]?.[mi[0]];
       if (m.v.meas[0] === 'Message accès') {
         if (ok && val !== ' ') fails.push(`${where} : bandeau d'accès visible sur une page autorisée (« ${val} »)`);
-        if (!ok && !String(val || '').startsWith('Accès réservé')) fails.push(`${where} : bandeau « Accès réservé » absent`);
+        if (!ok && !String(val || '').startsWith('Accès non autorisé')) fails.push(`${where} : bandeau « Accès non autorisé » absent`);
       } else if (ok && m.role.deptBk && val !== `Département : ${deptName.get(m.role.nom)}`) fails.push(`${where} : périmètre « ${val} »`);
       continue;
     }

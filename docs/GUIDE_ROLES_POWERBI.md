@@ -1,50 +1,68 @@
 # Guide des rôles du rapport Power BI
 
-> Un seul rapport, `RH_Report.pbip`. Chaque rôle ne voit que son tableau de bord : l'accueil n'ouvre que la page du rôle, et toute autre page affiche « Accès réservé » sans aucune donnée.
+> Un seul rapport, `RH_Report.pbip`. Chaque rôle ne voit que son tableau de bord : l'accueil n'ouvre que la page du rôle, et toute autre page affiche « Accès non autorisé pour votre profil » sans aucune donnée.
 > Rôles et pages : présentation, slides 20 à 22 (acteurs consommateurs).
 
 ## 1. Les rôles et ce qu'ils voient
 
-| Rôle (Afficher en tant que) | Page(s) ouverte(s) | Ce que le rôle peut décider | Périmètre |
+| Rôle | Page(s) ouverte(s) | Décisions | Périmètre |
 | --- | --- | --- | --- |
 | Direction générale | Direction générale | Arbitrer budget et capacités entre départements | Les 4 départements |
-| DRH | DRH · 1/2 et DRH · 2/2 | Fixer les priorités RH sur les six objectifs | Les 4 départements |
+| DRH | DRH · 1/2 et DRH · 2/2 | Fixer les priorités RH de l'entreprise | Les 4 départements |
 | Contrôle de gestion et paie | Contrôle de gestion et paie | Suivre la masse salariale et les heures sup | Les 4 départements |
 | Resp. administration du personnel | Administration du personnel | Corriger les contrats, suivre échéances et congés | Les 4 départements, détail par employé |
 | Resp. formation | Formation | Orienter les parcours de formation par métier | Les 4 départements |
 | Resp. recrutement | Recrutement | Choisir les canaux de recrutement | Les 4 départements, vue agrégée |
-| Manager Informatique | Managers de département | Piloter charge, assiduité, congés et échéances de son équipe | Informatique seulement |
+| Manager Informatique | Managers de département | Piloter charge, assiduité, congés et échéances de l'équipe | Informatique seulement |
 | Manager Télécom | Managers de département | idem | Télécom seulement |
 | Manager Communication | Managers de département | idem | Communication seulement |
 | Manager Administration | Managers de département | idem | Administration seulement |
+| *(aucun rôle : propriétaire du rapport)* | Toutes les pages | Accès complet | Les 4 départements |
 
 ## 2. Répartition entre les membres
 
-Chacun présente deux « parts » de démonstration (la DRH compte double : deux pages).
+Chacun présente un rôle **en direct avec son propre compte** dans le service Power BI, et un second rôle montré par le propriétaire avec **Tester en tant que rôle** (section 3, étape 6). La DRH compte double : deux pages.
 
-| Membre | Rôles à présenter |
-| --- | --- |
-| Membre 1 | DRH (pages 1/2 et 2/2) |
-| Membre 2 | Direction générale · Manager Informatique |
-| Membre 3 | Contrôle de gestion et paie · Manager Télécom |
-| Membre 4 | Resp. administration du personnel · Manager Communication |
-| Membre 5 | Resp. recrutement · Manager Administration |
-| Membre 6 | Resp. formation · démonstration de la sécurité (section 5) |
+| Membre | Rôle sur son compte (en direct) | Rôle montré avec « Tester en tant que rôle » |
+| --- | --- | --- |
+| Membre 1 | DRH | — (deux pages) |
+| Membre 2 | Direction générale | Manager Informatique |
+| Membre 3 | Contrôle de gestion et paie | Manager Communication |
+| Membre 4 | Resp. administration du personnel | Manager Administration |
+| Membre 5 | Resp. formation | Resp. recrutement |
+| Membre 6 | Manager Télécom | Démonstration de la sécurité (section 6) |
 
-## 3. Voir le rapport avec un rôle (Power BI Desktop)
+Le propriétaire du rapport (administrateur de l'espace de travail) ouvre l'accueil en accès complet.
+
+## 3. Donner un accès et un rôle à chaque membre (service Power BI)
+
+Prérequis : chaque membre a un compte de l'organisation (adresse `@esprit.tn`) et une licence Power BI Pro, l'essai gratuit de 60 jours suffit. Si l'espace de travail est sur une capacité d'essai Fabric, une licence gratuite suffit pour lire.
+
+1. **Espace de travail partagé** : sur app.powerbi.com, **Espaces de travail** → **Nouvel espace de travail** (par exemple *Pilotage RH*). « Mon espace de travail » ne permet pas de gérer les accès par rôle.
+2. **Publier** : dans Power BI Desktop, **Accueil** → **Publier** → choisir *Pilotage RH*.
+3. **Ajouter les membres** : dans l'espace *Pilotage RH*, **Gérer l'accès** → **Ajouter des personnes ou des groupes** → saisir l'adresse du membre → rôle **Lecteur** → **Ajouter**.
+   ⚠️ Toujours **Lecteur** : les rôles Administrateur, Membre et Contributeur ignorent la sécurité par ligne et voient tout.
+4. **Affecter un rôle** : dans l'espace, sur le modèle sémantique **RH_Report** → **⋯** → **Sécurité**. Choisir le rôle à gauche, saisir l'adresse du membre, **Ajouter**, puis **Enregistrer**. Faire de même pour chaque membre (tableau de la section 2).
+   ⚠️ **Un seul rôle par personne** : deux rôles se cumulent. Un membre à la fois *Direction générale* et *Manager Télécom* verrait les deux pages, et la page Managers sur les 4 départements.
+5. **Ouvrir le rapport (chaque membre)** : app.powerbi.com → **Espaces de travail** → *Pilotage RH* → **RH_Report**. Seul l'**Accueil** apparaît dans la liste des pages ; le bouton **Ouvrir mon tableau de bord →** ouvre la page du rôle.
+6. **Tester en tant que rôle (propriétaire)** : modèle sémantique **RH_Report** → **⋯** → **Sécurité** → **⋯** à côté du rôle → **Tester en tant que rôle**. Le rapport s'ouvre comme le verrait ce rôle ; c'est ainsi qu'on montre les rôles sans compte dédié.
+
+Bon à savoir :
+
+- **Pas d'actualisation dans le service** : la source SQL Server est sur un réseau privé ; le service garde les données publiées. Ne pas programmer d'actualisation. Pour mettre à jour, actualiser dans Desktop puis republier : les membres affectés aux rôles sont conservés.
+- **Propriétaire** : en tant qu'administrateur de l'espace, il voit toutes les pages (accès complet).
+
+## 4. Voir le rapport avec un rôle (Power BI Desktop)
 
 1. Ouvrir `RH_Report.pbip` dans Power BI Desktop. Les données importées sont dans le cache local ; sur un nouveau poste, se connecter à `RH_Data_Warehouse` avec le login `BI` puis cliquer sur **Actualiser** (voir [SETUP.md](SETUP.md)).
-2. Ruban **Modélisation** → **Afficher en tant que**.
-3. Cocher **un seul rôle** (ne pas cocher « Autre utilisateur »), puis **OK**. Une barre jaune « Affichage en tant que : *rôle* » apparaît en haut du rapport.
-4. Sur l'**Accueil**, vérifier le message « Bienvenue · *acteur* ».
-5. **Ctrl + clic** sur **Ouvrir mon tableau de bord →** : dans Desktop, un bouton s'active avec Ctrl + clic (un simple clic le sélectionne).
-6. Lire la page : bandeau avec ce que l'acteur peut décider, périmètre, KPI, graphiques, limites en bas de page.
-7. **Ctrl + clic** sur **← Accueil** pour revenir (DRH : **Page suivante →** et **← Page précédente** entre ses deux pages).
-8. Pour changer de rôle : **Arrêter l'affichage** dans la barre jaune, puis recommencer à l'étape 2.
+2. Ruban **Modélisation** → **Afficher en tant que** → cocher **un seul rôle** → **OK**. Une barre jaune « Affichage en tant que : *rôle* » apparaît en haut du rapport.
+3. Sur l'**Accueil**, vérifier le message « Bienvenue · *acteur* ».
+4. **Ctrl + clic** sur **Ouvrir mon tableau de bord →** (dans Desktop, un simple clic sélectionne le bouton).
+5. **Ctrl + clic** sur **← Accueil** pour revenir (DRH : **Page suivante →** et **← Page précédente**).
+6. Pour changer de rôle : **Arrêter l'affichage** dans la barre jaune, puis recommencer à l'étape 2.
+7. En fermant Desktop sans avoir rien modifié, choisir **Ne pas enregistrer**.
 
-Plusieurs rôles cochés en même temps cumulent leurs droits : pour la démonstration, toujours un seul rôle.
-
-## 4. Valeurs attendues (photo du 30/10/2026)
+## 5. Valeurs attendues (photo du 30/10/2026)
 
 Valeurs telles qu'elles s'affichent dans les cartes (format d'affichage anglais du modèle : point décimal, M = millions, K = milliers).
 
@@ -69,23 +87,22 @@ Page **Managers de département**, selon le rôle :
 
 La somme des quatre effectifs fait 2 726 : chaque manager ne voit que son département.
 
-## 5. Démonstration de la sécurité
+## 6. Démonstration de la sécurité
 
-1. **Sans rôle** (mode conception) : l'accueil affiche « Mode conception : aucun rôle actif » et le bouton est inactif. Le concepteur voit toutes les pages : c'est le rôle de l'auteur du rapport.
-2. **Avec un rôle, page d'un autre acteur** : par exemple *Afficher en tant que* **Resp. formation**, puis cliquer sur l'onglet **DRH · 1/2**. Le bandeau rouge « Accès réservé : cette page ne fait pas partie de votre rôle » apparaît, les cartes et les graphiques sont vides.
-3. **Manager** : *Afficher en tant que* **Manager Télécom** → la page Managers affiche « Département : Télécom » et 439 employés.
-4. Les onglets des pages d'acteurs portent l'icône « page masquée » : dans le service Power BI, un lecteur ne les voit pas et n'y entre que par le bouton de l'accueil. Dans Desktop, l'auteur voit toujours les onglets, d'où le verrou sur les données.
+1. **Accès complet** (propriétaire, sans rôle) : l'accueil affiche « Bienvenue » et « Accès complet à l'ensemble des tableaux de bord RH » ; le bouton ouvre la Direction générale et toutes les pages sont accessibles.
+2. **Un rôle, page d'un autre acteur** : par exemple **Resp. formation**, puis ouvrir la page **DRH · 1/2** (onglet dans Desktop). Le bandeau rouge « Accès non autorisé pour votre profil » apparaît, les cartes et les graphiques sont vides. Dans le service, un lecteur ne voit même pas cette page dans la liste.
+3. **Manager** : **Manager Télécom** → la page Managers affiche « Département : Télécom » et 439 employés.
 
-## 6. Comment c'est construit
+## 7. Comment c'est construit
 
-- **Table cachée `Acteurs`** : une ligne par page d'acteur (acteur, nom de la page, ordre, décision, vue).
+- **Table cachée `Acteurs`** : une ligne par page d'acteur (acteur, nom de la page, ordre, décisions, vue).
 - **Rôles** : chaque rôle filtre `Acteurs[acteur]` sur son acteur. Les 4 rôles managers filtrent en plus `dim_departement` et `dim_employe` sur leur département.
-- **Accueil** : la mesure `Page de l'acteur` donne le nom de la page du rôle ; c'est la destination du bouton (vide = bouton inactif).
+- **Accueil** : la mesure `Page de l'acteur` donne le nom de la première page visible ; c'est la destination du bouton.
 - **Pages d'acteurs** : masquées, avec un filtre de page verrouillé `Acteurs[page] = <la page>`. Pour un autre rôle, ce filtre ne laisse aucune ligne : `[Accès page]` vaut 0.
-- **Verrou des données** : toutes les mesures métier renvoient vide quand `[Accès page]` = 0 ; les cartes passent en blanc sur blanc et le bandeau « Accès réservé » s'affiche.
+- **Verrou des données** : toutes les mesures métier renvoient vide quand `[Accès page]` = 0 ; les cartes passent en blanc sur blanc et le bandeau d'accès s'affiche.
 - **Données personnelles** : nom, e-mail et adresses sont retirés dans Power Query ; le détail par employé n'affiche que l'identifiant.
 
-## 7. Régénérer et retester
+## 8. Régénérer et retester
 
 Power BI Desktop **fermé** (sinon il écrase les fichiers en enregistrant) :
 

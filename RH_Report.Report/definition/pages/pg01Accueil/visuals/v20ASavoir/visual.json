@@ -19,7 +19,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "À savoir avant de lire",
+                    "value": "Repères de lecture",
                     "textStyle": {
                       "fontSize": "11pt",
                       "color": "#1F2A44",
@@ -32,7 +32,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "• Chaque rôle ouvre uniquement son tableau de bord ; une autre page affiche « Accès réservé » et aucune donnée.",
+                    "value": "• Effectifs, coûts et congés : dernière photo RH de l’entrepôt de données.",
                     "textStyle": {
                       "fontSize": "9pt",
                       "color": "#5B6478",
@@ -44,7 +44,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "• Les managers ne voient que leur département (sécurité par ligne).",
+                    "value": "• Pointages : janvier–juin 2023 pour le pôle technique, janvier–mars 2023 pour le pôle administratif.",
                     "textStyle": {
                       "fontSize": "9pt",
                       "color": "#5B6478",
@@ -56,7 +56,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "• Données synthétiques : retenir les écarts structurels, pas les signaux faibles.",
+                    "value": "• Échéances de contrat calculées à partir du 1er janvier 2023 · retard : arrivée après 8 h 30.",
                     "textStyle": {
                       "fontSize": "9pt",
                       "color": "#5B6478",
@@ -68,7 +68,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "• Une seule photo RH : pas de tendance sur l’effectif · date de référence : 1er janvier 2023.",
+                    "value": "• Coûts mensuels estimés : vacataires à 35 €/h, heures supplémentaires administratives à 22 €/h.",
                     "textStyle": {
                       "fontSize": "9pt",
                       "color": "#5B6478",
@@ -80,7 +80,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "• Pointages : techniques janvier–juin 2023, administratifs janvier–mars 2023 · seuil de retard 8 h 30 à valider.",
+                    "value": "• Document interne : nom, e-mail et adresse des collaborateurs ne sont pas diffusés.",
                     "textStyle": {
                       "fontSize": "9pt",
                       "color": "#5B6478",

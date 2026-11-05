@@ -117,19 +117,19 @@ const base = [
 // ---------- Sécurité par page
 // Table cachée Acteurs : une ligne par page d'acteur. Chaque rôle n'en voit que ses lignes (RLS),
 // et chaque page d'acteur filtre Acteurs[page] sur elle-même (filtre de page verrouillé et masqué).
-// Acteurs non vide = la page appartient au rôle. Sans rôle (mode conception), toutes les pages sont ouvertes.
+// Acteurs non vide = la page appartient au rôle. Sans rôle (propriétaire du rapport), toutes les pages sont ouvertes.
 const ACT = 'Acteurs';
 const security = [
   { f: 'Sécurité', n: 'Accès page', fmt: '0', e: `IF(ISEMPTY(${ACT}), 0, 1)`,
     d: "1 si la page appartient au rôle de l'utilisateur, 0 sinon. Toutes les mesures métier renvoient vide quand elle vaut 0" },
   { f: 'Sécurité', n: 'Acteur', e: `IF(HASONEVALUE(${ACT}[acteur]), VALUES(${ACT}[acteur]))`,
     d: "Acteur du rôle actif (vide sans rôle ou avec plusieurs rôles)" },
-  { f: 'Sécurité', n: "Page de l'acteur", e: `IF(HASONEVALUE(${ACT}[acteur]), MINX(TOPN(1, ${ACT}, ${ACT}[ordre], ASC), ${ACT}[page]))`,
-    d: "Nom affiché de la première page de l'acteur : destination du bouton de l'accueil (vide = bouton inactif)" },
-  { f: 'Sécurité', n: 'Accueil titre', e: `IF(ISBLANK([Acteur]), "Mode conception : aucun rôle actif", "Bienvenue · " & [Acteur])` },
-  { f: 'Sécurité', n: 'Accueil décision', e: `IF(ISBLANK([Acteur]), "Modélisation → Afficher en tant que → cochez un seul rôle", "Vous pouvez : " & MAX(${ACT}[decide]))` },
-  { f: 'Sécurité', n: 'Accueil vue', e: `IF(ISBLANK([Acteur]), "Le bouton s'active dès qu'un rôle est choisi", MAX(${ACT}[vue]))` },
-  { f: 'Sécurité', n: 'Message accès', e: `IF([Accès page] = 1, " ", "Accès réservé : cette page ne fait pas partie de votre rôle · revenez à l'accueil")`,
+  { f: 'Sécurité', n: "Page de l'acteur", e: `MINX(TOPN(1, ${ACT}, ${ACT}[ordre], ASC), ${ACT}[page])`,
+    d: "Nom affiché de la première page visible : destination du bouton de l'accueil (accès complet : Direction générale)" },
+  { f: 'Sécurité', n: 'Accueil titre', e: `IF(ISBLANK([Acteur]), "Bienvenue", "Bienvenue · " & [Acteur])` },
+  { f: 'Sécurité', n: 'Accueil décision', e: `IF(ISBLANK([Acteur]), "Accès complet à l'ensemble des tableaux de bord RH", "Vos décisions : " & MAX(${ACT}[decide]))` },
+  { f: 'Sécurité', n: 'Accueil vue', e: `IF(ISBLANK([Acteur]), "Vue consolidée · 4 départements", MAX(${ACT}[vue]))` },
+  { f: 'Sécurité', n: 'Message accès', e: `IF([Accès page] = 1, " ", "Accès non autorisé pour votre profil · retour à l'accueil")`,
     d: "Bandeau affiché sur une page qui n'appartient pas au rôle (une espace sinon, pour rester invisible)" },
   { f: 'Sécurité', n: 'Périmètre', e: `IF([Accès page] = 0, " ", IF(HASONEVALUE('dw dim_departement'[departement_libelle]), "Département : " & VALUES('dw dim_departement'[departement_libelle]), "Périmètre : les 4 départements"))`,
     d: "Département visible par le rôle : un seul pour un manager (RLS)" },
