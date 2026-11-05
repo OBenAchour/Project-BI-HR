@@ -1,0 +1,30 @@
+table 'dw dim_pole'
+	lineageTag: d56ef3f9-4a55-47aa-a30b-549f40dd90f6
+
+	column pole_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: b56c0e76-772b-4e90-8cf8-f6ca08dcccfb
+		summarizeBy: none
+		sourceColumn: pole_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column pole_libelle
+		dataType: string
+		lineageTag: fa301760-d577-4eff-a9a0-bdeb546b9d34
+		summarizeBy: none
+		sourceColumn: pole_libelle
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw dim_pole' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_pole = RH_Data_Warehouse{[Schema="dw",Item="dim_pole"]}[Data]
+				in
+				    dw_dim_pole
+

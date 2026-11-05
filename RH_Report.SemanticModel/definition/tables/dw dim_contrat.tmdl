@@ -1,0 +1,47 @@
+table 'dw dim_contrat'
+	lineageTag: 144a0373-adbc-463b-9437-43243b243580
+
+	column contrat_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: ddc88385-b841-4364-aaee-b5f77d2f8c93
+		summarizeBy: none
+		sourceColumn: contrat_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column type_contrat
+		dataType: string
+		lineageTag: 5b5e5010-3e92-4784-8fed-f836e8222a34
+		summarizeBy: none
+		sourceColumn: type_contrat
+
+		annotation SummarizationSetBy = Automatic
+
+	column statut_emploi
+		dataType: string
+		lineageTag: 0d2fbd36-0330-4d50-bfbc-cbf8e9dc225d
+		summarizeBy: none
+		sourceColumn: statut_emploi
+
+		annotation SummarizationSetBy = Automatic
+
+	column est_contrat_court
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 533328c6-e8f5-4f9d-b015-9fd118899df2
+		summarizeBy: none
+		sourceColumn: est_contrat_court
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw dim_contrat' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_contrat = RH_Data_Warehouse{[Schema="dw",Item="dim_contrat"]}[Data]
+				in
+				    dw_dim_contrat
+

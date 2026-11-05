@@ -1,0 +1,186 @@
+relationship 450f3558-552a-4eb9-9343-3c314ae9e813
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'dw dim_date'.date_complete
+	toColumn: LocalDateTable_6228fc01-9058-412f-8954-1d34e8f51537.Date
+
+relationship aa862a34-ede4-43d1-88e4-f5e3d327c653
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'dw dim_employe'.date_debut
+	toColumn: LocalDateTable_e1df54d3-9a7f-4f8d-b004-346bf1a85ddd.Date
+
+relationship ebfc5b2e-eefd-40d9-a90d-93a59a6f97d7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'dw dim_employe'.date_fin
+	toColumn: LocalDateTable_9f4f8d87-74e1-41f3-854c-5a72dee6d3c0.Date
+
+relationship e3495b47-ce37-4a62-86e8-563e55278521
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'dw dim_taux_horaire'.date_debut
+	toColumn: LocalDateTable_35222d7f-4cb3-4c48-bd9f-7d0e87b6835b.Date
+
+relationship ac72753f-1bfe-453a-b380-08afee0343a4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'dw dim_taux_horaire'.date_fin
+	toColumn: LocalDateTable_8a27309d-b0fd-44cf-8987-c42651260683.Date
+
+relationship f2bfd4c4-bd95-41bf-b769-be7bf90f6509
+	fromColumn: 'dw dim_cours'.niveau_sk
+	toColumn: 'dw dim_niveau_cours'.niveau_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 2aefb116-89a1-456c-9d59-90c1da550313
+	fromColumn: 'dw dim_cours'.universite_sk
+	toColumn: 'dw dim_universite'.universite_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship dc15bd58-2f50-403d-95e6-78fc222114ae
+	fromColumn: 'dw dim_departement'.pole_sk
+	toColumn: 'dw dim_pole'.pole_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 3a148cb0-41b3-4f54-93b0-a2af2ac26bc2
+	fromColumn: 'dw dim_employe'.canal_sk
+	toColumn: 'dw dim_canal_recrutement'.canal_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 63c6b5d3-0796-44f2-8a35-9a715ee04928
+	isActive: false
+	fromColumn: 'dw dim_employe'.departement_sk
+	toColumn: 'dw dim_departement'.departement_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 83f381fd-6157-4ab6-9977-ed2d77849240
+	fromColumn: 'dw dim_employe'.diplome_sk
+	toColumn: 'dw dim_diplome'.diplome_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship d4ea3c52-4d1f-40cc-a8b3-3449d75a2460
+	fromColumn: 'dw fact_effectif_snapshot'.contrat_sk
+	toColumn: 'dw dim_contrat'.contrat_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 351f1787-fd39-4c52-aaef-b06b98f72043
+	isActive: false
+	fromColumn: 'dw fact_effectif_snapshot'.date_debut_contrat_sk
+	toColumn: 'dw dim_date'.date_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 48b7b5c9-b574-48ba-b400-114aac4dff4f
+	isActive: false
+	fromColumn: 'dw fact_effectif_snapshot'.date_embauche_sk
+	toColumn: 'dw dim_date'.date_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 8970c2fc-b653-4dbc-928b-626d17595e94
+	isActive: false
+	fromColumn: 'dw fact_effectif_snapshot'.date_fin_contrat_sk
+	toColumn: 'dw dim_date'.date_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 21584574-efef-4529-b4b4-5ca38f14ffa6
+	fromColumn: 'dw fact_effectif_snapshot'.date_snapshot_sk
+	toColumn: 'dw dim_date'.date_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 87028a8d-40ef-444d-ad18-1461c396b534
+	fromColumn: 'dw fact_effectif_snapshot'.departement_sk
+	toColumn: 'dw dim_departement'.departement_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 00ab091e-926c-4ad6-a7a7-265f24bb5a31
+	fromColumn: 'dw fact_effectif_snapshot'.employe_sk
+	toColumn: 'dw dim_employe'.employe_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship b9684056-fee3-4376-969e-673da2f3f5fc
+	fromColumn: 'dw fact_effectif_snapshot'.poste_sk
+	toColumn: 'dw dim_poste'.poste_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 0255e935-dac4-4389-a14b-aeba32d92386
+	fromColumn: 'dw fact_effectif_snapshot'.taux_hs_admin_sk
+	toColumn: 'dw dim_taux_horaire'.taux_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship c78bae0a-13f9-410c-890b-a290dc0c404c
+	isActive: false
+	fromColumn: 'dw fact_effectif_snapshot'.taux_vacataire_sk
+	toColumn: 'dw dim_taux_horaire'.taux_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 548337ca-3103-4a33-8f9c-d615bd5ec746
+	fromColumn: 'dw fact_effectif_snapshot'.type_conge_sk
+	toColumn: 'dw dim_type_conge'.type_conge_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship bc30d25b-aded-48de-837d-4f12e2d5c420
+	fromColumn: 'dw fact_inscription_formation'.cours_sk
+	toColumn: 'dw dim_cours'.cours_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 5677f72c-911a-4684-a625-17215b2a4881
+	fromColumn: 'dw fact_inscription_formation'.date_snapshot_sk
+	toColumn: 'dw dim_date'.date_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship a270f29f-d721-4c7b-8306-2d61999ac162
+	fromColumn: 'dw fact_inscription_formation'.departement_sk
+	toColumn: 'dw dim_departement'.departement_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 7d654ef5-a279-42aa-bea6-eac737432702
+	fromColumn: 'dw fact_inscription_formation'.employe_sk
+	toColumn: 'dw dim_employe'.employe_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 1cfadbe2-6311-4c38-84d5-5c05f50633c1
+	fromColumn: 'dw fact_pointage'.date_sk
+	toColumn: 'dw dim_date'.date_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 8ee860a4-49e5-4e20-a5e9-606268f0888f
+	fromColumn: 'dw fact_pointage'.departement_sk
+	toColumn: 'dw dim_departement'.departement_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 6f6a819a-94f8-4c7c-ad41-fb60e893839c
+	fromColumn: 'dw fact_pointage'.employe_sk
+	toColumn: 'dw dim_employe'.employe_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 7d20164d-57d3-484e-81d0-6cf63554d15a
+	fromColumn: 'dw fact_pointage'.heure_arrivee_sk
+	toColumn: 'dw dim_heure'.heure_sk
+
+	annotation PBI_IsFromSource = FS
+
+relationship 7425312f-bbf9-4479-a7fa-c101720b5c45
+	fromColumn: 'dw fact_pointage'.taux_hs_sk
+	toColumn: 'dw dim_taux_horaire'.taux_sk
+
+	annotation PBI_IsFromSource = FS
+

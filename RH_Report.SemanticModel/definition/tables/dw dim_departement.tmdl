@@ -1,0 +1,56 @@
+table 'dw dim_departement'
+	lineageTag: bb120f7c-9014-4809-bcd6-96623c37d69c
+
+	column departement_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 9fb77629-907f-4591-b784-7f2d63ee1e57
+		summarizeBy: none
+		sourceColumn: departement_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column departement_bk
+		dataType: string
+		lineageTag: f748050a-3541-44a4-83c0-2ea6633596cf
+		summarizeBy: none
+		sourceColumn: departement_bk
+
+		annotation SummarizationSetBy = Automatic
+
+	column departement
+		dataType: string
+		lineageTag: f30dfba4-8660-40af-99d9-4e85823aee97
+		summarizeBy: none
+		sourceColumn: departement
+
+		annotation SummarizationSetBy = Automatic
+
+	column capacite
+		dataType: int64
+		formatString: 0
+		lineageTag: e3cae31f-51fe-47ca-af6d-2ed5af4904b0
+		summarizeBy: sum
+		sourceColumn: capacite
+
+		annotation SummarizationSetBy = Automatic
+
+	column pole_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 26dc1b06-eccb-4c6e-8a7d-e537d90a91ae
+		summarizeBy: none
+		sourceColumn: pole_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw dim_departement' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_departement = RH_Data_Warehouse{[Schema="dw",Item="dim_departement"]}[Data]
+				in
+				    dw_dim_departement
+

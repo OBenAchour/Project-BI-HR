@@ -1,0 +1,10 @@
+/// Manager de département : voit uniquement le Télécom (DEP_TEL00). PPTX slides 20 à 22.
+role 'Manager Télécom'
+	modelPermission: read
+
+	tablePermission 'dw dim_departement' = 'dw dim_departement'[departement_bk] = "DEP_TEL00"
+
+	tablePermission 'dw dim_employe' = 'dw dim_employe'[departement_sk] = LOOKUPVALUE('dw dim_departement'[departement_sk], 'dw dim_departement'[departement_bk], "DEP_TEL00")
+
+	annotation PBI_Id = 3746620b142c42c4b0a7850561145ad2
+

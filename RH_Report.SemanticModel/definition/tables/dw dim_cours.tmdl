@@ -1,0 +1,90 @@
+table 'dw dim_cours'
+	lineageTag: fc5cfb85-1af9-4409-a6aa-cb9b74aaaf25
+
+	column cours_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: f536c614-30d8-49ff-9a37-ec6ac1a04c97
+		summarizeBy: none
+		sourceColumn: cours_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column cours_bk
+		dataType: string
+		lineageTag: e3e35450-ef80-439f-8385-abdc9e0a6195
+		summarizeBy: none
+		sourceColumn: cours_bk
+
+		annotation SummarizationSetBy = Automatic
+
+	column intitule
+		dataType: string
+		lineageTag: d5b6afd5-cd82-41a5-a7de-ac26a174abc3
+		summarizeBy: none
+		sourceColumn: intitule
+
+		annotation SummarizationSetBy = Automatic
+
+	column universite_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 134a7ea0-1096-4680-a720-dd403254af08
+		summarizeBy: none
+		sourceColumn: universite_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column niveau_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 69b0c2c5-5df8-4fd6-8095-106a0b529f5c
+		summarizeBy: none
+		sourceColumn: niveau_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column note
+		dataType: double
+		lineageTag: b0f08c18-037e-4e06-9a42-51f5e2f6359d
+		summarizeBy: sum
+		sourceColumn: note
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column url
+		dataType: string
+		lineageTag: c1126e28-8192-4a71-ba24-a84a612196ad
+		summarizeBy: none
+		sourceColumn: url
+
+		annotation SummarizationSetBy = Automatic
+
+	column description
+		dataType: string
+		lineageTag: cfa67804-7243-4421-a27d-df0d1435ff15
+		summarizeBy: none
+		sourceColumn: description
+
+		annotation SummarizationSetBy = Automatic
+
+	column competences
+		dataType: string
+		lineageTag: deb8b7e7-354e-4bc8-af10-83f8f39df638
+		summarizeBy: none
+		sourceColumn: competences
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw dim_cours' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_cours = RH_Data_Warehouse{[Schema="dw",Item="dim_cours"]}[Data]
+				in
+				    dw_dim_cours
+

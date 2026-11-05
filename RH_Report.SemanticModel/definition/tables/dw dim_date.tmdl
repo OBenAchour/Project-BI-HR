@@ -1,0 +1,143 @@
+table 'dw dim_date'
+	lineageTag: a4e54e7f-3411-4f50-bada-c41b65d1d1e9
+
+	column date_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 03cac3fb-9dc1-433d-9659-35312547dcde
+		summarizeBy: none
+		sourceColumn: date_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_complete
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: ca7b4b29-4449-43c4-b9a2-ac326c271873
+		summarizeBy: none
+		sourceColumn: date_complete
+
+		variation Variation
+			isDefault
+			relationship: 450f3558-552a-4eb9-9343-3c314ae9e813
+			defaultHierarchy: LocalDateTable_6228fc01-9058-412f-8954-1d34e8f51537.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column jour
+		dataType: int64
+		formatString: 0
+		lineageTag: 25e368b0-bd10-42b1-af45-5a0c6dc19bab
+		summarizeBy: sum
+		sourceColumn: jour
+
+		annotation SummarizationSetBy = Automatic
+
+	column jour_semaine_num
+		dataType: int64
+		formatString: 0
+		lineageTag: dc38e654-3849-42c2-819b-6a08623a2163
+		summarizeBy: sum
+		sourceColumn: jour_semaine_num
+
+		annotation SummarizationSetBy = Automatic
+
+	column jour_semaine
+		dataType: string
+		lineageTag: ad21d5b2-4238-4208-9979-9c855e9b225d
+		summarizeBy: none
+		sourceColumn: jour_semaine
+
+		annotation SummarizationSetBy = Automatic
+
+	column semaine_iso
+		dataType: int64
+		formatString: 0
+		lineageTag: ccaaa0c4-098a-42d1-9011-291ff5adf869
+		summarizeBy: sum
+		sourceColumn: semaine_iso
+
+		annotation SummarizationSetBy = Automatic
+
+	column mois_num
+		dataType: int64
+		formatString: 0
+		lineageTag: 69a8dc5d-65e9-427a-9ac9-b9d763a7e82f
+		summarizeBy: sum
+		sourceColumn: mois_num
+
+		annotation SummarizationSetBy = Automatic
+
+	column mois
+		dataType: string
+		lineageTag: cf7cb4a6-708c-405e-87a8-d74fc7723f74
+		summarizeBy: none
+		sourceColumn: mois
+		sortByColumn: mois_num
+
+		annotation SummarizationSetBy = Automatic
+
+	column trimestre
+		dataType: int64
+		formatString: 0
+		lineageTag: da77899e-6cf5-4564-9dcb-4a788cf79402
+		summarizeBy: sum
+		sourceColumn: trimestre
+
+		annotation SummarizationSetBy = Automatic
+
+	column annee
+		dataType: int64
+		formatString: 0
+		lineageTag: ab749f5e-8c7d-4c72-b1f9-018ddbcef747
+		summarizeBy: sum
+		sourceColumn: annee
+
+		annotation SummarizationSetBy = Automatic
+
+	column annee_mois
+		dataType: string
+		lineageTag: 05748ae9-03f9-4e4f-a95f-ef19d26fe385
+		summarizeBy: none
+		sourceColumn: annee_mois
+
+		annotation SummarizationSetBy = Automatic
+
+	column est_jour_ouvre
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: ac4baac0-f3ba-4da7-86cf-d8e94f758341
+		summarizeBy: none
+		sourceColumn: est_jour_ouvre
+
+		annotation SummarizationSetBy = Automatic
+
+	column est_ferie
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 791dd62f-b940-4041-b476-b82d69921165
+		summarizeBy: none
+		sourceColumn: est_ferie
+
+		annotation SummarizationSetBy = Automatic
+
+	column libelle_ferie
+		dataType: string
+		lineageTag: 4c2abb34-4c7a-4448-9db8-4c7ce897edcb
+		summarizeBy: none
+		sourceColumn: libelle_ferie
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw dim_date' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_date = RH_Data_Warehouse{[Schema="dw",Item="dim_date"]}[Data]
+				in
+				    dw_dim_date
+

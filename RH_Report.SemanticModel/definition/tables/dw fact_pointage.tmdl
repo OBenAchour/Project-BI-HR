@@ -1,0 +1,132 @@
+table 'dw fact_pointage'
+	lineageTag: 1f18c192-8198-4a79-9abc-18322e81880e
+
+	column pointage_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 59c6747b-545b-466e-91bb-87db884e2ef0
+		summarizeBy: sum
+		sourceColumn: pointage_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 3aeababf-9499-4c0d-9ccc-3ec1a278cb52
+		summarizeBy: none
+		sourceColumn: date_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column employe_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: e03dea4b-c23c-474a-8ef7-1c0891dffba3
+		summarizeBy: sum
+		sourceColumn: employe_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column departement_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 2d58cb89-0c68-4731-8489-48c1fb4d4bd6
+		summarizeBy: none
+		sourceColumn: departement_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column heure_arrivee_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 9034c219-d4a9-49dd-82af-2d805617387c
+		summarizeBy: none
+		sourceColumn: heure_arrivee_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column taux_hs_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: d2effc42-3970-4694-84b1-b3391faa0880
+		summarizeBy: none
+		sourceColumn: taux_hs_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column minutes_travaillees
+		dataType: int64
+		formatString: 0
+		lineageTag: 711dd6f1-7c28-4526-8c0e-be29a2aba615
+		summarizeBy: sum
+		sourceColumn: minutes_travaillees
+
+		annotation SummarizationSetBy = Automatic
+
+	column minutes_pause
+		dataType: int64
+		formatString: 0
+		lineageTag: 4f186e26-7df3-4ce9-a8b7-40c504f4906d
+		summarizeBy: sum
+		sourceColumn: minutes_pause
+
+		annotation SummarizationSetBy = Automatic
+
+	column minutes_retard
+		dataType: int64
+		formatString: 0
+		lineageTag: 30d69c3f-7a2c-4330-b46f-505a31371672
+		summarizeBy: sum
+		sourceColumn: minutes_retard
+
+		annotation SummarizationSetBy = Automatic
+
+	column minutes_sup
+		dataType: int64
+		formatString: 0
+		lineageTag: 124317b3-57a1-4a29-8567-035121b3a162
+		summarizeBy: sum
+		sourceColumn: minutes_sup
+
+		annotation SummarizationSetBy = Automatic
+
+	column cout_heures_sup
+		dataType: double
+		lineageTag: ad348b10-c688-418e-8874-43157348cea6
+		summarizeBy: sum
+		sourceColumn: cout_heures_sup
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column nb_pointages
+		dataType: int64
+		formatString: 0
+		lineageTag: b4175687-c000-4c28-85c5-d21c23149e8e
+		summarizeBy: sum
+		sourceColumn: nb_pointages
+
+		annotation SummarizationSetBy = Automatic
+
+	column source_fichier
+		dataType: string
+		lineageTag: 951ae3c8-2e3a-4836-9dbe-cbef4c8388fc
+		summarizeBy: none
+		sourceColumn: source_fichier
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw fact_pointage' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_fact_pointage = RH_Data_Warehouse{[Schema="dw",Item="fact_pointage"]}[Data]
+				in
+				    dw_fact_pointage
+
+	annotation PBI_ResultType = Table
+

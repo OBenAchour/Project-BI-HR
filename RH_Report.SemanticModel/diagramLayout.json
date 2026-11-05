@@ -1,0 +1,256 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 1635.1433834543211,
+            "y": 868.07286399848476
+          },
+          "nodeIndex": "dw dim_canal_recrutement",
+          "nodeLineageTag": "025d3926-b393-4809-b380-9b0cd1078207",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 904.44925762756952,
+            "y": -2.7013784008677248
+          },
+          "nodeIndex": "dw dim_contrat",
+          "nodeLineageTag": "144a0373-adbc-463b-9437-43243b243580",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 337.13844313014079,
+            "y": 1371.1557186880827
+          },
+          "nodeIndex": "dw dim_cours",
+          "nodeLineageTag": "fc5cfb85-1af9-4409-a6aa-cb9b74aaaf25",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 891.04481094849154,
+            "y": 615.1558788501593
+          },
+          "nodeIndex": "dw dim_date",
+          "nodeLineageTag": "a4e54e7f-3411-4f50-bada-c41b65d1d1e9",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 623.81208720782593,
+            "y": 1142.1927700715783
+          },
+          "nodeIndex": "dw dim_departement",
+          "nodeLineageTag": "bb120f7c-9014-4809-bcd6-96623c37d69c",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1484.252953460461,
+            "y": 1302.9954327003497
+          },
+          "nodeIndex": "dw dim_diplome",
+          "nodeLineageTag": "4531fbc9-4d81-4157-8ecd-623297006a40",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1145.862115347056,
+            "y": 968.84110467514438
+          },
+          "nodeIndex": "dw dim_employe",
+          "nodeLineageTag": "31667287-b210-429b-8a76-966d5631a9ac",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1197.09216721894,
+            "y": 1485.0706217483753
+          },
+          "nodeIndex": "dw dim_heure",
+          "nodeLineageTag": "62e28949-cb82-4c0e-b662-e1f8fa1881cd",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 50.021021375399414,
+            "y": 1244.2039739053637
+          },
+          "nodeIndex": "dw dim_niveau_cours",
+          "nodeLineageTag": "9b094158-596d-4193-ae0e-956a0b4e4886",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 641.18138898196366,
+            "y": 1675.3329030300911
+          },
+          "nodeIndex": "dw dim_pole",
+          "nodeLineageTag": "d56ef3f9-4a55-47aa-a30b-549f40dd90f6",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1465.1264847640864,
+            "y": 154.4329757588655
+          },
+          "nodeIndex": "dw dim_poste",
+          "nodeLineageTag": "0296dcbd-77b7-4598-a983-63e729fd7246",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1348.0469151978918,
+            "y": 667.47145990894182
+          },
+          "nodeIndex": "dw dim_taux_horaire",
+          "nodeLineageTag": "55121fff-c982-4fb5-86ec-80c0c21f8d68",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1191.4365730588861,
+            "y": -50
+          },
+          "nodeIndex": "dw dim_type_conge",
+          "nodeLineageTag": "483a117f-b78e-45d5-b4c0-5659561c1b81",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 50,
+            "y": 1572.4576455022641
+          },
+          "nodeIndex": "dw dim_universite",
+          "nodeLineageTag": "bb525106-a896-48ca-be90-88e3b5edbcde",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1178.000161519727,
+            "y": 279.65808557195396
+          },
+          "nodeIndex": "dw fact_effectif_snapshot",
+          "nodeLineageTag": "04d50a74-adad-4a71-be37-abdb492cd755",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 333.5528291025521,
+            "y": 991.937872019589
+          },
+          "nodeIndex": "dw fact_inscription_formation",
+          "nodeLineageTag": "a7900933-13ac-4a49-9088-12b9d359827f",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 910.76499411750854,
+            "y": 1322.4634074054829
+          },
+          "nodeIndex": "dw fact_pointage",
+          "nodeLineageTag": "1f18c192-8198-4a79-9abc-18322e81880e",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1869.1433834543211,
+            "y": 776.66645151504554
+          },
+          "nodeIndex": "Mesures",
+          "nodeLineageTag": "b512e825-7b35-46dc-86ff-66c65a151b4b",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

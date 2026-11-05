@@ -1,0 +1,39 @@
+table 'dw dim_diplome'
+	lineageTag: 4531fbc9-4d81-4157-8ecd-623297006a40
+
+	column diplome_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 70592ebe-ad92-46a9-8bb2-b3b9eb58ef7c
+		summarizeBy: none
+		sourceColumn: diplome_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column diplome_libelle
+		dataType: string
+		lineageTag: 9ea414f1-3c15-4593-8db8-44f57a792b7c
+		summarizeBy: none
+		sourceColumn: diplome_libelle
+
+		annotation SummarizationSetBy = Automatic
+
+	column niveau_bac_plus
+		dataType: int64
+		formatString: 0
+		lineageTag: 0ecb9fa7-a7a5-41cc-a8fc-8794b5638a5c
+		summarizeBy: none
+		sourceColumn: niveau_bac_plus
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw dim_diplome' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_diplome = RH_Data_Warehouse{[Schema="dw",Item="dim_diplome"]}[Data]
+				in
+				    dw_dim_diplome
+

@@ -1,0 +1,375 @@
+table Mesures
+	lineageTag: b512e825-7b35-46dc-86ff-66c65a151b4b
+
+	/// Début de la période de pointage : sert de « aujourd'hui » pour l'ancienneté et les échéances
+	measure 'Date de référence' = DATE(2023, 1, 1)
+		formatString: dd/mm/yyyy
+		displayFolder: Général
+		lineageTag: 2dd0f936-5bb3-4969-b1c1-773c925f644a
+
+	measure 'Date de la photo' = DATE(INT(MAX('dw fact_effectif_snapshot'[date_snapshot_sk]) / 10000), MOD(INT(MAX('dw fact_effectif_snapshot'[date_snapshot_sk]) / 100), 100), MOD(MAX('dw fact_effectif_snapshot'[date_snapshot_sk]), 100))
+		formatString: dd/mm/yyyy
+		displayFolder: Général
+		lineageTag: 644f2c0f-dcfd-433e-80f1-fff718011aa3
+
+	measure 'Titre accueil' = "Pilotage RH · photo du " & FORMAT([Date de la photo], "dd/mm/yyyy")
+		displayFolder: Général
+		lineageTag: 750e0744-dc03-439d-a9fe-63436a1b8a1d
+
+	measure Effectif =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(SUM('dw fact_effectif_snapshot'[nb_employes]), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: #,##0
+		displayFolder: OM1 Effectif
+		lineageTag: d8f29fca-c48b-4ef0-8221-eb761ec927d8
+
+	measure Capacité = SUM('dw dim_departement'[capacite])
+		formatString: #,##0
+		displayFolder: OM1 Effectif
+		lineageTag: 003da21b-1771-4ec8-bca1-38b2d95edee5
+
+	measure 'Taux d''occupation' = DIVIDE([Effectif], [Capacité])
+		formatString: 0.0%
+		displayFolder: OM1 Effectif
+		lineageTag: e7e8d445-d7ea-4b53-8373-55b540b625c4
+
+	measure 'Couleur occupation' =
+			VAR t = [Taux d'occupation]
+			RETURN SWITCH(TRUE(), ISBLANK(t), "#8A94A6", t > 1.1, "#ED7373", t < 0.6, "#F2B84B", "#44C088")
+		displayFolder: OM1 Effectif
+		lineageTag: a2f9d6a5-5ff8-41ac-94d4-645679f72c17
+
+	measure 'Contrats courts' = CALCULATE([Effectif], 'dw dim_contrat'[est_contrat_court] = TRUE())
+		formatString: #,##0
+		displayFolder: OM1 Effectif
+		lineageTag: 0891f24e-5ce3-44ba-b161-a44c20e281ad
+
+	measure '% contrats courts' = DIVIDE([Contrats courts], [Effectif])
+		formatString: 0.0%
+		displayFolder: OM1 Effectif
+		lineageTag: 8a916bdc-c587-44f1-9c88-dc04fd02a6bb
+
+	measure 'Ancienneté moyenne (ans)' =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(AVERAGEX('dw fact_effectif_snapshot', DATEDIFF(DATE(INT('dw fact_effectif_snapshot'[date_embauche_sk] / 10000), MOD(INT('dw fact_effectif_snapshot'[date_embauche_sk] / 100), 100), MOD('dw fact_effectif_snapshot'[date_embauche_sk], 100)), [Date de référence], DAY)) / 365.25, 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: #,##0.0
+		displayFolder: OM1 Effectif
+		lineageTag: b8ef2e11-c639-4f00-b565-2069fc4b2158
+
+	measure '% ancienneté < 1 an' =
+			DIVIDE(
+			  VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			  RETURN CALCULATE(COUNTROWS(FILTER('dw fact_effectif_snapshot', DATEDIFF(DATE(INT('dw fact_effectif_snapshot'[date_embauche_sk] / 10000), MOD(INT('dw fact_effectif_snapshot'[date_embauche_sk] / 100), 100), MOD('dw fact_effectif_snapshot'[date_embauche_sk], 100)), [Date de référence], DAY) < 365)), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo),
+			  [Effectif])
+		formatString: 0.0%
+		displayFolder: OM1 Effectif
+		lineageTag: f4a96bd8-f733-4250-9623-3a592d99a8a4
+
+	/// Employés par date d'embauche (à croiser avec dw dim_date)
+	measure Entrées = CALCULATE([Effectif], USERELATIONSHIP('dw fact_effectif_snapshot'[date_embauche_sk], 'dw dim_date'[date_sk]))
+		formatString: #,##0
+		displayFolder: OM1 Effectif
+		lineageTag: 5648a083-ed84-4887-affb-527e3de76e7f
+
+	measure 'Masse salariale' =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(SUM('dw fact_effectif_snapshot'[salaire_mensuel]), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: #,##0
+		displayFolder: OM2 Coûts
+		lineageTag: 1750eb7e-e457-4fef-bbcf-95f331ee07f3
+
+	measure 'Coût vacataires' =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(SUM('dw fact_effectif_snapshot'[cout_vacataire]), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: #,##0
+		displayFolder: OM2 Coûts
+		lineageTag: e1c8be5e-82be-4f3c-8844-ba89c8607154
+
+	measure 'Coût heures sup admin' =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(SUM('dw fact_effectif_snapshot'[cout_hs_admin]), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: #,##0
+		displayFolder: OM2 Coûts
+		lineageTag: 4beae629-b2fa-4bf1-b697-3aedfa12df06
+
+	measure 'Coût total estimé' =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(SUM('dw fact_effectif_snapshot'[cout_total_estime]), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: #,##0
+		displayFolder: OM2 Coûts
+		lineageTag: 9851f3f6-0fb1-43a5-9fbc-7a82a43e82d3
+
+	measure '% heures sup dans le coût' = DIVIDE([Coût heures sup admin], [Coût total estimé])
+		formatString: 0.0%
+		displayFolder: OM2 Coûts
+		lineageTag: f45a2d3f-d1d5-4d08-991d-1cee593b379a
+
+	/// Permanents et administratifs : les vacataires, payés à l’heure, n’ont pas de salaire
+	measure 'Salaire médian' =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(MEDIAN('dw fact_effectif_snapshot'[salaire_mensuel]), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: #,##0
+		displayFolder: OM2 Coûts
+		lineageTag: 5e93e525-cd91-43e1-bd71-bb0cdf427077
+
+	measure 'Salaire médian femmes' = CALCULATE([Salaire médian], 'dw dim_employe'[genre] = "F")
+		formatString: #,##0
+		displayFolder: OM2 Coûts
+		lineageTag: 8a9b5c8c-abb4-4101-9a0a-bec7d1ded136
+
+	measure 'Salaire médian hommes' = CALCULATE([Salaire médian], 'dw dim_employe'[genre] = "M")
+		formatString: #,##0
+		displayFolder: OM2 Coûts
+		lineageTag: 69793e89-ade9-4448-9957-02d60f339056
+
+	/// (médiane hommes − médiane femmes) / médiane hommes. Cible : ≤ 2 %
+	measure 'Écart H/F médian' = DIVIDE([Salaire médian hommes] - [Salaire médian femmes], [Salaire médian hommes])
+		formatString: 0.0%
+		displayFolder: OM2 Coûts
+		lineageTag: 39d0cfc4-3d39-423c-b247-b7155e6c1513
+
+	measure 'Couleur écart H/F' = IF(ABS([Écart H/F médian]) <= 0.02, "#44C088", "#ED7373")
+		displayFolder: OM2 Coûts
+		lineageTag: 1dce6cb5-d8f1-44d8-b98d-d53c532b9470
+
+	/// Proxy : coût mensuel ÷ heures pointées sur la période (périodes différentes)
+	measure 'Coût par heure travaillée' = DIVIDE([Coût total estimé], [Heures travaillées])
+		formatString: #,##0.00
+		displayFolder: OM2 Coûts
+		lineageTag: 3de301de-1849-4044-b767-b1fe90f16282
+
+	measure 'Jours pointés' = SUM('dw fact_pointage'[nb_pointages])
+		formatString: #,##0
+		displayFolder: OM3 Temps
+		lineageTag: 165a20fb-5c44-45d8-a8fe-e67c0a926789
+
+	measure 'Heures travaillées' = DIVIDE(SUM('dw fact_pointage'[minutes_travaillees]), 60)
+		formatString: #,##0
+		displayFolder: OM3 Temps
+		lineageTag: 753013c8-4032-4789-b84d-94a04fac4e2d
+
+	measure 'Heures par jour' = DIVIDE([Heures travaillées], [Jours pointés])
+		formatString: 0.00
+		displayFolder: OM3 Temps
+		lineageTag: 9efa717a-9819-406f-ab00-933aef7838c7
+
+	/// Arrivée après 8 h 30 (seuil choisi par l’équipe, à valider)
+	measure 'Taux de retard' = DIVIDE(CALCULATE([Jours pointés], 'dw dim_heure'[est_apres_8h30] = TRUE()), [Jours pointés])
+		formatString: 0.0%
+		displayFolder: OM3 Temps
+		lineageTag: ccc5dbdb-dc94-4463-a06d-3c828e84d9c3
+
+	measure '% jours > 8 h' = DIVIDE(CALCULATE([Jours pointés], 'dw fact_pointage'[minutes_travaillees] > 480), [Jours pointés])
+		formatString: 0.0%
+		displayFolder: OM3 Temps
+		lineageTag: aa9a65d6-cd10-424c-97ea-4ccf2ef237c9
+
+	/// Régularité des horaires : plus il est élevé, plus les journées sont irrégulières
+	measure 'Écart-type heures par jour' = STDEVX.P('dw fact_pointage', 'dw fact_pointage'[minutes_travaillees] / 60)
+		formatString: 0.00
+		displayFolder: OM3 Temps
+		lineageTag: 0bed3c04-ac7b-411b-bf23-399800baa5c1
+
+	measure 'Heures sup (h)' = DIVIDE(SUM('dw fact_pointage'[minutes_sup]), 60)
+		formatString: #,##0
+		displayFolder: OM3 Temps
+		lineageTag: 4d223102-8508-4665-b624-22cf165baf29
+
+	measure 'Coût heures sup pointées' = SUM('dw fact_pointage'[cout_heures_sup])
+		formatString: #,##0
+		displayFolder: OM3 Temps
+		lineageTag: f653ae9f-a7e1-4e0f-9964-7c70982c91b8
+
+	measure Inscriptions =
+			VAR _photo = MAX('dw fact_inscription_formation'[date_snapshot_sk])
+			RETURN CALCULATE(SUM('dw fact_inscription_formation'[nb_inscriptions]), 'dw fact_inscription_formation'[date_snapshot_sk] = _photo)
+		formatString: #,##0
+		displayFolder: OM4 Formation
+		lineageTag: 5c326e62-a894-4fdd-976f-f5480749fb2b
+
+	measure 'Employés formés' =
+			VAR _photo = MAX('dw fact_inscription_formation'[date_snapshot_sk])
+			RETURN CALCULATE(DISTINCTCOUNT('dw fact_inscription_formation'[employe_sk]), 'dw fact_inscription_formation'[date_snapshot_sk] = _photo)
+		formatString: #,##0
+		displayFolder: OM4 Formation
+		lineageTag: 970414dc-572f-48ad-aadd-a59b70198786
+
+	measure 'Effectif technique' = CALCULATE([Effectif], 'dw dim_pole'[pole_libelle] = "Technique")
+		formatString: #,##0
+		displayFolder: OM4 Formation
+		lineageTag: 22117e80-6e01-40a0-93b6-a856f10c20c6
+
+	/// Techniques ayant au moins un cours. Cible : ≥ 95 %. Les administratifs n’ont aucune donnée de formation
+	measure 'Couverture formation' = DIVIDE([Employés formés], [Effectif technique])
+		formatString: 0.0%
+		displayFolder: OM4 Formation
+		lineageTag: 2ad3b7f8-a61a-4ee4-b567-e1a7131ffa43
+
+	measure 'Couleur couverture' = IF([Couverture formation] >= 0.95, "#44C088", "#ED7373")
+		displayFolder: OM4 Formation
+		lineageTag: bd80995d-694c-4dc5-9006-0a66028c5d1f
+
+	measure 'Formations par employé' = DIVIDE([Inscriptions], [Employés formés])
+		formatString: #,##0.0
+		displayFolder: OM4 Formation
+		lineageTag: 9ca16be0-dc5c-46b0-945b-6a89cefa5e54
+
+	measure 'Cours suivis' =
+			VAR _photo = MAX('dw fact_inscription_formation'[date_snapshot_sk])
+			RETURN CALCULATE(DISTINCTCOUNT('dw fact_inscription_formation'[cours_sk]), 'dw fact_inscription_formation'[date_snapshot_sk] = _photo)
+		formatString: #,##0
+		displayFolder: OM4 Formation
+		lineageTag: de3cc8db-1255-428a-80e1-aabd3fc0b6dc
+
+	measure 'Taux d''utilisation du catalogue' = DIVIDE([Cours suivis], COUNTROWS(ALL('dw dim_cours')))
+		formatString: 0.0%
+		displayFolder: OM4 Formation
+		lineageTag: 20371f09-17eb-425b-ad7b-94fa7ddf97a0
+
+	measure '% des inscriptions' = DIVIDE([Inscriptions], CALCULATE([Inscriptions], ALLSELECTED('dw dim_cours'), ALLSELECTED('dw dim_niveau_cours'), ALLSELECTED('dw dim_universite')))
+		formatString: 0.00%
+		displayFolder: OM4 Formation
+		lineageTag: 24975729-6416-4f9a-bc72-e5e52490c9ac
+
+	measure 'Congés consommés (moyenne)' =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(AVERAGE('dw fact_effectif_snapshot'[conges_consommes]), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: #,##0.0
+		displayFolder: OM5 Congés
+		lineageTag: 72b61a12-fb49-45a2-8a5f-4f0d2688f0de
+
+	measure 'Solde moyen (jours)' =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(AVERAGE('dw fact_effectif_snapshot'[solde_conges]), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: #,##0.0
+		displayFolder: OM5 Congés
+		lineageTag: 487c42c9-2605-4c69-8161-69474460b0d2
+
+	measure 'Taux de consommation des congés' =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(DIVIDE(SUM('dw fact_effectif_snapshot'[conges_consommes]), SUM('dw fact_effectif_snapshot'[conges_consommes]) + SUM('dw fact_effectif_snapshot'[solde_conges])), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: 0.0%
+		displayFolder: OM5 Congés
+		lineageTag: 56e19cd0-187c-402a-b7b2-3611d799ddbc
+
+	/// Part des employés avec 20 jours de solde ou plus (seuil à valider)
+	measure '% soldes élevés' =
+			DIVIDE(VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(COUNTROWS(FILTER('dw fact_effectif_snapshot', 'dw fact_effectif_snapshot'[solde_conges] >= 20)), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo), [Effectif])
+		formatString: 0.0%
+		displayFolder: OM5 Congés
+		lineageTag: 5be65d06-b751-4483-aa03-d51be1f5d8c6
+
+	/// Proxy fragile d’absentéisme : seul le dernier congé est connu, sans date ni durée
+	measure '% dernier congé maladie' = DIVIDE(CALCULATE([Effectif], 'dw dim_type_conge'[type_conge_code] = "sick"), [Effectif])
+		formatString: 0.0%
+		displayFolder: OM5 Congés
+		lineageTag: bdef40d5-7ad3-48fe-8deb-f0ed330d229c
+
+	/// Contrats par date de fin (à croiser avec dw dim_date)
+	measure 'Échéances (date de fin)' = CALCULATE([Effectif], USERELATIONSHIP('dw fact_effectif_snapshot'[date_fin_contrat_sk], 'dw dim_date'[date_sk]))
+		formatString: #,##0
+		displayFolder: OM6 Échéances
+		lineageTag: 832fdced-7e59-4de8-ae1a-87bd3020796a
+
+	measure 'Échéances en 2023' = CALCULATE([Échéances (date de fin)], 'dw dim_date'[annee] = 2023)
+		formatString: #,##0
+		displayFolder: OM6 Échéances
+		lineageTag: dedcdf6e-f808-48c6-a9e8-057a28b647c3
+
+	measure 'Échéances à 30 jours' =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(COUNTROWS(FILTER('dw fact_effectif_snapshot',
+			    VAR _fin = 'dw fact_effectif_snapshot'[date_fin_contrat_sk]
+			    VAR _ref = [Date de référence]
+			    RETURN NOT ISBLANK(_fin)
+			        && DATE(INT(_fin / 10000), MOD(INT(_fin / 100), 100), MOD(_fin, 100)) >= _ref
+			        && DATE(INT(_fin / 10000), MOD(INT(_fin / 100), 100), MOD(_fin, 100)) < _ref + 30)), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: #,##0
+		displayFolder: OM6 Échéances
+		lineageTag: a774132d-bcdc-4546-94f8-9cad058e87aa
+
+	measure 'Échéances à 90 jours' =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(COUNTROWS(FILTER('dw fact_effectif_snapshot',
+			    VAR _fin = 'dw fact_effectif_snapshot'[date_fin_contrat_sk]
+			    VAR _ref = [Date de référence]
+			    RETURN NOT ISBLANK(_fin)
+			        && DATE(INT(_fin / 10000), MOD(INT(_fin / 100), 100), MOD(_fin, 100)) >= _ref
+			        && DATE(INT(_fin / 10000), MOD(INT(_fin / 100), 100), MOD(_fin, 100)) < _ref + 90)), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: #,##0
+		displayFolder: OM6 Échéances
+		lineageTag: 0af1fe59-8f11-4e3b-bde8-74c836e62733
+
+	measure 'Échéances à 180 jours' =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(COUNTROWS(FILTER('dw fact_effectif_snapshot',
+			    VAR _fin = 'dw fact_effectif_snapshot'[date_fin_contrat_sk]
+			    VAR _ref = [Date de référence]
+			    RETURN NOT ISBLANK(_fin)
+			        && DATE(INT(_fin / 10000), MOD(INT(_fin / 100), 100), MOD(_fin, 100)) >= _ref
+			        && DATE(INT(_fin / 10000), MOD(INT(_fin / 100), 100), MOD(_fin, 100)) < _ref + 180)), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: #,##0
+		displayFolder: OM6 Échéances
+		lineageTag: 7daafe6b-4f87-41b5-a50d-d8aa0fd75469
+
+	measure 'CDI avec date de fin' = CALCULATE([Effectif], 'dw dim_contrat'[type_contrat] = "CDI", NOT ISBLANK('dw fact_effectif_snapshot'[date_fin_contrat_sk]))
+		formatString: #,##0
+		displayFolder: OM6 Échéances
+		lineageTag: 6f2a400c-f55e-4603-9fb4-04050e574b12
+
+	measure 'Vacataires en CDI' = CALCULATE([Effectif], 'dw dim_contrat'[type_contrat] = "CDI", 'dw dim_contrat'[statut_emploi] = "Vacataire")
+		formatString: #,##0
+		displayFolder: OM6 Échéances
+		lineageTag: 038a257a-26c8-4160-9175-a660a38b4ed1
+
+	measure 'Contrats échus avant 2023' = CALCULATE([Effectif], NOT ISBLANK('dw fact_effectif_snapshot'[date_fin_contrat_sk]), 'dw fact_effectif_snapshot'[date_fin_contrat_sk] < 20230101)
+		formatString: #,##0
+		displayFolder: OM6 Échéances
+		lineageTag: b8faa345-1bd8-41b5-9379-994602a64161
+
+	measure 'Contrats courts sans date de fin' = CALCULATE([Effectif], 'dw dim_contrat'[est_contrat_court] = TRUE(), ISBLANK('dw fact_effectif_snapshot'[date_fin_contrat_sk]))
+		formatString: #,##0
+		displayFolder: OM6 Échéances
+		lineageTag: 1e975b36-d18f-40e1-9476-f86a7e696c23
+
+	measure 'Employés avec anomalie de contrat' =
+			VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			RETURN CALCULATE(COUNTROWS(FILTER('dw fact_effectif_snapshot',
+			    VAR _type = RELATED('dw dim_contrat'[type_contrat])
+			    VAR _fin = 'dw fact_effectif_snapshot'[date_fin_contrat_sk]
+			    RETURN (_type = "CDI" && NOT ISBLANK(_fin))
+			        || (_type = "CDI" && RELATED('dw dim_contrat'[statut_emploi]) = "Vacataire")
+			        || (RELATED('dw dim_contrat'[est_contrat_court]) && ISBLANK(_fin))
+			        || (NOT ISBLANK(_fin) && _fin < 20230101))), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo)
+		formatString: #,##0
+		displayFolder: OM6 Échéances
+		lineageTag: d888d13f-8cd0-4f16-a958-5b5848238d50
+
+	/// CDI datés, vacataires en CDI, contrats courts sans fin, contrats échus avant 2023. Cible : 0
+	measure 'Taux d''anomalies contractuelles' = DIVIDE([Employés avec anomalie de contrat], [Effectif])
+		formatString: 0.0%
+		displayFolder: OM6 Échéances
+		lineageTag: 2460a78b-1263-4d0b-971f-9e0d01edd948
+
+	measure 'Couleur anomalies' = IF([Employés avec anomalie de contrat] = 0, "#44C088", "#ED7373")
+		displayFolder: OM6 Échéances
+		lineageTag: d336d78d-0694-42e9-8b4a-b4d3b7b3b840
+
+	column Colonne
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 54de6f81-8382-49c8-ac8b-51c3999acdb3
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Colonne]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Mesures = calculated
+		mode: import
+		source = ROW("Colonne", 0)
+
+	annotation PBI_Id = c0271605c48c40f89a4b00b663566695
+

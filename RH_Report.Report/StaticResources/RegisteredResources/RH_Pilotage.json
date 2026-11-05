@@ -1,0 +1,46 @@
+{
+  "name": "RH Pilotage",
+  "dataColors": [
+    "#0C3549",
+    "#1B998B",
+    "#F2B84B",
+    "#ED7373",
+    "#2E86DE",
+    "#7B6CD9",
+    "#44C088",
+    "#8A94A6",
+    "#F28C52",
+    "#4FB3BF"
+  ],
+  "background": "#FFFFFF",
+  "foreground": "#1F2A44",
+  "tableAccent": "#0C3549",
+  "good": "#44C088",
+  "neutral": "#F2B84B",
+  "bad": "#ED7373",
+  "maximum": "#0C3549",
+  "center": "#2E86DE",
+  "minimum": "#DCE6F2",
+  "textClasses": {
+    "callout": {
+      "fontSize": 24,
+      "fontFace": "Segoe UI Semibold",
+      "color": "#0C3549"
+    },
+    "title": {
+      "fontSize": 12,
+      "fontFace": "Segoe UI Semibold",
+      "color": "#1F2A44"
+    },
+    "header": {
+      "fontSize": 12,
+      "fontFace": "Segoe UI Semibold",
+      "color": "#1F2A44"
+    },
+    "label": {
+      "fontSize": 10,
+      "fontFace": "Segoe UI",
+      "color": "#5B6478"
+    }
+  }
+}
