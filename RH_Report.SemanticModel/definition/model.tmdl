@@ -1,0 +1,46 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["dw dim_canal_recrutement","dw dim_contrat","dw dim_cours","dw dim_date","dw dim_departement","dw dim_diplome","dw dim_employe","dw dim_heure","dw dim_niveau_cours","dw dim_pole","dw dim_poste","dw dim_taux_horaire","dw dim_type_conge","dw dim_universite","dw fact_effectif_snapshot","dw fact_inscription_formation","dw fact_pointage"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table Mesures
+ref table 'dw dim_canal_recrutement'
+ref table 'dw dim_contrat'
+ref table 'dw dim_cours'
+ref table 'dw dim_date'
+ref table DateTableTemplate_8684747f-f6de-463a-828a-e3bcf4b996a0
+ref table LocalDateTable_6228fc01-9058-412f-8954-1d34e8f51537
+ref table 'dw dim_departement'
+ref table 'dw dim_diplome'
+ref table 'dw dim_employe'
+ref table LocalDateTable_e1df54d3-9a7f-4f8d-b004-346bf1a85ddd
+ref table LocalDateTable_9f4f8d87-74e1-41f3-854c-5a72dee6d3c0
+ref table 'dw dim_heure'
+ref table 'dw dim_niveau_cours'
+ref table 'dw dim_pole'
+ref table 'dw dim_poste'
+ref table 'dw dim_taux_horaire'
+ref table LocalDateTable_35222d7f-4cb3-4c48-bd9f-7d0e87b6835b
+ref table LocalDateTable_8a27309d-b0fd-44cf-8987-c42651260683
+ref table 'dw dim_type_conge'
+ref table 'dw dim_universite'
+ref table 'dw fact_effectif_snapshot'
+ref table 'dw fact_inscription_formation'
+ref table 'dw fact_pointage'
+
+ref role 'Manager Informatique'
+ref role 'Manager Télécom'
+ref role 'Manager Communication'
+ref role 'Manager Administration'
+
+ref cultureInfo en-US
+

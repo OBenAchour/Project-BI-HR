@@ -1,0 +1,186 @@
+table 'dw dim_employe'
+	lineageTag: 31667287-b210-429b-8a76-966d5631a9ac
+
+	column employe_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 7b780351-230a-4837-a5c7-b21b2efc9362
+		summarizeBy: sum
+		sourceColumn: employe_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column employe_bk
+		dataType: string
+		lineageTag: 9f070086-1a11-4201-a4be-f687d5073bc3
+		summarizeBy: none
+		sourceColumn: employe_bk
+
+		annotation SummarizationSetBy = Automatic
+
+	column population
+		dataType: string
+		lineageTag: c6639f5c-f867-4a67-8bc6-5cc2a21f30f0
+		summarizeBy: none
+		sourceColumn: population
+
+		annotation SummarizationSetBy = Automatic
+
+	column genre
+		dataType: string
+		lineageTag: 67474fdd-cb25-47c8-8803-ee05457ebf96
+		summarizeBy: none
+		sourceColumn: genre
+
+		annotation SummarizationSetBy = Automatic
+
+	column statut_marital
+		dataType: string
+		lineageTag: 3b558642-19b2-4bdf-9f87-e2f48f8c0e33
+		summarizeBy: none
+		sourceColumn: statut_marital
+
+		annotation SummarizationSetBy = Automatic
+
+	column parle_arabe
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: b7813968-3d85-44a3-93bc-76db089bf090
+		summarizeBy: none
+		sourceColumn: parle_arabe
+
+		annotation SummarizationSetBy = Automatic
+
+	column parle_francais
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: fb725ca7-a9f5-4dac-b73f-360c54973459
+		summarizeBy: none
+		sourceColumn: parle_francais
+
+		annotation SummarizationSetBy = Automatic
+
+	column parle_anglais
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 0e1b762a-3b9a-46e7-b62c-656c94798748
+		summarizeBy: none
+		sourceColumn: parle_anglais
+
+		annotation SummarizationSetBy = Automatic
+
+	column parle_autre
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: e712b648-d153-45af-9612-7dfe959334af
+		summarizeBy: none
+		sourceColumn: parle_autre
+
+		annotation SummarizationSetBy = Automatic
+
+	column maitrise_software_engineering
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 6a9653c6-7fbd-400e-aa40-9fd0079347e7
+		summarizeBy: none
+		sourceColumn: maitrise_software_engineering
+
+		annotation SummarizationSetBy = Automatic
+
+	column maitrise_telecom
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: ff369de2-d5e4-47d2-bd55-10c265c68d41
+		summarizeBy: none
+		sourceColumn: maitrise_telecom
+
+		annotation SummarizationSetBy = Automatic
+
+	column code_tenure
+		dataType: int64
+		formatString: 0
+		lineageTag: 119c4b6a-ef18-4fa5-ad73-adf38d323bb3
+		summarizeBy: sum
+		sourceColumn: code_tenure
+
+		annotation SummarizationSetBy = Automatic
+
+	column diplome_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 95f85069-7b24-4c12-863c-adfdc7e1f480
+		summarizeBy: none
+		sourceColumn: diplome_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column canal_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 9d008cb5-425a-4fc8-869e-44835d94641f
+		summarizeBy: none
+		sourceColumn: canal_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column departement_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: d7196310-d7c6-4ee8-a3e9-bf01a32ee6df
+		summarizeBy: none
+		sourceColumn: departement_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column est_courant
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: ecdec3ba-8949-4e86-9223-cb70a77a780e
+		summarizeBy: none
+		sourceColumn: est_courant
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_debut
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 53dc8284-e3c8-4225-822d-16be69928cc0
+		summarizeBy: none
+		sourceColumn: date_debut
+
+		variation Variation
+			isDefault
+			relationship: aa862a34-ede4-43d1-88e4-f5e3d327c653
+			defaultHierarchy: LocalDateTable_e1df54d3-9a7f-4f8d-b004-346bf1a85ddd.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column date_fin
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 2a38ae42-e499-48a7-b60f-6970b1bc2925
+		summarizeBy: none
+		sourceColumn: date_fin
+
+		variation Variation
+			isDefault
+			relationship: ebfc5b2e-eefd-40d9-a90d-93a59a6f97d7
+			defaultHierarchy: LocalDateTable_9f4f8d87-74e1-41f3-854c-5a72dee6d3c0.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'dw dim_employe' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_employe = RH_Data_Warehouse{[Schema="dw",Item="dim_employe"]}[Data],
+				    #"Sans données personnelles" = Table.RemoveColumns(dw_dim_employe, {"nom", "email", "adresse", "adresse_mission"})
+				in
+				    #"Sans données personnelles"
+

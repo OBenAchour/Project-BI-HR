@@ -1,0 +1,38 @@
+table 'dw dim_canal_recrutement'
+	lineageTag: 025d3926-b393-4809-b380-9b0cd1078207
+
+	column canal_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 957a9079-dd1a-4116-97f6-72fa495fb460
+		summarizeBy: none
+		sourceColumn: canal_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column canal_code
+		dataType: string
+		lineageTag: 2975fc28-6218-4454-bed9-b9e6345beb42
+		summarizeBy: none
+		sourceColumn: canal_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column canal_libelle
+		dataType: string
+		lineageTag: 0c564a3b-2630-42f8-bdf1-a6c4ce3ed84c
+		summarizeBy: none
+		sourceColumn: canal_libelle
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw dim_canal_recrutement' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_canal_recrutement = RH_Data_Warehouse{[Schema="dw",Item="dim_canal_recrutement"]}[Data]
+				in
+				    dw_dim_canal_recrutement
+

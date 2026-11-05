@@ -1,0 +1,47 @@
+table 'dw dim_niveau_cours'
+	lineageTag: 9b094158-596d-4193-ae0e-956a0b4e4886
+
+	column niveau_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 00320c14-28c5-4600-99af-383a18a6b6d9
+		summarizeBy: none
+		sourceColumn: niveau_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column niveau_source
+		dataType: string
+		lineageTag: f30ae537-99c5-4bd1-9c9a-9e08f5be58dc
+		summarizeBy: none
+		sourceColumn: niveau_source
+
+		annotation SummarizationSetBy = Automatic
+
+	column niveau_libelle
+		dataType: string
+		lineageTag: 70824b76-4e2d-47de-97dc-1b4a4990ab54
+		summarizeBy: none
+		sourceColumn: niveau_libelle
+
+		annotation SummarizationSetBy = Automatic
+
+	column ordre_niveau
+		dataType: int64
+		formatString: 0
+		lineageTag: 839e4fd5-6d33-4ee1-94d3-8a14de17e83a
+		summarizeBy: none
+		sourceColumn: ordre_niveau
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw dim_niveau_cours' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_niveau_cours = RH_Data_Warehouse{[Schema="dw",Item="dim_niveau_cours"]}[Data]
+				in
+				    dw_dim_niveau_cours
+

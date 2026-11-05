@@ -1,0 +1,32 @@
+table 'dw dim_universite'
+	lineageTag: bb525106-a896-48ca-be90-88e3b5edbcde
+
+	column universite_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 1cf23594-b66d-4b7f-aa9e-a3850f1a7205
+		summarizeBy: none
+		sourceColumn: universite_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column universite
+		dataType: string
+		lineageTag: 2ad50ff9-2d20-44e9-805f-ef098042fd55
+		summarizeBy: none
+		sourceColumn: universite
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw dim_universite' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_universite = RH_Data_Warehouse{[Schema="dw",Item="dim_universite"]}[Data]
+				in
+				    dw_dim_universite
+
+	annotation PBI_ResultType = Table
+

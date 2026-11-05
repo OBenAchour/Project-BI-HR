@@ -1,0 +1,10 @@
+/// Manager de département : voit uniquement la Communication (DEP_COM01). PPTX slides 20 à 22.
+role 'Manager Communication'
+	modelPermission: read
+
+	tablePermission 'dw dim_departement' = 'dw dim_departement'[departement_bk] = "DEP_COM01"
+
+	tablePermission 'dw dim_employe' = 'dw dim_employe'[departement_sk] = LOOKUPVALUE('dw dim_departement'[departement_sk], 'dw dim_departement'[departement_bk], "DEP_COM01")
+
+	annotation PBI_Id = f23bda28907349d5bb018c8b9c1aab8a
+

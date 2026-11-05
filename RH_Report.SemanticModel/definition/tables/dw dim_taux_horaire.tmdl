@@ -1,0 +1,91 @@
+table 'dw dim_taux_horaire'
+	lineageTag: 55121fff-c982-4fb5-86ec-80c0c21f8d68
+
+	column taux_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: f3087039-6dba-43b0-aa65-f7754fcede9f
+		summarizeBy: none
+		sourceColumn: taux_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column code_taux
+		dataType: string
+		lineageTag: 7b35a4b9-b0e1-4d2e-8ec2-0f03799a7f24
+		summarizeBy: none
+		sourceColumn: code_taux
+
+		annotation SummarizationSetBy = Automatic
+
+	column libelle
+		dataType: string
+		lineageTag: b17abc6e-9ff5-4fb6-b902-046debbc0a34
+		summarizeBy: none
+		sourceColumn: libelle
+
+		annotation SummarizationSetBy = Automatic
+
+	column valeur
+		dataType: double
+		lineageTag: fb33d495-4991-45eb-b11f-4f7d181bf342
+		summarizeBy: sum
+		sourceColumn: valeur
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column est_courant
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 78ac8300-9e18-4697-b855-93b51d13f945
+		summarizeBy: none
+		sourceColumn: est_courant
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_debut
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 9a185174-4194-4cd5-a2a9-1b73e70fd334
+		summarizeBy: none
+		sourceColumn: date_debut
+
+		variation Variation
+			isDefault
+			relationship: e3495b47-ce37-4a62-86e8-563e55278521
+			defaultHierarchy: LocalDateTable_35222d7f-4cb3-4c48-bd9f-7d0e87b6835b.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column date_fin
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 94b2073c-b066-4430-b970-54a695ec88d1
+		summarizeBy: none
+		sourceColumn: date_fin
+
+		variation Variation
+			isDefault
+			relationship: ac72753f-1bfe-453a-b380-08afee0343a4
+			defaultHierarchy: LocalDateTable_8a27309d-b0fd-44cf-8987-c42651260683.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'dw dim_taux_horaire' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_taux_horaire = RH_Data_Warehouse{[Schema="dw",Item="dim_taux_horaire"]}[Data]
+				in
+				    dw_dim_taux_horaire
+
+	annotation PBI_ResultType = Table
+

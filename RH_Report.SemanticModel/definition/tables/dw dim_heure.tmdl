@@ -1,0 +1,57 @@
+table 'dw dim_heure'
+	lineageTag: 62e28949-cb82-4c0e-b662-e1f8fa1881cd
+
+	column heure_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 034029be-080b-4a3d-9f93-4f56708e7af3
+		summarizeBy: none
+		sourceColumn: heure_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column heure
+		dataType: int64
+		formatString: 0
+		lineageTag: 167a09be-ae2c-488a-a158-f3d53c13c53c
+		summarizeBy: none
+		sourceColumn: heure
+
+		annotation SummarizationSetBy = Automatic
+
+	column minute
+		dataType: int64
+		formatString: 0
+		lineageTag: 62c87135-5002-422e-b460-dcec85346121
+		summarizeBy: none
+		sourceColumn: minute
+
+		annotation SummarizationSetBy = Automatic
+
+	column tranche_15min
+		dataType: string
+		lineageTag: abf9e4e5-a319-41b6-a66a-e225fa1941a0
+		summarizeBy: none
+		sourceColumn: tranche_15min
+
+		annotation SummarizationSetBy = Automatic
+
+	column est_apres_8h30
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 22d59057-23d5-481a-b234-ac6732b6d24e
+		summarizeBy: none
+		sourceColumn: est_apres_8h30
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw dim_heure' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_heure = RH_Data_Warehouse{[Schema="dw",Item="dim_heure"]}[Data]
+				in
+				    dw_dim_heure
+

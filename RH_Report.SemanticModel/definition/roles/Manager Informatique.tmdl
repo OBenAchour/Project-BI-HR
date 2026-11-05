@@ -1,0 +1,10 @@
+/// Manager de département : voit uniquement l'Informatique (DEP_INF00). PPTX slides 20 à 22.
+role 'Manager Informatique'
+	modelPermission: read
+
+	tablePermission 'dw dim_departement' = 'dw dim_departement'[departement_bk] = "DEP_INF00"
+
+	tablePermission 'dw dim_employe' = 'dw dim_employe'[departement_sk] = LOOKUPVALUE('dw dim_departement'[departement_sk], 'dw dim_departement'[departement_bk], "DEP_INF00")
+
+	annotation PBI_Id = 3ce0997a3a2b4e5daea288a2fcffd65f
+

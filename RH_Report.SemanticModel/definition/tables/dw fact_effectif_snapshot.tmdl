@@ -1,0 +1,230 @@
+table 'dw fact_effectif_snapshot'
+	lineageTag: 04d50a74-adad-4a71-be37-abdb492cd755
+
+	column date_snapshot_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: f4f002b4-9abb-49ef-b1ac-c5e2276ab023
+		summarizeBy: sum
+		sourceColumn: date_snapshot_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column employe_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: cec3e098-b1d7-403a-b010-0b54bded5cb1
+		summarizeBy: sum
+		sourceColumn: employe_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column departement_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: b32fad4b-3cc3-4338-9f70-fb40e0e2dbf8
+		summarizeBy: none
+		sourceColumn: departement_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column contrat_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 27e5057f-6c90-49bc-9624-b8c95c76546c
+		summarizeBy: none
+		sourceColumn: contrat_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column poste_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 4f40f442-d2aa-4eb0-830d-4fa80198f677
+		summarizeBy: none
+		sourceColumn: poste_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column type_conge_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: b128ca17-02c4-4e8e-8c41-b756a8ea9800
+		summarizeBy: none
+		sourceColumn: type_conge_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_embauche_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 259be665-468f-4362-be4c-5030c3c6addf
+		summarizeBy: sum
+		sourceColumn: date_embauche_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_debut_contrat_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 3771f845-d5bd-46e8-b2e3-490f4425b9b9
+		summarizeBy: none
+		sourceColumn: date_debut_contrat_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_fin_contrat_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 153fe7ea-e109-483d-b7b8-92a4546846d4
+		summarizeBy: sum
+		sourceColumn: date_fin_contrat_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column taux_vacataire_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: d969c6d7-754b-45d4-a834-0fb8254f7b8d
+		summarizeBy: sum
+		sourceColumn: taux_vacataire_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column taux_hs_admin_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 1cff4d8d-511f-4fff-b63c-97e3e6ad9cea
+		summarizeBy: none
+		sourceColumn: taux_hs_admin_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column salaire_mensuel
+		dataType: double
+		lineageTag: 78f8b45b-0a28-450b-b3f0-3ba22fcaf9c9
+		summarizeBy: sum
+		sourceColumn: salaire_mensuel
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column heures_payees
+		dataType: double
+		lineageTag: 59996602-d649-4a2b-8e41-89c992f86417
+		summarizeBy: sum
+		sourceColumn: heures_payees
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column heures_sup_admin
+		dataType: double
+		lineageTag: 1db8c497-d5c5-4aa4-a725-7f7ceefaaf84
+		summarizeBy: sum
+		sourceColumn: heures_sup_admin
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cout_vacataire
+		dataType: double
+		lineageTag: 45d86455-b7a2-405a-a6c1-7881dcd00f54
+		summarizeBy: sum
+		sourceColumn: cout_vacataire
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cout_hs_admin
+		dataType: double
+		lineageTag: 56c9e3a7-3b2b-4c18-9ca8-85ae2a77063d
+		summarizeBy: sum
+		sourceColumn: cout_hs_admin
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cout_total_estime
+		dataType: double
+		lineageTag: eaca56db-4309-401d-baf4-3322d9af56ae
+		summarizeBy: sum
+		sourceColumn: cout_total_estime
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column conges_consommes
+		dataType: double
+		lineageTag: e3191dad-bc58-4734-9834-0375cca80cfc
+		summarizeBy: sum
+		sourceColumn: conges_consommes
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column solde_conges
+		dataType: double
+		lineageTag: 4082f49b-a6d0-426a-9681-1516d0ef9d92
+		summarizeBy: sum
+		sourceColumn: solde_conges
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column annees_experience
+		dataType: double
+		lineageTag: bbf75a01-b451-43fc-bb5a-d0d23aadc706
+		summarizeBy: sum
+		sourceColumn: annees_experience
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column anciennete_jours
+		dataType: int64
+		formatString: 0
+		lineageTag: e4be35be-4629-4ad0-aadb-7cee476b8df2
+		summarizeBy: sum
+		sourceColumn: anciennete_jours
+
+		annotation SummarizationSetBy = Automatic
+
+	column nb_employes
+		dataType: int64
+		formatString: 0
+		lineageTag: 1102a4e4-3e01-4235-88a9-705ab05f5064
+		summarizeBy: sum
+		sourceColumn: nb_employes
+
+		annotation SummarizationSetBy = Automatic
+
+	column source_fichier
+		dataType: string
+		lineageTag: 04e33bff-eda9-46b5-a80f-d3121bd86072
+		summarizeBy: none
+		sourceColumn: source_fichier
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw fact_effectif_snapshot' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_fact_effectif_snapshot = RH_Data_Warehouse{[Schema="dw",Item="fact_effectif_snapshot"]}[Data]
+				in
+				    dw_fact_effectif_snapshot
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,40 @@
+table 'dw dim_type_conge'
+	lineageTag: 483a117f-b78e-45d5-b4c0-5659561c1b81
+
+	column type_conge_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 6e22ee30-eeaa-4d39-981c-d304a27cc3e9
+		summarizeBy: none
+		sourceColumn: type_conge_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column type_conge_code
+		dataType: string
+		lineageTag: a11cd27a-1cc3-41c6-a48c-2a55e15472e0
+		summarizeBy: none
+		sourceColumn: type_conge_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column type_conge_libelle
+		dataType: string
+		lineageTag: 209d837a-7ae2-4318-a328-5f5c0eb74864
+		summarizeBy: none
+		sourceColumn: type_conge_libelle
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw dim_type_conge' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_type_conge = RH_Data_Warehouse{[Schema="dw",Item="dim_type_conge"]}[Data]
+				in
+				    dw_dim_type_conge
+
+	annotation PBI_ResultType = Table
+

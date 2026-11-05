@@ -1,0 +1,60 @@
+table 'dw fact_inscription_formation'
+	lineageTag: a7900933-13ac-4a49-9088-12b9d359827f
+
+	column date_snapshot_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 17fec15a-38a1-4e01-8a32-6a35b3856bbe
+		summarizeBy: none
+		sourceColumn: date_snapshot_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column employe_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 9f19a39a-57b6-471a-b0ff-79684183061e
+		summarizeBy: sum
+		sourceColumn: employe_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column cours_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 08293f4f-30f4-42bc-a153-5f731e23bafd
+		summarizeBy: none
+		sourceColumn: cours_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column departement_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 13312619-bb15-4f29-be16-a1ead860824f
+		summarizeBy: none
+		sourceColumn: departement_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column nb_inscriptions
+		dataType: int64
+		formatString: 0
+		lineageTag: 17ad6882-9f87-42bc-84c6-25611881b7f2
+		summarizeBy: sum
+		sourceColumn: nb_inscriptions
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw fact_inscription_formation' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_fact_inscription_formation = RH_Data_Warehouse{[Schema="dw",Item="fact_inscription_formation"]}[Data]
+				in
+				    dw_fact_inscription_formation
+
+	annotation PBI_ResultType = Table
+

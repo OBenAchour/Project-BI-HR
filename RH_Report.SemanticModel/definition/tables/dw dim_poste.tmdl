@@ -1,0 +1,57 @@
+table 'dw dim_poste'
+	lineageTag: 0296dcbd-77b7-4598-a983-63e729fd7246
+
+	column poste_sk
+		dataType: int64
+		formatString: 0
+		lineageTag: 666fa584-6e86-47bc-ab21-5f8a03019bd7
+		summarizeBy: none
+		sourceColumn: poste_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column intitule_poste
+		dataType: string
+		lineageTag: 83e66f5b-e234-45bc-b031-2d6684e76629
+		summarizeBy: none
+		sourceColumn: intitule_poste
+
+		annotation SummarizationSetBy = Automatic
+
+	column categorie_poste
+		dataType: string
+		lineageTag: 9f71fa08-d1da-4f41-b0b7-76efe9565ea3
+		summarizeBy: none
+		sourceColumn: categorie_poste
+
+		annotation SummarizationSetBy = Automatic
+
+	column rang
+		dataType: int64
+		formatString: 0
+		lineageTag: a626999a-95cb-4d9e-b79f-19a06d4d0807
+		summarizeBy: none
+		sourceColumn: rang
+
+		annotation SummarizationSetBy = Automatic
+
+	column activite
+		dataType: string
+		lineageTag: cd6d13e4-f00c-4ce8-9b91-65218e5320dd
+		summarizeBy: none
+		sourceColumn: activite
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dw dim_poste' = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("tcp:100.102.67.72,61301"),
+				    RH_Data_Warehouse = Source{[Name="RH_Data_Warehouse"]}[Data],
+				    dw_dim_poste = RH_Data_Warehouse{[Schema="dw",Item="dim_poste"]}[Data]
+				in
+				    dw_dim_poste
+
+	annotation PBI_ResultType = Table
+
