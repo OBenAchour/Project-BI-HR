@@ -22,6 +22,8 @@
 | `sql/staging_area.sql` | Creates the 7 `stg` tables: file columns only, typed as SSIS reads them |
 | `sql/data_warehouse.sql` | Creates the DW tables in `RH_Data_Warehouse` (17 tables; rows without a match are dropped at load time) |
 | `Project BI HR/` | SSIS project (Visual Studio 2022) |
+| `RH_Report.pbip` | Power BI report (Power BI project format): a home page, one page per objective OM1–OM6, 4 department-manager roles |
+| `powerbi/scripts/` | Scripts that generate the report pages and check the measures |
 | `docs/CONCEPTION_DW.md` | DW design: model, bus matrix, every fact and dimension |
 | `docs/GUIDE_RECONSTRUCTION_DW.md` | Step-by-step guide to the DW load in SSDT (components, expressions, table fiches) |
 | `docs/` | Also: setup guide + team conventions |
@@ -48,6 +50,16 @@ The tables are created in `RH_Data_Warehouse` and loaded by `Load_DW.dtsx` (4 co
 - **Visual SSIS components** — SQL is used only to create the tables, generate the date and time rows, and update existing rows of the 2 history-tracked (SCD 2) dimensions
 - **Nothing is ever deleted:** no table or row is removed from dimensions or facts; a reload only adds missing rows
 - **One Lookup per link, plus one:** each load has one Lookup per foreign key, then a last Lookup on the table itself whose *No Match* output feeds the destination
+
+## The Power BI report
+
+Open `RH_Report.pbip` in Power BI Desktop, sign in to `RH_Data_Warehouse` with the `BI` login, then click **Refresh**: the imported data is not in Git.
+
+- **7 pages:** home page with 6 headline KPIs, then one page per business objective (OM1 headcount, OM2 costs, OM3 time worked, OM4 training, OM5 leave, OM6 contract end dates)
+- **57 measures** in the `Mesures` table, one folder per objective; headcount and cost measures read the latest snapshot only
+- **Row-level security:** 4 roles, `Manager Informatique`, `Manager Télécom`, `Manager Communication`, `Manager Administration`; each one sees its own department only. Test them with *Modeling → View as*
+- **No personal data:** name, e-mail and addresses of `dim_employe` are removed in Power Query
+- **Model:** facts → `dim_employe` active, `dim_employe` → `dim_departement` inactive (avoids two paths), snapshot date active on `fact_effectif_snapshot`
 
 ## Tech stack
 
