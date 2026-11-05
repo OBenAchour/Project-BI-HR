@@ -13,6 +13,7 @@ annotation PBI_QueryOrder = ["dw dim_canal_recrutement","dw dim_contrat","dw dim
 annotation PBI_ProTooling = ["DevMode"]
 
 ref table Mesures
+ref table Acteurs
 ref table 'dw dim_canal_recrutement'
 ref table 'dw dim_contrat'
 ref table 'dw dim_cours'
@@ -37,6 +38,12 @@ ref table 'dw fact_effectif_snapshot'
 ref table 'dw fact_inscription_formation'
 ref table 'dw fact_pointage'
 
+ref role 'Direction générale'
+ref role DRH
+ref role 'Contrôle de gestion et paie'
+ref role 'Resp. administration du personnel'
+ref role 'Resp. formation'
+ref role 'Resp. recrutement'
 ref role 'Manager Informatique'
 ref role 'Manager Télécom'
 ref role 'Manager Communication'

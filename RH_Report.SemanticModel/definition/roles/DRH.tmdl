@@ -1,0 +1,8 @@
+/// DRH : voit uniquement les pages « DRH · 1/2 » et « DRH · 2/2 », tous départements. PPTX slides 20 à 22.
+role DRH
+	modelPermission: read
+
+	tablePermission Acteurs = Acteurs[acteur] = "DRH"
+
+	annotation PBI_Id = 4afe12a9058f44f6b22a2ca58b9e1c46
+

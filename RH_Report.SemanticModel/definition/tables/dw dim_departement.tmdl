@@ -44,6 +44,14 @@ table 'dw dim_departement'
 
 		annotation SummarizationSetBy = Automatic
 
+	/// Libellé affiché dans le rapport ; la colonne departement garde la valeur de la source
+	column departement_libelle = SWITCH('dw dim_departement'[departement_bk], "DEP_INF00", "Informatique", "DEP_TEL00", "Télécom", "DEP_COM01", "Communication", "DEP_ADMIN00", "Administration", 'dw dim_departement'[departement])
+		dataType: string
+		lineageTag: c915ab78-ca9d-4ff3-8382-9e1763a1b614
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
 	partition 'dw dim_departement' = m
 		mode: import
 		source =

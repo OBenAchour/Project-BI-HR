@@ -1,0 +1,8 @@
+/// Resp. recrutement : voit uniquement la page « Recrutement », tous départements. PPTX slides 20 à 22.
+role 'Resp. recrutement'
+	modelPermission: read
+
+	tablePermission Acteurs = Acteurs[acteur] = "Resp. recrutement"
+
+	annotation PBI_Id = 9bea11c6e90d4c38ab7e9cf20d3ec5bc
+

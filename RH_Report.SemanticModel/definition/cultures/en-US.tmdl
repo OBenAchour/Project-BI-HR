@@ -117,19 +117,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "diplome_libelle"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Diplôme": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "dw_dim_pole.pole_libelle": {
 			      "Definition": {
@@ -254,6 +242,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.9
 			          }
+			        },
+			        {
+			          "Dernier congé": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -288,7 +286,7 @@ cultureInfo en-US
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "% heures sup": {
+			          "% HS admin": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -327,19 +325,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "Écart-type heures par jour"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Écart-type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "mesures.taux_de_retard": {
 			      "Definition": {
@@ -393,7 +379,7 @@ cultureInfo en-US
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "Congés pris (moyenne)": {
+			          "Congés pris": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -435,7 +421,7 @@ cultureInfo en-US
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "Taux d'anomalies": {
+			          "Anomalies": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -445,7 +431,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "Taux anomalies": {
+			          "Taux d'anomalies": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -551,6 +537,184 @@ cultureInfo en-US
 			      "Terms": [
 			        {
 			          "Échéances 90 j": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "mesures.taux_doccupation": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Mesures",
+			          "ConceptualProperty": "Taux d'occupation"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Occupation": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "mesures.heures_sup_h": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Mesures",
+			          "ConceptualProperty": "Heures sup (h)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Heures sup pointées (h)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "HS pointées (h)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "mesures.coût_heures_sup_pointées": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Mesures",
+			          "ConceptualProperty": "Coût heures sup pointées"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Coût HS pointées": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "mesures.date_de_fin_de_contrat": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Mesures",
+			          "ConceptualProperty": "Date de fin de contrat"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Fin de contrat": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "mesures.anomalies_de_contrat_détail": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Mesures",
+			          "ConceptualProperty": "Anomalies de contrat (détail)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Anomalies": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "mesures.solde_moyen_jours": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Mesures",
+			          "ConceptualProperty": "Solde moyen (jours)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Solde": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dw_dim_contrat.statut_emploi": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dw dim_contrat",
+			          "ConceptualProperty": "statut_emploi"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Statut": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dw_dim_employe.employe_bk": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dw dim_employe",
+			          "ConceptualProperty": "employe_bk"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Matricule": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",

@@ -1,6 +1,8 @@
-/// Manager de département : voit uniquement le Télécom (DEP_TEL00). PPTX slides 20 à 22.
+/// Managers de département : voit uniquement le Télécom (DEP_TEL00) et la page « Managers de département ». PPTX slides 20 à 22.
 role 'Manager Télécom'
 	modelPermission: read
+
+	tablePermission Acteurs = Acteurs[acteur] = "Managers de département"
 
 	tablePermission 'dw dim_departement' = 'dw dim_departement'[departement_bk] = "DEP_TEL00"
 
