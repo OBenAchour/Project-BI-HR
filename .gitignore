@@ -12,3 +12,8 @@ obj/
 __pycache__/
 .ipynb_checkpoints/
 *.pkl
+
+# Power BI : données importées et réglages propres à chaque poste
+*.pbix
+**/.pbi/cache.abf
+**/.pbi/localSettings.json
