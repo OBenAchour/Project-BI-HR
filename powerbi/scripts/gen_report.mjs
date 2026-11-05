@@ -1,8 +1,10 @@
-// Génère les pages PBIR du rapport RH : accueil + une page par objectif métier (OM1 à OM6).
+// Génère les pages PBIR du rapport RH : un accueil personnalisé selon le rôle + une page masquée par acteur (PPTX slides 20 à 22).
+// Sécurité par page : chaque page d'acteur filtre Acteurs[page] sur elle-même ; les mesures renvoient vide si la page n'appartient pas au rôle.
 import { writeFileSync, mkdirSync, readFileSync, existsSync, rmSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { measures } from './measures.mjs';
+import { acteur } from './acteurs.mjs';
 
 // Le script vit dans powerbi/scripts : le rapport est deux dossiers plus haut
 const REPORT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'RH_Report.Report');
@@ -17,7 +19,6 @@ const C = {
   navy: '#0C3549', ink: '#1F2A44', muted: '#5B6478', line: '#E3E8F0', bg: '#F4F6FA', white: '#FFFFFF',
   teal: '#1B998B', amber: '#F2B84B', coral: '#ED7373', green: '#44C088', blue: '#2E86DE', violet: '#7B6CD9', slate: '#8A94A6',
 };
-const OM_COLORS = { OM1: C.blue, OM2: C.teal, OM3: C.violet, OM4: C.amber, OM5: C.green, OM6: C.coral };
 
 // ---------- briques JSON
 const lit = (v) => ({ expr: { Literal: { Value: v } } });
@@ -40,7 +41,7 @@ const col = (entity, prop, displayName) => {
   if (displayName) p.displayName = displayName;
   return p;
 };
-const DEP = () => col('dw dim_departement', 'departement', 'Département');
+const DEP = () => col('dw dim_departement', 'departement_libelle', 'Département');
 
 const container = (title, { bg = C.white, border = true, shadow = true } = {}) => {
   const o = {
@@ -54,7 +55,7 @@ const container = (title, { bg = C.white, border = true, shadow = true } = {}) =
 };
 
 const axes = (extra = {}) => ({
-  categoryAxis: [{ properties: { fontSize: n(9), labelColor: color(C.muted), showAxisTitle: b(false), ...(extra.categorical ? { axisType: s('Categorical') } : {}) } }],
+  categoryAxis: [{ properties: { fontSize: n(9), labelColor: color(C.muted), showAxisTitle: b(false), maxMarginFactor: L(45), ...(extra.categorical ? { axisType: s('Categorical') } : {}) } }],
   valueAxis: [{ properties: { show: b(extra.valueAxis ?? false), fontSize: n(9), labelColor: color(C.muted), showAxisTitle: b(false), gridlineShow: b(false) } }],
   // Fond blanc sous l'étiquette : lisible dans une barre foncée comme à côté.
   // Barres empilées : l'étiquette est toujours dans la barre, donc texte blanc sans fond.
@@ -146,27 +147,26 @@ const table = (name, pos, title, values, sort = null) => {
   });
 };
 
-const slicerDep = (name, pos) => visual(name, pos, {
-  visualType: 'slicer',
-  query: { queryState: { Values: { projections: [DEP()] } } },
+// Carte de texte : affiche une mesure texte, sans fond ni libellé (bandeaux dynamiques, accueil)
+const textCard = (name, pos, measure, { size = 12, colorHex = C.ink, bold = false } = {}) => visual(name, pos, {
+  visualType: 'card',
+  query: { queryState: { Values: { projections: [mea(measure)] } } },
   objects: {
-    data: [{ properties: { mode: s('Dropdown') } }],
-    header: [{ properties: { show: b(true), text: s('Département'), fontColor: color(C.muted), textSize: n(9) } }],
-    items: [{ properties: { textSize: n(10), fontColor: color(C.ink) } }],
+    labels: [{ properties: { color: color(colorHex), fontSize: n(size), fontFamily: s(bold ? 'Segoe UI Semibold' : 'Segoe UI') } }],
+    categoryLabels: [{ properties: { show: b(false) } }],
   },
-  visualContainerObjects: { ...container(null, { shadow: false }), padding: [{ properties: { top: n(2), bottom: n(2), left: n(8), right: n(8) } }] },
-});
-
-const navigator = (name, pos) => visual(name, pos, {
-  visualType: 'pageNavigator',
   visualContainerObjects: {
     background: [{ properties: { show: b(false) } }],
+    border: [{ properties: { show: b(false) } }],
+    dropShadow: [{ properties: { show: b(false) } }],
     title: [{ properties: { show: b(false) } }],
+    padding: [{ properties: { top: n(0), bottom: n(0), left: n(0), right: n(0) } }],
   },
 });
 
-// Bouton invisible posé sur une tuile (le texte et la couleur sont portés par des zones de texte en dessous) :
+// Bouton invisible posé sur une zone de texte (le texte et la couleur sont portés par la zone de texte en dessous) :
 // interrupteurs « show » sans sélecteur, propriétés d'état sous { id: 'default' } / { id: 'hover' }.
+// target : identifiant de page (destination fixe) ou { measure } (destination = nom affiché renvoyé par la mesure).
 const button = (name, pos, target) => ({
   ...visual(name, pos, {
     visualType: 'actionButton',
@@ -181,221 +181,278 @@ const button = (name, pos, target) => ({
       ],
     },
     visualContainerObjects: {
-      visualLink: [{ properties: { show: b(true), type: s('PageNavigation'), navigationSection: s(target) } }],
+      visualLink: [{ properties: {
+        show: b(true), type: s('PageNavigation'),
+        navigationSection: typeof target === 'string' ? s(target)
+          : { expr: { Measure: { Expression: { SourceRef: { Entity: M } }, Property: target.measure } } },
+      } }],
     },
   }),
   howCreated: 'InsertVisualButton',
 });
 
-// ---------- gabarit commun des pages OM
-const W = 1280, H = 720, MX = 16, GAP = 12;
-const header = (om, title, question) => [
-  textbox('v00Entete', [0, 0, W, 56], [
-    para(run(`${om} · `, { size: 16, colorHex: OM_COLORS[om] || C.amber, bold: true }), run(title, { size: 16, colorHex: C.white, bold: true }),
-      run(`   ${question}`, { size: 10, colorHex: '#C9D6E3' })),
-  ], { bg: C.navy, radius: 0 }),
-  navigator('v01Navigation', [MX, 62, 960, 38]),
-  slicerDep('v02FiltreDepartement', [W - MX - 260, 58, 260, 50]),
+// Pastille cliquable : zone de texte colorée + bouton invisible au-dessus
+const pill = (name, pos, label, target, { bg = C.white, fg = C.navy, size = 10 } = {}) => [
+  textbox(`${name}Texte`, pos, [para(run(label, { size, colorHex: fg, bold: true }))], { bg, radius: 18 }),
+  button(`${name}Lien`, pos, target),
 ];
+
+// ---------- gabarit commun des pages acteurs
+const W = 1280, H = 720, MX = 16, GAP = 12;
+const ACCUEIL = 'pg01Accueil';
+// Bandeau : acteur, ce qu'il peut décider, sa vue ; puis retour à l'accueil, périmètre et message d'accès
+const header = (a, { subtitle = null, extra = [] } = {}) => [
+  textbox('v00Entete', [0, 0, W, 56], [
+    para(run(a.acteur, { size: 16, colorHex: C.white, bold: true }),
+      ...(subtitle ? [run(`   ${subtitle}`, { size: 12, colorHex: '#C9D6E3', bold: true })] : [])),
+    para(run(`Vous pouvez ${a.decide}  ·  ${a.vue}`, { size: 9, colorHex: '#C9D6E3' })),
+  ], { bg: C.navy, radius: 0 }),
+  ...pill('v01Accueil', [MX, 66, 120, 34], '←  Accueil', ACCUEIL),
+  ...extra,
+  textCard('v03Perimetre', [MX + 120 + GAP + (extra.length ? 172 : 0), 70, 330, 28], 'Périmètre', { size: 10, colorHex: C.muted, bold: true }),
+  textCard('v04MessageAcces', [W - MX - 600, 68, 600, 30], 'Message accès', { size: 10, colorHex: C.coral, bold: true }),
+];
+// Cartes KPI : couleur portée par une mesure (blanc sur blanc quand la page n'appartient pas au rôle)
 const kpiRow = (items, y = 112, h = 88) => {
   const w = (W - 2 * MX - (items.length - 1) * GAP) / items.length;
-  return items.map((it, i) => card(`v1${i}Kpi`, [Math.round(MX + i * (w + GAP)), y, Math.round(w), h], it.m, it));
+  return items.map((it, i) => card(`v1${i}Kpi`, [Math.round(MX + i * (w + GAP)), y, Math.round(w), h], it.m,
+    { ...it, colorMeasure: it.colorMeasure || (it.alert ? 'Couleur KPI alerte' : 'Couleur KPI') }));
 };
-const ROW1 = [212, 236], ROW2 = [460, 228];
+const ROW1 = [212, 236], ROW2 = [460, 222];
 const cols = (k, widths = null) => {
   const ws = widths || Array(k).fill((W - 2 * MX - (k - 1) * GAP) / k);
   let x = MX;
   return ws.map(w => { const r = [Math.round(x), Math.round(w)]; x += w + GAP; return r; });
 };
 const at = (c, row) => [c[0], row[0], c[1], row[1]];
-const note = (text) => textbox('v99Note', [MX, 692, W - 2 * MX, 26], [para(run(text, { size: 8, colorHex: C.muted }))]);
+const note = (text) => textbox('v99Note', [MX, 686, W - 2 * MX, 28], [para(run(text, { size: 8, colorHex: C.muted }))]);
+
+// ---------- visuels réutilisés d'une page acteur à l'autre
+const V = {
+  effectifCapacite: (name, pos) => chart(name, pos, 'clusteredBarChart', 'Effectif et capacité par département',
+    { cat: DEP(), y: [mea('Effectif'), mea('Capacité')], colors: [C.navy, '#C9D6E3'], sort: mea('Effectif'), opts: { legend: true } }),
+  occupation: (name, pos) => chart(name, pos, 'clusteredBarChart', "Taux d'occupation par département",
+    { cat: DEP(), y: [mea("Taux d'occupation")], colorMeasure: 'Couleur occupation', sort: mea("Taux d'occupation") }),
+  contrats: (name, pos) => donut(name, pos, 'Répartition des contrats', col('dw dim_contrat', 'type_contrat', 'Contrat'), mea('Effectif')),
+  entreesAnnee: (name, pos) => chart(name, pos, 'clusteredColumnChart', "Entrées par année d'embauche",
+    { cat: col('dw dim_date', 'annee', 'Année'), y: [mea('Entrées')], colors: [C.blue], opts: { categorical: true } }),
+  canal: (name, pos) => chart(name, pos, 'clusteredBarChart', 'Effectif par canal de recrutement',
+    { cat: col('dw dim_canal_recrutement', 'canal_libelle', 'Canal'), y: [mea('Effectif')], colors: [C.teal], sort: mea('Effectif') }),
+  coutDepartement: (name, pos) => chart(name, pos, 'barChart', 'Coût mensuel estimé par département',
+    { cat: DEP(), y: [mea('Masse salariale'), mea('Coût vacataires'), mea('Coût heures sup admin')], colors: [C.navy, C.teal, C.amber], opts: { legend: true, units: 0, precision: 1 } }),
+  salaireGenre: (name, pos) => chart(name, pos, 'clusteredBarChart', 'Salaire médian femmes / hommes par département',
+    { cat: DEP(), y: [mea('Salaire médian femmes'), mea('Salaire médian hommes')], colors: [C.coral, C.blue], opts: { legend: true } }),
+  salaireContrat: (name, pos) => chart(name, pos, 'clusteredBarChart', 'Salaire médian par contrat',
+    { cat: col('dw dim_contrat', 'type_contrat', 'Contrat'), y: [mea('Salaire médian')], colors: [C.navy], sort: mea('Salaire médian') }),
+  heuresMois: (name, pos) => chart(name, pos, 'lineChart', 'Heures travaillées par jour, par mois et par pôle',
+    { cat: col('dw dim_date', 'annee_mois', 'Mois'), y: [mea('Heures par jour')], series: col('dw dim_pole', 'pole_libelle', 'Pôle'), opts: { legend: true, valueAxis: true, labels: false } }),
+  plus8h: (name, pos) => chart(name, pos, 'clusteredBarChart', '% de jours au-delà de 8 h',
+    { cat: DEP(), y: [mea('% jours > 8 h')], colors: [C.violet], sort: mea('% jours > 8 h') }),
+  arrivees: (name, pos) => chart(name, pos, 'clusteredColumnChart', 'Arrivées par tranche de 15 minutes',
+    { cat: col('dw dim_heure', 'tranche_15min', 'Tranche'), y: [mea('Jours pointés')], colors: [C.navy] }),
+  niveaux: (name, pos) => donut(name, pos, 'Inscriptions par niveau de difficulté', col('dw dim_niveau_cours', 'niveau_libelle', 'Niveau'), mea('Inscriptions')),
+  couverture: (name, pos) => chart(name, pos, 'clusteredBarChart', 'Couverture formation (cible ≥ 95 %)',
+    { cat: DEP(), y: [mea('Couverture formation')], colorMeasure: 'Couleur couverture', sort: mea('Couverture formation') }),
+  typeConge: (name, pos) => chart(name, pos, 'clusteredBarChart', 'Dernier congé pris (normalisé)',
+    { cat: col('dw dim_type_conge', 'type_conge_libelle', 'Type de congé'), y: [mea('Effectif')], colors: [C.green], sort: mea('Effectif') }),
+  typeParDep: (name, pos) => chart(name, pos, 'hundredPercentStackedBarChart', 'Dernier congé par département',
+    { cat: DEP(), y: [mea('Effectif')], series: col('dw dim_type_conge', 'type_conge_libelle', 'Type de congé'), opts: { legend: true, stacked: true } }),
+  consoSolde: (name, pos) => chart(name, pos, 'clusteredBarChart', 'Congés consommés et solde moyen (jours)',
+    { cat: DEP(), y: [mea('Congés consommés (moyenne)'), mea('Solde moyen (jours)')], colors: [C.green, '#C9D6E3'], opts: { legend: true } }),
+  echeancesMois: (name, pos) => chart(name, pos, 'clusteredColumnChart', 'Échéances de contrat par mois en 2023',
+    { cat: col('dw dim_date', 'annee_mois', 'Mois'), y: [mea('Échéances en 2023')], colors: [C.coral] }),
+  anomalies: (name, pos) => chart(name, pos, 'clusteredColumnChart', 'Anomalies de contrat (cible : 0)',
+    { y: [mea('CDI avec date de fin', 'CDI datés'), mea('Vacataires en CDI', 'Vacataires CDI'), mea('Contrats échus avant 2023', 'Échus'), mea('Contrats courts sans date de fin', 'Courts sans fin')],
+      colors: [C.coral, C.amber, C.violet, C.slate], opts: { legend: true } }),
+};
 
 // ---------- pages
+// filtre : nom affiché de la page dans la table Acteurs (sécurité par page) ; null pour l'accueil
 const pages = [];
-const page = (name, displayName, visuals) => pages.push({ name, displayName, visuals });
+const page = (name, displayName, visuals, { hidden = true, filtre = displayName } = {}) => pages.push({ name, displayName, visuals, hidden, filtre });
+const pageOf = (a, i = 0) => a.pages[i];
 
-// Accueil
+// Accueil : bienvenue personnalisée selon le rôle et un seul bouton vers la page de l'acteur
 {
   z = 1000;
-  const tiles = [
-    ['OM1', 'pg02Effectif', 'Aligner effectif et capacité', "L'effectif colle-t-il à la capacité des départements ?", "Taux d'occupation · contrats courts · ancienneté · entrées"],
-    ['OM2', 'pg03Couts', 'Maîtriser coûts et équité', 'La masse salariale est-elle maîtrisée et équitable ?', 'Coût mensuel · salaire médian · écart H/F'],
-    ['OM3', 'pg04Temps', 'Mesurer le temps travaillé', 'Quel temps est réellement travaillé ?', 'Heures par jour · retards · jours > 8 h · régularité'],
-    ['OM4', 'pg05Formation', 'Renforcer les compétences', 'Les compétences se développent-elles ?', 'Couverture · formations par employé · niveaux'],
-    ['OM5', 'pg06Conges', 'Maîtriser les congés', 'Les congés sont-ils maîtrisés ?', 'Consommation · solde · types de congé'],
-    ['OM6', 'pg07Echeances', 'Anticiper les échéances', 'Quelles échéances anticiper, sur quelles données ?', 'Échéances 30 / 90 / 180 j · anomalies de contrat'],
-  ];
-  const v = [
+  const BW = 380, BX = Math.round((W - BW) / 2);
+  page(ACCUEIL, 'Accueil', [
     textbox('v00Hero', [0, 0, W, 112], [
       para(run('PILOTAGE RH PAR LA DONNÉE', { size: 9, colorHex: C.amber, bold: true })),
       para(run('Tableau de bord RH', { size: 24, colorHex: C.white, bold: true })),
-      para(run('Effectifs, coûts, assiduité, formation, congés et échéances · 4 départements · source : RH_Data_Warehouse', { size: 10, colorHex: '#C9D6E3' })),
+      para(run('Un seul rapport : chaque rôle ne voit que son tableau de bord · source : RH_Data_Warehouse', { size: 10, colorHex: '#C9D6E3' })),
     ], { bg: C.navy, radius: 0 }),
-    slicerDep('v01FiltreDepartement', [W - MX - 260, 30, 260, 52]),
-    ...kpiRow([
-      { m: 'Effectif' }, { m: "Taux d'occupation", colorMeasure: 'Couleur occupation' }, { m: 'Coût total estimé', units: 0, precision: 1 },
-      { m: 'Heures par jour' }, { m: 'Couverture formation', colorMeasure: 'Couleur couverture' }, { m: 'Échéances à 90 jours', accent: C.coral },
-    ], 128, 92),
-  ];
-  const tw = (W - 2 * MX - 2 * GAP) / 3;
-  tiles.forEach(([om, target, title, question, kpis], i) => {
-    const x = Math.round(MX + (i % 3) * (tw + GAP));
-    const y = 236 + Math.floor(i / 3) * 142;
-    v.push(textbox(`v2${i}Titre${om}`, [x, y, Math.round(tw), 48], [
-      para(run(`${om} · ${title}`, { size: 13, colorHex: C.white, bold: true }), run('   →', { size: 13, colorHex: C.white, bold: true })),
-    ], { bg: OM_COLORS[om] }));
-    v.push(textbox(`v3${i}Texte${om}`, [x, y + 52, Math.round(tw), 78], [
-      para(run(question, { size: 10, colorHex: C.ink, bold: true })),
-      para(run(kpis, { size: 9, colorHex: C.muted })),
-      para(run('Cliquer pour ouvrir la page', { size: 8, colorHex: OM_COLORS[om] })),
-    ], { bg: C.white }));
-  });
-  // Boutons posés après les zones de texte : ils sont au-dessus (z plus grand) et reçoivent le clic
-  tiles.forEach(([om, target], i) => {
-    const x = Math.round(MX + (i % 3) * (tw + GAP));
-    const y = 236 + Math.floor(i / 3) * 142;
-    v.push(button(`v5${i}Lien${om}`, [x, y, Math.round(tw), 130], target));
-  });
-  const [c1, c2] = cols(2, [736, W - 2 * MX - GAP - 736]);
-  v.push(chart('v40EffectifCapacite', [c1[0], 526, c1[1], 186], 'clusteredBarChart', 'Effectif et capacité par département',
-    { cat: DEP(), y: [mea('Effectif'), mea('Capacité')], colors: [C.navy, '#C9D6E3'], sort: mea('Effectif'), opts: { legend: true } }));
-  v.push(textbox('v41ASavoir', [c2[0], 526, c2[1], 186], [
-    para(run('À savoir avant de lire', { size: 11, colorHex: C.ink, bold: true })),
-    para(run('• Données synthétiques : retenir les écarts structurels, pas les signaux faibles.', { size: 9, colorHex: C.muted })),
-    para(run('• Une seule photo RH à la fois : pas de tendance sur l’effectif.', { size: 9, colorHex: C.muted })),
-    para(run('• Pointages : techniques janvier–juin 2023, administratifs janvier–mars 2023.', { size: 9, colorHex: C.muted })),
-    para(run('• Date de référence : 1er janvier 2023. Seuil de retard 8 h 30 à valider.', { size: 9, colorHex: C.muted })),
-    para(run('• Managers : vue limitée à leur département (sécurité par ligne).', { size: 9, colorHex: C.muted })),
-  ], { bg: C.white }));
-  page('pg01Accueil', 'Accueil', v);
+    textbox('v10Panneau', [MX + 140, 140, W - 2 * MX - 280, 300], [para(run(' ', { size: 8 }))], { bg: C.white, radius: 16 }),
+    textCard('v11Titre', [MX + 160, 160, W - 2 * MX - 320, 56], 'Accueil titre', { size: 26, colorHex: C.navy, bold: true }),
+    textCard('v12Decision', [MX + 160, 226, W - 2 * MX - 320, 36], 'Accueil décision', { size: 14, colorHex: C.ink }),
+    textCard('v13Vue', [MX + 160, 266, W - 2 * MX - 320, 30], 'Accueil vue', { size: 11, colorHex: C.muted }),
+    ...pill('v14Ouvrir', [BX, 330, BW, 56], 'Ouvrir mon tableau de bord   →', { measure: "Page de l'acteur" }, { bg: C.teal, fg: C.white, size: 14 }),
+    textbox('v20ASavoir', [MX + 140, 470, W - 2 * MX - 280, 150], [
+      para(run('À savoir avant de lire', { size: 11, colorHex: C.ink, bold: true })),
+      para(run('• Chaque rôle ouvre uniquement son tableau de bord ; une autre page affiche « Accès réservé » et aucune donnée.', { size: 9, colorHex: C.muted })),
+      para(run('• Les managers ne voient que leur département (sécurité par ligne).', { size: 9, colorHex: C.muted })),
+      para(run('• Données synthétiques : retenir les écarts structurels, pas les signaux faibles.', { size: 9, colorHex: C.muted })),
+      para(run('• Une seule photo RH : pas de tendance sur l’effectif · date de référence : 1er janvier 2023.', { size: 9, colorHex: C.muted })),
+      para(run('• Pointages : techniques janvier–juin 2023, administratifs janvier–mars 2023 · seuil de retard 8 h 30 à valider.', { size: 9, colorHex: C.muted })),
+    ], { bg: C.white }),
+  ], { hidden: false, filtre: null });
 }
 
-// OM1
+// Direction générale : effectif, coûts, échéances · vue consolidée, tous départements
 {
   z = 1000;
-  const r1 = cols(2), r2 = cols(3);
-  page('pg02Effectif', 'OM1 · Effectif', [
-    ...header('OM1', 'Aligner effectif et capacité', "L'effectif colle-t-il à la capacité des départements ?"),
-    ...kpiRow([{ m: 'Effectif' }, { m: 'Capacité' }, { m: "Taux d'occupation", colorMeasure: 'Couleur occupation' },
-      { m: '% contrats courts' }, { m: 'Ancienneté moyenne (ans)' }, { m: '% ancienneté < 1 an' }]),
-    chart('v20EffectifCapacite', at(r1[0], ROW1), 'clusteredBarChart', 'Effectif et capacité par département',
-      { cat: DEP(), y: [mea('Effectif'), mea('Capacité')], colors: [C.navy, '#C9D6E3'], sort: mea('Effectif'), opts: { legend: true } }),
-    chart('v21Occupation', at(r1[1], ROW1), 'clusteredBarChart', "Taux d'occupation par département (rouge > 110 %, orange < 60 %)",
-      { cat: DEP(), y: [mea("Taux d'occupation")], colorMeasure: 'Couleur occupation', sort: mea("Taux d'occupation") }),
-    donut('v22Contrats', at(r2[0], ROW2), 'Répartition des contrats', col('dw dim_contrat', 'type_contrat', 'Contrat'), mea('Effectif')),
-    chart('v23Entrees', at(r2[1], ROW2), 'clusteredColumnChart', "Entrées par année d'embauche",
-      { cat: col('dw dim_date', 'annee', 'Année'), y: [mea('Entrées')], colors: [C.blue], opts: { categorical: true } }),
-    chart('v24Canal', at(r2[2], ROW2), 'clusteredBarChart', 'Entrées par canal de recrutement',
-      { cat: col('dw dim_canal_recrutement', 'canal_libelle', 'Canal'), y: [mea('Effectif')], colors: [C.teal], sort: mea('Effectif') }),
-    note("Taux d'occupation = effectif ÷ capacité (departments.ods) · la capacité de l'Administration paraît obsolète (640 %) · entrées seules : aucune sortie n'est connue."),
+  const a = acteur('Direction générale');
+  const r1 = cols(2), r2 = cols(3, [400, 330, W - 2 * MX - 2 * GAP - 730]);
+  page(pageOf(a).id, pageOf(a).nom, [
+    ...header(a),
+    ...kpiRow([{ m: 'Effectif' }, { m: "Taux d'occupation", colorMeasure: 'Couleur occupation' }, { m: '% contrats courts' },
+      { m: 'Coût total estimé', units: 0, precision: 1 }, { m: 'Écart H/F médian', colorMeasure: 'Couleur écart H/F' }, { m: 'Échéances à 90 jours', alert: true }]),
+    V.effectifCapacite('v20EffectifCapacite', at(r1[0], ROW1)),
+    V.coutDepartement('v21CoutDepartement', at(r1[1], ROW1)),
+    V.occupation('v22Occupation', at(r2[0], ROW2)),
+    V.echeancesMois('v23EcheancesMois', at(r2[1], ROW2)),
+    table('v24Synthese', at(r2[2], ROW2), 'Synthèse par département',
+      [DEP(), mea('Effectif'), mea("Taux d'occupation", 'Occupation'), mea('Coût total estimé', 'Coût total'), mea('Échéances à 90 jours', 'Échéances 90 j'), mea("Taux d'anomalies contractuelles", 'Anomalies')], mea('Coût total estimé')),
+    note("Limites : chiffres indicatifs, ni budget ni cible · capacité de l'Administration douteuse (640 %) · aucune mesure de performance."),
   ]);
 }
 
-// OM2
+// DRH 1/2 : effectif, coûts, temps travaillé
 {
   z = 1000;
-  const r1 = cols(2), r2 = cols(3, [300, 300, W - 2 * MX - 2 * GAP - 600]);
-  page('pg03Couts', 'OM2 · Coûts', [
-    ...header('OM2', 'Maîtriser coûts et équité', 'La masse salariale est-elle maîtrisée et équitable ?'),
+  const a = acteur('DRH');
+  const r1 = cols(3), r2 = cols(3);
+  page(pageOf(a, 0).id, pageOf(a, 0).nom, [
+    ...header(a, { subtitle: 'Effectif · coûts · temps travaillé', extra: pill('v02Suite', [MX + 120 + GAP, 66, 160, 34], 'Page suivante  →', pageOf(a, 1).id) }),
+    ...kpiRow([{ m: 'Effectif' }, { m: "Taux d'occupation", colorMeasure: 'Couleur occupation' }, { m: '% contrats courts' },
+      { m: 'Coût total estimé', units: 0, precision: 1 }, { m: 'Écart H/F médian', colorMeasure: 'Couleur écart H/F' }, { m: 'Heures par jour' }]),
+    V.effectifCapacite('v20EffectifCapacite', at(r1[0], ROW1)),
+    V.contrats('v21Contrats', at(r1[1], ROW1)),
+    V.salaireGenre('v22SalaireGenre', at(r1[2], ROW1)),
+    V.coutDepartement('v23CoutDepartement', at(r2[0], ROW2)),
+    V.heuresMois('v24HeuresMois', at(r2[1], ROW2)),
+    table('v25DetailTemps', at(r2[2], ROW2), 'Temps travaillé par département',
+      [DEP(), mea('Heures par jour', 'Heures / jour'), mea('Taux de retard', 'Retard'), mea('% jours > 8 h')], mea('Heures par jour')),
+    note('Limites : une seule photo, donc pas de tendance · turnover non mesurable · données synthétiques : écarts structurels seulement · formation, congés et échéances : page suivante.'),
+  ]);
+}
+
+// DRH 2/2 : formation, congés, échéances
+{
+  z = 1000;
+  const a = acteur('DRH');
+  const r1 = cols(3), r2 = cols(3);
+  page(pageOf(a, 1).id, pageOf(a, 1).nom, [
+    ...header(a, { subtitle: 'Formation · congés · échéances', extra: pill('v02Retour', [MX + 120 + GAP, 66, 160, 34], '←  Page précédente', pageOf(a, 0).id) }),
+    ...kpiRow([{ m: 'Couverture formation', colorMeasure: 'Couleur couverture' }, { m: 'Formations par employé' },
+      { m: 'Taux de consommation des congés', label: 'Consommation des droits' }, { m: '% dernier congé maladie', alert: true },
+      { m: 'Échéances à 90 jours', alert: true }, { m: "Taux d'anomalies contractuelles", colorMeasure: 'Couleur anomalies', label: "Taux d'anomalies" }]),
+    V.niveaux('v20Niveaux', at(r1[0], ROW1)),
+    V.couverture('v21Couverture', at(r1[1], ROW1)),
+    V.typeParDep('v22TypeParDep', at(r1[2], ROW1)),
+    V.consoSolde('v23ConsoSolde', at(r2[0], ROW2)),
+    V.echeancesMois('v24EcheancesMois', at(r2[1], ROW2)),
+    V.anomalies('v25Anomalies', at(r2[2], ROW2)),
+    note('Limites : une seule photo, donc pas de tendance · administratifs sans donnée de formation · seul le dernier congé est connu, sans date ni durée · turnover non mesurable.'),
+  ]);
+}
+
+// Contrôle de gestion et paie : coûts et temps travaillé
+{
+  z = 1000;
+  const a = acteur('Contrôle de gestion et paie');
+  const r1 = cols(2), r2 = cols(3, [290, 350, W - 2 * MX - 2 * GAP - 640]);
+  page(pageOf(a).id, pageOf(a).nom, [
+    ...header(a),
     ...kpiRow([{ m: 'Coût total estimé', units: 0, precision: 1 }, { m: 'Masse salariale', units: 0, precision: 1 }, { m: 'Coût vacataires', units: 0, precision: 1 },
-      { m: 'Coût heures sup admin', units: 0, precision: 1 }, { m: 'Salaire médian' }, { m: 'Écart H/F médian', colorMeasure: 'Couleur écart H/F' }]),
-    chart('v20CoutDepartement', at(r1[0], ROW1), 'columnChart', 'Coût mensuel estimé par département et composante',
-      { cat: DEP(), y: [mea('Masse salariale'), mea('Coût vacataires'), mea('Coût heures sup admin')], colors: [C.navy, C.teal, C.amber], opts: { legend: true, units: 0, precision: 1 } }),
-    chart('v21SalaireGenre', at(r1[1], ROW1), 'clusteredColumnChart', 'Salaire médian femmes / hommes par département',
-      { cat: DEP(), y: [mea('Salaire médian femmes'), mea('Salaire médian hommes')], colors: [C.coral, C.blue], opts: { legend: true } }),
-    chart('v22SalaireDiplome', at(r2[0], ROW2), 'clusteredBarChart', 'Salaire médian par diplôme',
-      { cat: col('dw dim_diplome', 'diplome_libelle', 'Diplôme'), y: [mea('Salaire médian')], colors: [C.teal], sort: mea('Salaire médian') }),
-    chart('v23SalaireContrat', at(r2[1], ROW2), 'clusteredBarChart', 'Salaire médian par contrat',
-      { cat: col('dw dim_contrat', 'type_contrat', 'Contrat'), y: [mea('Salaire médian')], colors: [C.navy], sort: mea('Salaire médian') }),
+      { m: 'Coût heures sup admin', units: 0, precision: 1 }, { m: 'Heures sup (h)', label: 'Heures sup pointées (h)' }, { m: 'Coût heures sup pointées', units: 0, precision: 1 }]),
+    V.coutDepartement('v20CoutDepartement', at(r1[0], ROW1)),
+    chart('v21HeuresSupMois', at(r1[1], ROW1), 'lineChart', 'Heures sup pointées par mois et par pôle',
+      { cat: col('dw dim_date', 'annee_mois', 'Mois'), y: [mea('Heures sup (h)')], series: col('dw dim_pole', 'pole_libelle', 'Pôle'), opts: { legend: true, valueAxis: true, labels: false } }),
+    V.salaireContrat('v22SalaireContrat', at(r2[0], ROW2)),
+    V.plus8h('v23Plus8h', at(r2[1], ROW2)),
     table('v24DetailCouts', at(r2[2], ROW2), 'Détail par département',
-      [DEP(), mea('Effectif'), mea('Masse salariale'), mea('Coût total estimé', 'Coût total'), mea('% heures sup dans le coût', '% heures sup')], mea('Coût total estimé')),
-    note('Hypothèses à valider : heures des vacataires (× 35) et heures sup admin (× 22) mensuelles, devise non précisée · écart H/F = (médiane H − médiane F) / médiane H, cible ≤ 2 %.'),
+      [DEP(), mea('Masse salariale'), mea('Coût total estimé', 'Coût total'), mea('% heures sup dans le coût', '% HS admin'), mea('Heures sup (h)', 'HS pointées (h)'), mea('Coût heures sup pointées', 'Coût HS pointées')], mea('Coût total estimé')),
+    note('Limites : coût estimé sous hypothèses (vacataires × 35, heures sup admin × 22, période et devise à confirmer) · charges et primes absentes · heures sup pointées = au-delà de 8 h × taux, sur la période des pointages, hors coût total.'),
   ]);
 }
 
-// OM3
+// Resp. administration du personnel : congés et échéances · détail par employé (matricule seul)
 {
   z = 1000;
-  const r1 = cols(2, [800, W - 2 * MX - GAP - 800]), r2 = cols(3, [400, 300, W - 2 * MX - 2 * GAP - 700]);
-  page('pg04Temps', 'OM3 · Temps', [
-    ...header('OM3', 'Mesurer le temps travaillé', 'Quel temps est réellement travaillé ?'),
-    ...kpiRow([{ m: 'Jours pointés' }, { m: 'Heures par jour' }, { m: 'Taux de retard', accent: C.coral },
-      { m: '% jours > 8 h' }, { m: 'Écart-type heures par jour' }, { m: 'Heures sup (h)' }]),
-    chart('v20HeuresMois', at(r1[0], ROW1), 'lineChart', 'Heures travaillées par jour, par mois et par pôle',
-      { cat: col('dw dim_date', 'annee_mois', 'Mois'), y: [mea('Heures par jour')], series: col('dw dim_pole', 'pole_libelle', 'Pôle'), opts: { legend: true, valueAxis: true, labels: false } }),
-    chart('v21Plus8h', at(r1[1], ROW1), 'clusteredBarChart', '% de jours au-delà de 8 h',
-      { cat: DEP(), y: [mea('% jours > 8 h')], colors: [C.violet], sort: mea('% jours > 8 h') }),
-    chart('v22Arrivees', at(r2[0], ROW2), 'clusteredColumnChart', "Arrivées par tranche de 15 minutes",
-      { cat: col('dw dim_heure', 'tranche_15min', 'Tranche'), y: [mea('Jours pointés')], colors: [C.navy] }),
-    chart('v23Retard', at(r2[1], ROW2), 'clusteredBarChart', 'Taux de retard (après 8 h 30)',
-      { cat: DEP(), y: [mea('Taux de retard')], colors: [C.coral], sort: mea('Taux de retard') }),
-    table('v24DetailTemps', at(r2[2], ROW2), 'Détail par département',
-      [DEP(), mea('Heures par jour', 'Heures / jour'), mea('Écart-type heures par jour', 'Écart-type'), mea('Taux de retard', 'Retard'), mea('% jours > 8 h')], mea('Heures par jour')),
-    note('Pointages administratifs : janvier–mars 2023, techniques : janvier–juin 2023 → comparer les pôles sur janvier–mars · seuil de retard 8 h 30 choisi par l’équipe · journées incohérentes écartées au chargement.'),
+  const a = acteur('Resp. administration du personnel');
+  const LW = 360, xT = MX + LW + GAP;
+  page(pageOf(a).id, pageOf(a).nom, [
+    ...header(a),
+    ...kpiRow([{ m: 'Employés avec anomalie de contrat', colorMeasure: 'Couleur anomalies', label: 'Employés en anomalie' },
+      { m: "Taux d'anomalies contractuelles", colorMeasure: 'Couleur anomalies', label: "Taux d'anomalies" },
+      { m: 'Échéances à 30 jours', alert: true }, { m: 'Échéances à 90 jours', alert: true }, { m: 'Solde moyen (jours)' }, { m: '% soldes élevés' }]),
+    V.anomalies('v20Anomalies', [MX, ROW1[0], LW, ROW1[1]]),
+    V.typeConge('v21TypeConge', [MX, ROW2[0], LW, ROW2[1]]),
+    table('v22DetailEmploye', [xT, ROW1[0], W - MX - xT, ROW2[0] + ROW2[1] - ROW1[0]], 'Détail par employé (identifiant, sans nom ni e-mail)',
+      [col('dw dim_employe', 'employe_bk', 'Identifiant employé'), DEP(), col('dw dim_contrat', 'type_contrat', 'Contrat'),
+        mea('Date de fin de contrat', 'Fin de contrat'), mea('Anomalies de contrat (détail)', 'Anomalies'),
+        col('dw dim_type_conge', 'type_conge_libelle', 'Dernier congé'), mea('Congés consommés (moyenne)', 'Pris (j)'), mea('Solde moyen (jours)', 'Solde (j)')],
+      mea('Anomalies de contrat (détail)')),
+    note('Limites : dates de fin peu fiables (contrats échus avant 2023, CDI datés) · congés connus par le dernier congé seulement · nom, e-mail et adresse exclus de l’analyse.'),
   ]);
 }
 
-// OM4
+// Resp. formation : formation
 {
   z = 1000;
-  const r1 = cols(3), r2 = cols(2, [800, W - 2 * MX - GAP - 800]);
-  page('pg05Formation', 'OM4 · Formation', [
-    ...header('OM4', 'Renforcer les compétences', 'Les compétences se développent-elles ?'),
+  const a = acteur('Resp. formation');
+  const r1 = cols(3, [360, 360, W - 2 * MX - 2 * GAP - 720]), r2 = cols(2, [800, W - 2 * MX - GAP - 800]);
+  page(pageOf(a).id, pageOf(a).nom, [
+    ...header(a),
     ...kpiRow([{ m: 'Couverture formation', colorMeasure: 'Couleur couverture' }, { m: 'Employés formés' }, { m: 'Inscriptions' },
       { m: 'Formations par employé' }, { m: 'Cours suivis' }, { m: "Taux d'utilisation du catalogue" }]),
-    donut('v20Niveaux', at(r1[0], ROW1), 'Inscriptions par niveau de difficulté', col('dw dim_niveau_cours', 'niveau_libelle', 'Niveau'), mea('Inscriptions')),
-    chart('v21Couverture', at(r1[1], ROW1), 'clusteredBarChart', 'Couverture formation (cible ≥ 95 %)',
-      { cat: DEP(), y: [mea('Couverture formation')], colorMeasure: 'Couleur couverture', sort: mea('Couverture formation') }),
+    V.niveaux('v20Niveaux', at(r1[0], ROW1)),
+    V.couverture('v21Couverture', at(r1[1], ROW1)),
     chart('v22Universites', at(r1[2], ROW1), 'clusteredBarChart', 'Universités les plus suivies',
       { cat: col('dw dim_universite', 'universite', 'Université'), y: [mea('Inscriptions')], colors: [C.amber], sort: mea('Inscriptions') }),
     table('v23TopCours', at(r2[0], ROW2), 'Cours les plus suivis',
       [col('dw dim_cours', 'intitule', 'Cours'), col('dw dim_niveau_cours', 'niveau_libelle', 'Niveau'), mea('Inscriptions'), mea('% des inscriptions')], mea('Inscriptions')),
     chart('v24ParEmploye', at(r2[1], ROW2), 'clusteredBarChart', 'Formations par employé formé',
       { cat: DEP(), y: [mea('Formations par employé')], colors: [C.teal], sort: mea('Formations par employé') }),
-    note('Les administratifs n’ont aucune donnée de formation · formations sans date ni coût ni réussite : pas de taux annuel · aucun cours ne dépasse 0,25 % des inscriptions.'),
+    note('Limites : ni date, ni coût, ni réussite des formations · administratifs non couverts · table de correspondance compétences à construire · aucun cours ne dépasse 0,25 % des inscriptions.'),
   ]);
 }
 
-// OM5
+// Resp. recrutement : effectif et canaux · vue agrégée
 {
   z = 1000;
-  const r1 = cols(2), r2 = cols(2, [800, W - 2 * MX - GAP - 800]);
-  page('pg06Conges', 'OM5 · Congés', [
-    ...header('OM5', 'Maîtriser les congés', 'Les congés sont-ils maîtrisés ?'),
-    ...kpiRow([{ m: 'Taux de consommation des congés', label: 'Consommation des droits' }, { m: 'Congés consommés (moyenne)', label: 'Congés pris (moyenne)' }, { m: 'Solde moyen (jours)' },
-      { m: '% soldes élevés' }, { m: '% dernier congé maladie', accent: C.coral }, { m: 'Effectif' }]),
-    chart('v20TypeConge', at(r1[0], ROW1), 'clusteredBarChart', 'Dernier congé pris (normalisé)',
-      { cat: col('dw dim_type_conge', 'type_conge_libelle', 'Type de congé'), y: [mea('Effectif')], colors: [C.green], sort: mea('Effectif') }),
-    chart('v21ConsoSolde', at(r1[1], ROW1), 'clusteredColumnChart', 'Congés consommés et solde moyen (jours)',
-      { cat: DEP(), y: [mea('Congés consommés (moyenne)'), mea('Solde moyen (jours)')], colors: [C.green, '#C9D6E3'], opts: { legend: true } }),
-    chart('v22TypeParDep', at(r2[0], ROW2), 'hundredPercentStackedBarChart', 'Dernier congé par département',
-      { cat: DEP(), y: [mea('Effectif')], series: col('dw dim_type_conge', 'type_conge_libelle', 'Type de congé'), opts: { legend: true, stacked: true } }),
-    chart('v23TauxConso', at(r2[1], ROW2), 'clusteredBarChart', 'Taux de consommation des droits',
-      { cat: DEP(), y: [mea('Taux de consommation des congés')], colors: [C.teal], sort: mea('Taux de consommation des congés') }),
-    note('Taux de consommation = congés pris ÷ (pris + solde) · seul le dernier congé est connu, sans date ni durée : la part « maladie » est un proxy fragile d’absentéisme · soldes élevés : ≥ 20 jours (seuil à valider).'),
+  const a = acteur('Resp. recrutement');
+  const r1 = cols(2), r2 = cols(3, [560, 330, W - 2 * MX - 2 * GAP - 890]);
+  page(pageOf(a).id, pageOf(a).nom, [
+    ...header(a),
+    ...kpiRow([{ m: 'Effectif' }, { m: 'Capacité' }, { m: "Taux d'occupation", colorMeasure: 'Couleur occupation' },
+      { m: '% contrats courts' }, { m: 'Ancienneté moyenne (ans)' }, { m: '% ancienneté < 1 an' }]),
+    V.canal('v20Canal', at(r1[0], ROW1)),
+    V.entreesAnnee('v21Entrees', at(r2[0], ROW2)),
+    chart('v22CanalParDep', at(r1[1], ROW1), 'hundredPercentStackedBarChart', 'Canal de recrutement par département',
+      { cat: DEP(), y: [mea('Effectif')], series: col('dw dim_canal_recrutement', 'canal_libelle', 'Canal'), opts: { legend: true, stacked: true } }),
+    V.effectifCapacite('v23EffectifCapacite', at(r2[1], ROW2)),
+    V.contrats('v24Contrats', at(r2[2], ROW2)),
+    note('Limites : entrées seules, sans sorties · ni coût ni qualité par canal · vue agrégée, sans détail par employé.'),
   ]);
 }
 
-// OM6
+// Managers de département : charge, assiduité, congés, échéances · limitée à leur département (rôles « Manager … »)
 {
   z = 1000;
-  const r1 = cols(2, [800, W - 2 * MX - GAP - 800]), r2 = cols(3, [300, 300, W - 2 * MX - 2 * GAP - 600]);
-  page('pg07Echeances', 'OM6 · Échéances', [
-    ...header('OM6', 'Anticiper les échéances', 'Quelles échéances anticiper, sur quelles données ?'),
-    ...kpiRow([{ m: 'Échéances à 30 jours', accent: C.coral }, { m: 'Échéances à 90 jours', accent: C.coral }, { m: 'Échéances à 180 jours', accent: C.coral },
-      { m: 'Échéances en 2023' }, { m: 'Employés avec anomalie de contrat', colorMeasure: 'Couleur anomalies', label: 'Employés en anomalie' }, { m: "Taux d'anomalies contractuelles", colorMeasure: 'Couleur anomalies', label: "Taux d'anomalies" }]),
-    chart('v20EcheancesMois', at(r1[0], ROW1), 'clusteredColumnChart', 'Échéances de contrat par mois en 2023',
-      { cat: col('dw dim_date', 'annee_mois', 'Mois'), y: [mea('Échéances en 2023')], colors: [C.coral] }),
-    chart('v21Anomalies', at(r1[1], ROW1), 'clusteredBarChart', 'Anomalies de contrat (cible : 0)',
-      { y: [mea('CDI avec date de fin', 'CDI datés'), mea('Vacataires en CDI', 'Vacataires CDI'), mea('Contrats échus avant 2023', 'Échus < 2023'), mea('Contrats courts sans date de fin', 'Courts sans fin')],
-        colors: [C.coral, C.amber, C.violet, C.slate], opts: { legend: true } }),
-    chart('v22Echeances90', at(r2[0], ROW2), 'clusteredBarChart', 'Échéances à 90 jours',
-      { cat: DEP(), y: [mea('Échéances à 90 jours')], colors: [C.coral], sort: mea('Échéances à 90 jours') }),
-    chart('v23EcheancesContrat', at(r2[1], ROW2), 'clusteredBarChart', 'Échéances 2023 par contrat',
-      { cat: col('dw dim_contrat', 'type_contrat', 'Contrat'), y: [mea('Échéances en 2023')], colors: [C.navy], sort: mea('Échéances en 2023') }),
-    table('v24DetailEcheances', at(r2[2], ROW2), 'Détail par département',
-      [DEP(), mea('Échéances à 90 jours', 'Échéances 90 j'), mea('CDI avec date de fin', 'CDI datés'), mea('Vacataires en CDI', 'Vacataires CDI'), mea("Taux d'anomalies contractuelles", 'Taux anomalies')], mea('Échéances à 90 jours')),
-    note('Date de référence : 1er janvier 2023 (début des pointages) · une date de fin n’est pas un départ, c’est une échéance à piloter · taux de rotation non mesurable : aucun historique de sorties.'),
+  const a = acteur('Managers de département');
+  const r1 = cols(2, [800, W - 2 * MX - GAP - 800]), r2 = cols(3);
+  page(pageOf(a).id, pageOf(a).nom, [
+    ...header(a),
+    ...kpiRow([{ m: 'Effectif' }, { m: "Taux d'occupation", colorMeasure: 'Couleur occupation' }, { m: 'Heures par jour' },
+      { m: 'Taux de retard', alert: true }, { m: 'Taux de consommation des congés', label: 'Consommation des droits' }, { m: 'Échéances à 90 jours', alert: true }]),
+    V.heuresMois('v20HeuresMois', at(r1[0], ROW1)),
+    V.arrivees('v21Arrivees', at(r1[1], ROW1)),
+    V.contrats('v22Contrats', at(r2[0], ROW2)),
+    V.typeConge('v23TypeConge', at(r2[1], ROW2)),
+    V.echeancesMois('v24EcheancesMois', at(r2[2], ROW2)),
+    note('Limites : pointages admin sur 3 mois · seuil de retard (8 h 30) non validé · aucun motif d’absence.'),
   ]);
 }
 
@@ -410,6 +467,23 @@ for (const p of pages) {
   mkdirSync(join(dir, 'visuals'), { recursive: true });
   writeFileSync(join(dir, 'page.json'), JSON.stringify({
     $schema: PAGE_SCHEMA, name: p.name, displayName: p.displayName, displayOption: 'FitToPage', height: H, width: W,
+    // Page d'acteur : masquée (on n'y entre que par le bouton de l'accueil)
+    ...(p.hidden ? { visibility: 'HiddenInViewMode' } : {}),
+    // Sécurité par page : Acteurs[page] = cette page (filtre masqué et verrouillé). Vide pour un autre rôle → [Accès page] = 0
+    ...(p.filtre ? { filterConfig: { filters: [{
+      name: `acces_${p.name}`,
+      field: { Column: { Expression: { SourceRef: { Entity: 'Acteurs' } }, Property: 'page' } },
+      type: 'Categorical',
+      filter: {
+        Version: 2,
+        From: [{ Name: 'a', Entity: 'Acteurs', Type: 0 }],
+        Where: [{ Condition: { In: {
+          Expressions: [{ Column: { Expression: { SourceRef: { Source: 'a' } }, Property: 'page' } }],
+          Values: [[{ Literal: { Value: `'${p.filtre.replace(/'/g, "''")}'` } }]],
+        } } }],
+      },
+      howCreated: 'User', isHiddenInViewMode: true, isLockedInViewMode: true,
+    }] } } : {}),
     objects: { background: [{ properties: { color: color(C.bg), transparency: n(0) } }] },
   }, null, 2));
   const names = new Set();
