@@ -1,0 +1,73 @@
+/// Sécurité par page : une ligne par page d'acteur. Chaque rôle ne voit que ses lignes ; chaque page d'acteur filtre [page] sur elle-même.
+table Acteurs
+	isHidden
+	lineageTag: b610ce40-88d7-4aeb-8be1-a04b5feb435d
+
+	column acteur
+		dataType: string
+		isHidden
+		lineageTag: 450bdeeb-7cdf-4125-b0e7-2b190de275ff
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [acteur]
+
+		annotation SummarizationSetBy = Automatic
+
+	column page
+		dataType: string
+		isHidden
+		lineageTag: a873aac8-da4e-4640-88b5-9d0c06efd5cf
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [page]
+
+		annotation SummarizationSetBy = Automatic
+
+	column ordre
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 249716f3-a993-456b-b012-4268bf297a58
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [ordre]
+
+		annotation SummarizationSetBy = Automatic
+
+	column decide
+		dataType: string
+		isHidden
+		lineageTag: 783405fb-1abe-4a4d-a130-4ece6c5a4ea9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [decide]
+
+		annotation SummarizationSetBy = Automatic
+
+	column vue
+		dataType: string
+		isHidden
+		lineageTag: c6d9d1dc-6774-4151-84cf-08d3bc88efc8
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [vue]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Acteurs = calculated
+		mode: import
+		source =
+				DATATABLE(
+				    "acteur", STRING, "page", STRING, "ordre", INTEGER, "decide", STRING, "vue", STRING,
+				    {
+				        { "Direction générale", "Direction générale", 10, "arbitrer budget et capacités entre départements", "Vue consolidée, tous départements" },
+				        { "DRH", "DRH · 1/2", 20, "fixer les priorités RH de l’entreprise", "Vue complète, sur deux pages" },
+				        { "DRH", "DRH · 2/2", 21, "fixer les priorités RH de l’entreprise", "Vue complète, sur deux pages" },
+				        { "Contrôle de gestion et paie", "Contrôle de gestion et paie", 40, "suivre la masse salariale et les heures sup", "Vue complète sur les coûts et le temps travaillé" },
+				        { "Resp. administration du personnel", "Administration du personnel", 50, "corriger les contrats, suivre échéances et congés", "Détail par employé (identifiant)" },
+				        { "Resp. formation", "Formation", 60, "orienter les parcours de formation par métier", "Vue complète sur la formation" },
+				        { "Resp. recrutement", "Recrutement", 70, "choisir les canaux de recrutement", "Vue agrégée, sans détail par employé" },
+				        { "Managers de département", "Managers de département", 80, "piloter charge, assiduité, congés et échéances de votre équipe", "Vue limitée à votre département" }
+				    }
+				)
+

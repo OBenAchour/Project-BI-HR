@@ -1,6 +1,8 @@
-/// Manager de département : voit uniquement l'Administration (DEP_ADMIN00). PPTX slides 20 à 22.
+/// Managers de département : voit uniquement l'Administration (DEP_ADMIN00) et la page « Managers de département ». PPTX slides 20 à 22.
 role 'Manager Administration'
 	modelPermission: read
+
+	tablePermission Acteurs = Acteurs[acteur] = "Managers de département"
 
 	tablePermission 'dw dim_departement' = 'dw dim_departement'[departement_bk] = "DEP_ADMIN00"
 

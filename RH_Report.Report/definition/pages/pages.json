@@ -2,12 +2,14 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.0.0/schema.json",
   "pageOrder": [
     "pg01Accueil",
-    "pg02Effectif",
-    "pg03Couts",
-    "pg04Temps",
-    "pg05Formation",
-    "pg06Conges",
-    "pg07Echeances"
+    "pg02Direction",
+    "pg03DRH1",
+    "pg04DRH2",
+    "pg05Controle",
+    "pg06AdminPersonnel",
+    "pg07Formation",
+    "pg08Recrutement",
+    "pg09Managers"
   ],
   "activePageName": "pg01Accueil"
 }

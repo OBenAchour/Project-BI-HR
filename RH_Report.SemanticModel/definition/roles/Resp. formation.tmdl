@@ -1,0 +1,8 @@
+/// Resp. formation : voit uniquement la page « Formation », tous départements. PPTX slides 20 à 22.
+role 'Resp. formation'
+	modelPermission: read
+
+	tablePermission Acteurs = Acteurs[acteur] = "Resp. formation"
+
+	annotation PBI_Id = 4f87adc5a9884035b4b238c4b2bb1a8d
+

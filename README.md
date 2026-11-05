@@ -18,11 +18,11 @@
 | `DataSet/` | The 7 source files (employees, attendance, courses, departments, rates) |
 | `eda_audit_pipeline.py` | Data quality audit of the 7 files (read-only) |
 | `eda_audit_report.html` | Audit report it generates: 42 anomalies, impact, proposed fix |
-| `Projet_EDA_BI_RH.pptx` | EDA presentation: business objectives OM1–OM6 and KPIs |
+| `Projet_EDA_BI_RH.pptx` | EDA presentation: business objectives OM1–OM6, KPIs and the 7 actors who consume them |
 | `sql/staging_area.sql` | Creates the 7 `stg` tables: file columns only, typed as SSIS reads them |
 | `sql/data_warehouse.sql` | Creates the DW tables in `RH_Data_Warehouse` (17 tables; rows without a match are dropped at load time) |
 | `Project BI HR/` | SSIS project (Visual Studio 2022) |
-| `RH_Report.pbip` | Power BI report (Power BI project format): a home page, one page per objective OM1–OM6, 4 department-manager roles |
+| `RH_Report.pbip` | Power BI report (Power BI project format): a home page and one hidden page per actor; each of the 10 roles only sees its own page |
 | `powerbi/scripts/` | Scripts that generate the report pages and check the measures |
 | `docs/CONCEPTION_DW.md` | DW design: model, bus matrix, every fact and dimension |
 | `docs/GUIDE_RECONSTRUCTION_DW.md` | Step-by-step guide to the DW load in SSDT (components, expressions, table fiches) |
@@ -55,11 +55,16 @@ The tables are created in `RH_Data_Warehouse` and loaded by `Load_DW.dtsx` (4 co
 
 Open `RH_Report.pbip` in Power BI Desktop, sign in to `RH_Data_Warehouse` with the `BI` login, then click **Refresh**: the imported data is not in Git.
 
-- **7 pages:** home page with 6 headline KPIs, then one page per business objective (OM1 headcount, OM2 costs, OM3 time worked, OM4 training, OM5 leave, OM6 contract end dates)
-- **57 measures** in the `Mesures` table, one folder per objective; headcount and cost measures read the latest snapshot only
-- **Row-level security:** 4 roles, `Manager Informatique`, `Manager Télécom`, `Manager Communication`, `Manager Administration`; each one sees its own department only. Test them with *Modeling → View as*
+👉 **Roles, test steps and team split:** [docs/GUIDE_ROLES_POWERBI.md](docs/GUIDE_ROLES_POWERBI.md)
+
+- **One report, one view per actor** (presentation slides 20–22): each role only sees its own dashboard. The home page greets the role and has a single button that opens the role's page
+- **8 hidden actor pages:** *Direction générale*, *DRH* (two pages), *Contrôle de gestion et paie*, *Administration du personnel* (detail per employee ID), *Formation*, *Recrutement*, *Managers de département*. No department slicer: the role decides the scope
+- **10 roles:** `Direction générale`, `DRH`, `Contrôle de gestion et paie`, `Resp. administration du personnel`, `Resp. formation`, `Resp. recrutement`, and 4 manager roles (`Manager Informatique`, `Manager Télécom`, `Manager Communication`, `Manager Administration`) that also see their own department only (row-level security). Test them with *Modeling → View as*
+- **Page-level security:** a hidden `Acteurs` table (one row per actor page) is filtered by each role; each actor page has a locked page filter on itself. On another role's page every measure returns blank and an « Accès non autorisé » banner shows
+- **69 measures** in the `Mesures` table: 59 business measures (headcount and cost read the latest snapshot only) and 10 security / home page measures
 - **No personal data:** name, e-mail and addresses of `dim_employe` are removed in Power Query
-- **Model:** facts → `dim_employe` active, `dim_employe` → `dim_departement` inactive (avoids two paths), snapshot date active on `fact_effectif_snapshot`
+- **Model:** facts → `dim_employe` active, `dim_employe` → `dim_departement` inactive (avoids two paths), snapshot date active on `fact_effectif_snapshot`; readable department label computed in the model (`departement_libelle`)
+- **Tested:** `powerbi/scripts/test_report.mjs` replays every visual query for every role (1,760 queries, 0 failure)
 
 ## Tech stack
 

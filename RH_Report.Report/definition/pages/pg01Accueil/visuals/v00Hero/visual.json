@@ -45,7 +45,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Effectifs, coûts, assiduité, formation, congés et échéances · 4 départements · source : RH_Data_Warehouse",
+                    "value": "Direction des ressources humaines · 4 départements · source : entrepôt de données RH",
                     "textStyle": {
                       "fontSize": "10pt",
                       "color": "#C9D6E3",

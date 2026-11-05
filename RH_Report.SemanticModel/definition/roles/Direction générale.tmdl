@@ -1,0 +1,8 @@
+/// Direction générale : voit uniquement la page « Direction générale », tous départements. PPTX slides 20 à 22.
+role 'Direction générale'
+	modelPermission: read
+
+	tablePermission Acteurs = Acteurs[acteur] = "Direction générale"
+
+	annotation PBI_Id = d828167200324e5394864aa98fe5c7d9
+

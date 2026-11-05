@@ -1,0 +1,8 @@
+/// Resp. administration du personnel : voit uniquement la page « Administration du personnel », tous départements. PPTX slides 20 à 22.
+role 'Resp. administration du personnel'
+	modelPermission: read
+
+	tablePermission Acteurs = Acteurs[acteur] = "Resp. administration du personnel"
+
+	annotation PBI_Id = 91b50e03dcb3423dbbf1fcb16e1441b5
+

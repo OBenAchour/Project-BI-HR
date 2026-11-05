@@ -1,0 +1,8 @@
+/// Contrôle de gestion et paie : voit uniquement la page « Contrôle de gestion et paie », tous départements. PPTX slides 20 à 22.
+role 'Contrôle de gestion et paie'
+	modelPermission: read
+
+	tablePermission Acteurs = Acteurs[acteur] = "Contrôle de gestion et paie"
+
+	annotation PBI_Id = f28d82164dd8436c95c9ba7666c50592
+
