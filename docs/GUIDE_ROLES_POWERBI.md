@@ -8,7 +8,7 @@
 | Rôle | Page(s) ouverte(s) | Décisions | Périmètre |
 | --- | --- | --- | --- |
 | Direction générale | Direction générale | Arbitrer budget et capacités entre départements | Les 4 départements |
-| DRH | DRH · 1/2 et DRH · 2/2 | Fixer les priorités RH de l'entreprise | Les 4 départements |
+| DRH | DRH · 1/3, 2/3 et 3/3 (profils des collaborateurs) | Fixer les priorités RH de l'entreprise | Les 4 départements |
 | Contrôle de gestion et paie | Contrôle de gestion et paie | Suivre la masse salariale et les heures sup | Les 4 départements |
 | Resp. administration du personnel | Administration du personnel | Corriger les contrats, suivre échéances et congés | Les 4 départements, détail par employé |
 | Resp. formation | Formation | Orienter les parcours de formation par métier | Les 4 départements |
@@ -21,11 +21,11 @@
 
 ## 2. Répartition entre les membres
 
-Chacun présente un rôle **en direct avec son propre compte** dans le service Power BI, et un second rôle montré par le propriétaire avec **Tester en tant que rôle** (section 3, étape 6). La DRH compte double : deux pages.
+Chacun présente un rôle **en direct avec son propre compte** dans le service Power BI, et un second rôle montré par le propriétaire avec **Tester en tant que rôle** (section 3, étape 6). La DRH compte double : trois pages, dont les profils issus du machine learning.
 
 | Membre | Rôle sur son compte (en direct) | Rôle montré avec « Tester en tant que rôle » |
 | --- | --- | --- |
-| Membre 1 | DRH | — (deux pages) |
+| Membre 1 | DRH | — (trois pages) |
 | Membre 2 | Direction générale | Manager Informatique |
 | Membre 3 | Contrôle de gestion et paie | Manager Communication |
 | Membre 4 | Resp. administration du personnel | Manager Administration |
@@ -58,7 +58,7 @@ Bon à savoir :
 2. Ruban **Modélisation** → **Afficher en tant que** → cocher **un seul rôle** → **OK**. Une barre jaune « Affichage en tant que : *rôle* » apparaît en haut du rapport.
 3. Sur l'**Accueil**, vérifier le message « Bienvenue · *acteur* ».
 4. **Ctrl + clic** sur **Ouvrir mon tableau de bord →** (dans Desktop, un simple clic sélectionne le bouton).
-5. **Ctrl + clic** sur **← Accueil** pour revenir (DRH : **Page suivante →** et **← Page précédente**).
+5. **Ctrl + clic** sur **← Accueil** pour revenir (DRH : **Page suivante →** et **← Page précédente** entre ses trois pages).
 6. Pour changer de rôle : **Arrêter l'affichage** dans la barre jaune, puis recommencer à l'étape 2.
 7. En fermant Desktop sans avoir rien modifié, choisir **Ne pas enregistrer**.
 
@@ -69,12 +69,13 @@ Valeurs telles qu'elles s'affichent dans les cartes (format d'affichage anglais 
 | Page (rôle) | Cartes KPI |
 | --- | --- |
 | Direction générale | Effectif 2,726 · Taux d'occupation 115.4% · % contrats courts 67.0% · Coût total estimé 11.3M · Écart H/F médian 1.2% · Échéances à 90 jours 95 |
-| DRH · 1/2 (DRH) | Effectif 2,726 · Taux d'occupation 115.4% · % contrats courts 67.0% · Coût total estimé 11.3M · Écart H/F médian 1.2% · Heures par jour 6.49 |
-| DRH · 2/2 (DRH) | Couverture formation 99.3% · Formations par employé 13.0 · Consommation des droits 50.4% · % dernier congé maladie 23.7% · Échéances à 90 jours 95 · Taux d'anomalies 71.3% |
+| DRH · 1/3 (DRH) | Effectif 2,726 · Taux d'occupation 115.4% · % contrats courts 67.0% · Coût total estimé 11.3M · Écart H/F médian 1.2% · Heures par jour 6.49 |
+| DRH · 2/3 (DRH) | Couverture formation 99.3% · Formations par employé 13.0 · Consommation des droits 50.4% · % dernier congé maladie 23.7% · Échéances à 90 jours 95 · Taux d'anomalies 71.3% |
 | Contrôle de gestion et paie | Coût total estimé 11.3M · Masse salariale 5.8M · Coût vacataires 2.6M · Coût heures sup admin 2.9M · Heures sup pointées 9,155 h · Coût heures sup pointées 205.9K |
 | Administration du personnel (Resp. administration du personnel) | Employés en anomalie 1,945 · Taux d'anomalies 71.3% · Échéances à 30 jours 25 · Échéances à 90 jours 95 · Solde moyen 14.8 · % soldes élevés 33.9% · tableau : 2 726 employés |
 | Formation (Resp. formation) | Couverture formation 99.3% · Employés formés 1,437 · Inscriptions 18,618 · Formations par employé 13.0 · Cours suivis 3,499 · Taux d'utilisation du catalogue 99.3% |
-| Recrutement (Resp. recrutement) | Effectif 2,726 · Capacité 2,363 · Taux d'occupation 115.4% · % contrats courts 67.0% · Ancienneté moyenne 9.2 ans · % ancienneté < 1 an 2.0% |
+| DRH · 3/3 (DRH) | Nombre de profils 4 · Score de silhouette 0.29 · Effectif 2,726 · Ancienneté moyenne 9.2 · Expérience moyenne 12.8 · Coût moyen par employé 4,138 · profils : Piliers expérimentés 529, Experts recrutés récemment 528, Profils juniors 536, Administratifs à horaires longs 1 133 |
+| Recrutement (Resp. recrutement) | Effectif 2,726 · Capacité 2,363 · Taux d'occupation 115.4% · % contrats courts 67.0% · Ancienneté moyenne 9.2 ans · % ancienneté < 1 an 2.0% · Sankey canal → département → contrat |
 
 Page **Managers de département**, selon le rôle :
 
@@ -90,7 +91,7 @@ La somme des quatre effectifs fait 2 726 : chaque manager ne voit que son dépar
 ## 6. Démonstration de la sécurité
 
 1. **Accès complet** (propriétaire, sans rôle) : l'accueil affiche « Bienvenue » et « Accès complet à l'ensemble des tableaux de bord RH » ; le bouton ouvre la Direction générale et toutes les pages sont accessibles.
-2. **Un rôle, page d'un autre acteur** : par exemple **Resp. formation**, puis ouvrir la page **DRH · 1/2** (onglet dans Desktop). Le bandeau rouge « Accès non autorisé pour votre profil » apparaît, les cartes et les graphiques sont vides. Dans le service, un lecteur ne voit même pas cette page dans la liste.
+2. **Un rôle, page d'un autre acteur** : par exemple **Resp. formation**, puis ouvrir la page **DRH · 1/3** (onglet dans Desktop). Le bandeau rouge « Accès non autorisé pour votre profil » apparaît, les cartes et les graphiques sont vides. Dans le service, un lecteur ne voit même pas cette page dans la liste.
 3. **Manager** : **Manager Télécom** → la page Managers affiche « Département : Télécom » et 439 employés.
 
 ## 7. Comment c'est construit
@@ -101,6 +102,8 @@ La somme des quatre effectifs fait 2 726 : chaque manager ne voit que son dépar
 - **Pages d'acteurs** : masquées, avec un filtre de page verrouillé `Acteurs[page] = <la page>`. Pour un autre rôle, ce filtre ne laisse aucune ligne : `[Accès page]` vaut 0.
 - **Verrou des données** : toutes les mesures métier renvoient vide quand `[Accès page]` = 0 ; les cartes passent en blanc sur blanc et le bandeau d'accès s'affiche.
 - **Données personnelles** : nom, e-mail et adresses sont retirés dans Power Query ; le détail par employé n'affiche que l'identifiant.
+- **Profils (machine learning)** : K-means sur 4 variables standardisées, 4 profils (silhouette 0,29) ; tables `Profils` et `Profils employés` reliées à `dim_employe`. Méthode complète : [ml/README.md](../ml/README.md).
+- **Sankey du recrutement** : visuel Microsoft certifié (AppSource), alimenté par la table `Flux recrutement` (canal → département, puis département → contrat) et la mesure `Flux recrutement`.
 
 ## 8. Régénérer et retester
 

@@ -6,11 +6,11 @@ Rôles, étapes de test et répartition : [docs/GUIDE_ROLES_POWERBI.md](../../do
 | Fichier | Rôle |
 | --- | --- |
 | `acteurs.mjs` | Les 7 acteurs de la présentation (slides 20 à 22) : pages, rôles, ce que chacun peut décider. Source commune du modèle et des pages |
-| `measures.mjs` | Les 69 mesures DAX : 59 mesures métier (verrouillées hors des pages du rôle) et 10 mesures de sécurité et d'accueil |
-| `gen_model.mjs` | Écrit dans le modèle : la table `Mesures`, la table cachée `Acteurs`, le libellé lisible du département et les 10 rôles |
-| `gen_report.mjs` | Écrit l'accueil et les 8 pages d'acteurs (masquées, filtre de page verrouillé), plus le thème `RH_Pilotage.json` |
+| `measures.mjs` | Les 75 mesures DAX : 65 mesures métier (verrouillées hors des pages du rôle) et 10 mesures de sécurité et d'accueil |
+| `gen_model.mjs` | Écrit dans le modèle : la table `Mesures`, la table cachée `Acteurs`, les tables `Profils` et `Profils employés` (depuis `ml/`), la table `Flux recrutement` du Sankey, leurs relations, le libellé lisible du département et les 10 rôles |
+| `gen_report.mjs` | Écrit l'accueil et les 9 pages d'acteurs (masquées, filtre de page verrouillé), le thème `RH_Pilotage.json` et déclare le visuel Sankey (AppSource) |
 | `test_report.mjs` | Test complet : rejoue la requête de chaque visuel pour chaque rôle et vérifie données, verrou, département et bouton de l'accueil |
-| `run_dax.ps1` | Exécute une liste de requêtes DAX (JSON) sur le modèle ouvert dans Desktop, une connexion par rôle |
+| `run_dax.ps1` | Exécute une liste de requêtes DAX (JSON) sur le modèle ouvert dans Desktop, une connexion par rôle (`-AllRows` : toutes les lignes) |
 | `gen_test_dax.mjs` | Écrit deux requêtes DAX de contrôle (`test_total.dax`, `test_dep.dax`) |
 | `as.ps1` | Envoie une requête DAX au modèle ouvert dans Power BI Desktop (`-Roles` pour tester un rôle) |
 

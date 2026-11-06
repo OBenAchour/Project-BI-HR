@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.5.0/schema.json",
   "name": "v03Perimetre",
   "position": {
-    "x": 320,
+    "x": 482,
     "y": 70,
-    "z": 1005,
-    "width": 330,
+    "z": 1007,
+    "width": 250,
     "height": 28,
-    "tabOrder": 6
+    "tabOrder": 8
   },
   "visual": {
     "visualType": "card",

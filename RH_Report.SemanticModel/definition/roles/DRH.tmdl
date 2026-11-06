@@ -1,4 +1,4 @@
-/// DRH : voit uniquement les pages « DRH · 1/2 » et « DRH · 2/2 », tous départements. PPTX slides 20 à 22.
+/// DRH : voit uniquement les pages « DRH · 1/3 » et « DRH · 2/3 » et « DRH · 3/3 », tous départements. PPTX slides 20 à 22.
 role DRH
 	modelPermission: read
 

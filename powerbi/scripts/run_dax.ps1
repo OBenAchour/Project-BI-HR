@@ -1,7 +1,8 @@
 ﻿param(
     [Parameter(Mandatory)] [int] $Port,
     [Parameter(Mandatory)] [string] $TestsFile,   # JSON : [{ "id": "...", "roles": "DRH" ou "", "query": "EVALUATE ..." }]
-    [Parameter(Mandatory)] [string] $OutFile      # JSON : [{ "id", "roles", "ok", "error", "ms", "rowCount", "columns", "rows" (50 premières) }]
+    [Parameter(Mandatory)] [string] $OutFile,     # JSON : [{ "id", "roles", "ok", "error", "ms", "rowCount", "columns", "rows" (50 premières) }]
+    [switch] $AllRows                             # toutes les lignes au lieu des 50 premières
 )
 # Exécute des requêtes DAX sur le modèle ouvert dans Power BI Desktop, une connexion par rôle (MSOLAP).
 $ErrorActionPreference = 'Stop'
@@ -31,7 +32,8 @@ try {
             [void] $da.Fill($dt)
             $r.columns = @($dt.Columns | ForEach-Object { $_.ColumnName })
             $r.rowCount = $dt.Rows.Count
-            $r.rows = @($dt.Rows | Select-Object -First 50 | ForEach-Object { $row = $_; ,@($dt.Columns | ForEach-Object { $v = $row[$_]; if ($v -is [DBNull]) { $null } else { [string]$v } }) })
+            $limit = if ($AllRows) { [int]::MaxValue } else { 50 }
+            $r.rows = @($dt.Rows | Select-Object -First $limit | ForEach-Object { $row = $_; ,@($dt.Columns | ForEach-Object { $v = $row[$_]; if ($v -is [DBNull]) { $null } else { [string]$v } }) })
         } catch {
             $r.ok = $false
             $r.error = $_.Exception.Message

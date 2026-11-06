@@ -1,4 +1,9 @@
 // Mesures du rapport RH : une seule source pour le test DAX et pour l'écriture TMDL.
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+// Résumé de la segmentation (ml/segmentation_employes.py) : score de silhouette et nombre de profils
+const ML = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'ml', 'profils_resume.json'), 'utf8'));
 // Tables : noms finaux du modèle (sans le suffixe « (2) »).
 const EFF = "'dw fact_effectif_snapshot'";
 const PT = "'dw fact_pointage'";
@@ -106,6 +111,17 @@ const base = [
   { f: 'OM6 Échéances', n: "Taux d'anomalies contractuelles", fmt: PCT, e: `DIVIDE([Employés avec anomalie de contrat], [Effectif])`,
     d: 'CDI datés, vacataires en CDI, contrats courts sans fin, contrats échus avant 2023. Cible : 0' },
   { f: 'OM6 Échéances', n: 'Couleur anomalies', e: `IF([Employés avec anomalie de contrat] = 0, "#44C088", "#ED7373")` },
+  // ---------- Profils des collaborateurs (segmentation K-means, voir ml/)
+  { f: 'Profils', n: 'Nombre de profils', fmt: INT, e: `${ML.k_retenu}`, d: 'Nombre de profils retenus par la segmentation (K-means)' },
+  { f: 'Profils', n: 'Score de silhouette', fmt: '0.00', e: `${ML.silhouette}`,
+    d: 'Qualité de la segmentation : de -1 à 1, au-dessus de 0,25 la structure est réelle mais modérée' },
+  { f: 'Profils', n: "Part de l'effectif", fmt: PCT, e: `DIVIDE([Effectif], CALCULATE([Effectif], ALL('Profils')))` },
+  { f: 'Profils', n: 'Coût moyen par employé', fmt: MONEY, e: `DIVIDE([Coût total estimé], [Effectif])` },
+  { f: 'Profils', n: 'Expérience moyenne (ans)', fmt: DEC1, e: snap(`AVERAGE(${EFF}[annees_experience])`) },
+  // ---------- Parcours de recrutement (Sankey : canal → département → contrat)
+  { f: 'OM1 Effectif', n: 'Flux recrutement', fmt: INT, e:
+    `VAR _etape = SELECTEDVALUE('Flux recrutement'[etape])\nVAR _source = SELECTEDVALUE('Flux recrutement'[source])\nVAR _destination = SELECTEDVALUE('Flux recrutement'[destination])\nRETURN SWITCH(_etape,\n    1, CALCULATE([Effectif], 'dw dim_canal_recrutement'[canal_libelle] = _source, 'dw dim_departement'[departement_libelle] = _destination),\n    2, CALCULATE([Effectif], 'dw dim_departement'[departement_libelle] = _source, ${CTR}[type_contrat] = _destination))`,
+    d: 'Effectif par lien du parcours : canal de recrutement → département, puis département → type de contrat' },
   { f: 'OM6 Échéances', n: 'Date de fin de contrat', fmt: 'dd/mm/yyyy', e:
     `VAR _photo = MAX(${EFF}[date_snapshot_sk])\nVAR _fin = CALCULATE(MAX(${EFF}[date_fin_contrat_sk]), ${EFF}[date_snapshot_sk] = _photo)\nRETURN IF(HASONEVALUE('dw dim_employe'[employe_bk]) && NOT ISBLANK(_fin), ${skToDate('_fin')})`,
     d: "Détail par employé (vide sur un total ou sans date de fin)" },
@@ -140,7 +156,7 @@ const security = [
 // Verrou : chaque mesure métier renvoie vide (ou blanc pour une couleur) hors des pages du rôle.
 const indent = (e) => e.split('\n').join('\n    ');
 const gate = (m) => {
-  if (!m.f.startsWith('OM')) return m;
+  if (m.f === 'Général' || m.f === 'Sécurité') return m;
   const isColor = m.n.startsWith('Couleur');
   return { ...m, e: isColor ? `IF([Accès page] = 1,\n    ${indent(m.e)},\n    "#FFFFFF")` : `IF([Accès page] = 1,\n    ${indent(m.e)})` };
 };

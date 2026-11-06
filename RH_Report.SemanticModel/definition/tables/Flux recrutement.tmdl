@@ -1,0 +1,48 @@
+/// Liens du parcours de recrutement pour le Sankey : étape 1 canal → département, étape 2 département → type de contrat
+table 'Flux recrutement'
+	isHidden
+	lineageTag: be2a9817-0839-4a09-b632-ad9dbe6eec6b
+
+	column etape
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 093173f4-8602-4691-9b6a-d85fe06b75b3
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [etape]
+
+		annotation SummarizationSetBy = Automatic
+
+	column source
+		dataType: string
+		isHidden
+		lineageTag: d51d1b84-30c4-4459-8dfb-628e43428591
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [source]
+
+		annotation SummarizationSetBy = Automatic
+
+	column destination
+		dataType: string
+		isHidden
+		lineageTag: 188d945e-d181-40a2-a87a-1cf11236bd95
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [destination]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Flux recrutement' = calculated
+		mode: import
+		source =
+				UNION(
+				    SELECTCOLUMNS(
+				        CROSSJOIN(VALUES('dw dim_canal_recrutement'[canal_libelle]), VALUES('dw dim_departement'[departement_libelle])),
+				        "etape", 1, "source", 'dw dim_canal_recrutement'[canal_libelle], "destination", 'dw dim_departement'[departement_libelle]),
+				    SELECTCOLUMNS(
+				        CROSSJOIN(VALUES('dw dim_departement'[departement_libelle]), VALUES('dw dim_contrat'[type_contrat])),
+				        "etape", 2, "source", 'dw dim_departement'[departement_libelle], "destination", 'dw dim_contrat'[type_contrat])
+				)
+

@@ -132,14 +132,25 @@ const donut = (name, pos, title, cat, y) => visual(name, pos, {
   visualContainerObjects: container(title),
 });
 
-const table = (name, pos, title, values, sort = null) => {
+// Sankey (visuel Microsoft certifié, AppSource) : Source → Destination, épaisseur = Weight
+const SANKEY = 'sankey02300D1BE6F5427989F3DE31CCA9E0F32020';
+const sankey = (name, pos, title, source, destination, weight) => visual(name, pos, {
+  visualType: SANKEY,
+  query: { queryState: { Source: { projections: [source] }, Destination: { projections: [destination] }, Weight: { projections: [weight] } } },
+  objects: { labels: [{ properties: { show: b(true), fontSize: n(9), fill: color(C.ink) } }] },
+  visualContainerObjects: container(title),
+});
+// Résumé de la segmentation (ml/segmentation_employes.py)
+const ML = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'ml', 'profils_resume.json'), 'utf8'));
+
+const table = (name, pos, title, values, sort = null, { wrap = false } = {}) => {
   const query = { queryState: { Values: { projections: values } } };
   if (sort) query.sortDefinition = sortBy(sort);
   return visual(name, pos, {
     visualType: 'tableEx', query,
     objects: {
       columnHeaders: [{ properties: { fontColor: color(C.white), backColor: color(C.navy), fontSize: n(9), bold: b(true) } }],
-      values: [{ properties: { fontSize: n(9), fontColorPrimary: color(C.ink), backColorPrimary: color(C.white), backColorSecondary: color(C.bg) } }],
+      values: [{ properties: { fontSize: n(9), fontColorPrimary: color(C.ink), backColorPrimary: color(C.white), backColorSecondary: color(C.bg), ...(wrap ? { wordWrap: b(true) } : {}) } }],
       total: [{ properties: { fontSize: n(9), bold: b(true) } }],
       grid: [{ properties: { gridHorizontal: b(false), gridVertical: b(false), rowPadding: L(4) } }],
     },
@@ -209,8 +220,14 @@ const header = (a, { subtitle = null, extra = [] } = {}) => [
   ], { bg: C.navy, radius: 0 }),
   ...pill('v01Accueil', [MX, 66, 120, 34], '←  Accueil', ACCUEIL),
   ...extra,
-  textCard('v03Perimetre', [MX + 120 + GAP + (extra.length ? 172 : 0), 70, 330, 28], 'Périmètre', { size: 10, colorHex: C.muted, bold: true }),
-  textCard('v04MessageAcces', [W - MX - 600, 68, 600, 30], 'Message accès', { size: 10, colorHex: C.coral, bold: true }),
+  ...(() => {
+    const xMsg = W - MX - 520;
+    const xPer = Math.max(MX + 120, ...extra.map(v => v.position.x + v.position.width)) + GAP;
+    return [
+      textCard('v03Perimetre', [xPer, 70, Math.min(330, xMsg - GAP - xPer), 28], 'Périmètre', { size: 10, colorHex: C.muted, bold: true }),
+      textCard('v04MessageAcces', [xMsg, 68, 520, 30], 'Message accès', { size: 10, colorHex: C.coral, bold: true }),
+    ];
+  })(),
 ];
 // Cartes KPI : couleur portée par une mesure (blanc sur blanc quand la page n'appartient pas au rôle)
 const kpiRow = (items, y = 112, h = 88) => {
@@ -269,7 +286,22 @@ const V = {
 // ---------- pages
 // filtre : nom affiché de la page dans la table Acteurs (sécurité par page) ; null pour l'accueil
 const pages = [];
-const page = (name, displayName, visuals, { hidden = true, filtre = displayName } = {}) => pages.push({ name, displayName, visuals, hidden, filtre });
+// filtres : filtres de page supplémentaires, verrouillés et masqués : [{ entity, prop, values }]
+const page = (name, displayName, visuals, { hidden = true, filtre = displayName, filtres = [] } = {}) => pages.push({ name, displayName, visuals, hidden, filtre, filtres });
+const pageFilter = (name, entity, prop, values) => ({
+  name,
+  field: { Column: { Expression: { SourceRef: { Entity: entity } }, Property: prop } },
+  type: 'Categorical',
+  filter: {
+    Version: 2,
+    From: [{ Name: 'f', Entity: entity, Type: 0 }],
+    Where: [{ Condition: { In: {
+      Expressions: [{ Column: { Expression: { SourceRef: { Source: 'f' } }, Property: prop } }],
+      Values: values.map(v => [{ Literal: { Value: `'${String(v).replace(/'/g, "''")}'` } }]),
+    } } }],
+  },
+  howCreated: 'User', isHiddenInViewMode: true, isLockedInViewMode: true,
+});
 const pageOf = (a, i = 0) => a.pages[i];
 
 // Accueil : bienvenue personnalisée selon le rôle et un seul bouton vers la page de l'acteur
@@ -317,7 +349,7 @@ const pageOf = (a, i = 0) => a.pages[i];
   ]);
 }
 
-// DRH 1/2 : effectif, coûts, temps travaillé
+// DRH 1/3 : effectif, coûts, temps travaillé
 {
   z = 1000;
   const a = acteur('DRH');
@@ -337,13 +369,16 @@ const pageOf = (a, i = 0) => a.pages[i];
   ]);
 }
 
-// DRH 2/2 : formation, congés, échéances
+// DRH 2/3 : formation, congés, échéances
 {
   z = 1000;
   const a = acteur('DRH');
   const r1 = cols(3), r2 = cols(3);
   page(pageOf(a, 1).id, pageOf(a, 1).nom, [
-    ...header(a, { subtitle: 'Formation · congés · échéances', extra: pill('v02Retour', [MX + 120 + GAP, 66, 160, 34], '←  Page précédente', pageOf(a, 0).id) }),
+    ...header(a, { subtitle: 'Formation · congés · échéances', extra: [
+      ...pill('v02Retour', [MX + 120 + GAP, 66, 160, 34], '←  Page précédente', pageOf(a, 0).id),
+      ...pill('v02Suite', [MX + 120 + GAP + 160 + GAP, 66, 150, 34], 'Page suivante  →', pageOf(a, 2).id),
+    ] }),
     ...kpiRow([{ m: 'Couverture formation', colorMeasure: 'Couleur couverture' }, { m: 'Formations par employé' },
       { m: 'Taux de consommation des congés', label: 'Consommation des droits' }, { m: '% dernier congé maladie', alert: true },
       { m: 'Échéances à 90 jours', alert: true }, { m: "Taux d'anomalies contractuelles", colorMeasure: 'Couleur anomalies', label: "Taux d'anomalies" }]),
@@ -355,6 +390,28 @@ const pageOf = (a, i = 0) => a.pages[i];
     V.anomalies('v25Anomalies', at(r2[2], ROW2)),
     note('À noter : une seule photo RH, donc pas de tendance · pas de donnée de formation pour le pôle administratif · seul le dernier congé est connu, sans date ni durée.'),
   ]);
+}
+
+// DRH 3/3 : profils des collaborateurs (segmentation K-means, voir ml/)
+{
+  z = 1000;
+  const a = acteur('DRH');
+  const r1 = cols(2, [470, W - 2 * MX - GAP - 470]), r2 = cols(2, [700, W - 2 * MX - GAP - 700]);
+  const PROFIL = () => col('Profils', 'profil', 'Profil');
+  page(pageOf(a, 2).id, pageOf(a, 2).nom, [
+    ...header(a, { subtitle: 'Profils des collaborateurs', extra: pill('v02Retour', [MX + 120 + GAP, 66, 160, 34], '←  Page précédente', pageOf(a, 1).id) }),
+    ...kpiRow([{ m: 'Nombre de profils' }, { m: 'Score de silhouette' }, { m: 'Effectif' },
+      { m: 'Ancienneté moyenne (ans)' }, { m: 'Expérience moyenne (ans)' }, { m: 'Coût moyen par employé' }]),
+    chart('v20Profils', at(r1[0], ROW1), 'clusteredBarChart', 'Effectif par profil',
+      { cat: PROFIL(), y: [mea('Effectif')], colors: [C.teal], opts: {} }),
+    table('v21Lecture', at(r1[1], ROW1), 'Lecture des profils', [PROFIL(), col('Profils', 'description', 'Ce qui caractérise le profil')], null, { wrap: true }),
+    table('v22Portrait', at(r2[0], ROW2), 'Portrait chiffré des profils',
+      [PROFIL(), mea('Effectif'), mea("Part de l'effectif", 'Part'), mea('Ancienneté moyenne (ans)', 'Ancienneté'), mea('Expérience moyenne (ans)', 'Expérience'),
+        mea('Coût moyen par employé', 'Coût moyen'), mea('% jours > 8 h'), mea('Formations par employé', 'Formations')]),
+    chart('v23ProfilsDep', at(r2[1], ROW2), 'hundredPercentStackedBarChart', 'Composition des profils par département',
+      { cat: PROFIL(), y: [mea('Effectif')], series: DEP(), opts: { legend: true, stacked: true } }),
+    note(`Méthode : segmentation K-means sur 4 variables standardisées (ancienneté, expérience, coût mensuel, part de journées > 8 h) · ${ML.k_retenu} profils · silhouette ${String(ML.silhouette).replace('.', ',')} : structure modérée · profils descriptifs, pas une prédiction.`),
+  ], { filtres: [{ entity: 'Profils', prop: 'profil', values: ML.profils.map(p => p.profil) }] });
 }
 
 // Contrôle de gestion et paie : coûts et temps travaillé
@@ -430,8 +487,8 @@ const pageOf = (a, i = 0) => a.pages[i];
       { m: '% contrats courts' }, { m: 'Ancienneté moyenne (ans)' }, { m: '% ancienneté < 1 an' }]),
     V.canal('v20Canal', at(r1[0], ROW1)),
     V.entreesAnnee('v21Entrees', at(r2[0], ROW2)),
-    chart('v22CanalParDep', at(r1[1], ROW1), 'hundredPercentStackedBarChart', 'Canal de recrutement par département',
-      { cat: DEP(), y: [mea('Effectif')], series: col('dw dim_canal_recrutement', 'canal_libelle', 'Canal'), opts: { legend: true, stacked: true } }),
+    sankey('v22Parcours', at(r1[1], ROW1), 'Parcours : canal de recrutement → département → contrat',
+      col('Flux recrutement', 'source', 'Origine'), col('Flux recrutement', 'destination', 'Destination'), mea('Flux recrutement', 'Effectif')),
     V.effectifCapacite('v23EffectifCapacite', at(r2[1], ROW2)),
     V.contrats('v24Contrats', at(r2[2], ROW2)),
     note('À noter : entrées seules, sans historique des départs · ni coût ni qualité par canal · vue agrégée, sans détail par employé.'),
@@ -470,20 +527,10 @@ for (const p of pages) {
     // Page d'acteur : masquée (on n'y entre que par le bouton de l'accueil)
     ...(p.hidden ? { visibility: 'HiddenInViewMode' } : {}),
     // Sécurité par page : Acteurs[page] = cette page (filtre masqué et verrouillé). Vide pour un autre rôle → [Accès page] = 0
-    ...(p.filtre ? { filterConfig: { filters: [{
-      name: `acces_${p.name}`,
-      field: { Column: { Expression: { SourceRef: { Entity: 'Acteurs' } }, Property: 'page' } },
-      type: 'Categorical',
-      filter: {
-        Version: 2,
-        From: [{ Name: 'a', Entity: 'Acteurs', Type: 0 }],
-        Where: [{ Condition: { In: {
-          Expressions: [{ Column: { Expression: { SourceRef: { Source: 'a' } }, Property: 'page' } }],
-          Values: [[{ Literal: { Value: `'${p.filtre.replace(/'/g, "''")}'` } }]],
-        } } }],
-      },
-      howCreated: 'User', isHiddenInViewMode: true, isLockedInViewMode: true,
-    }] } } : {}),
+    ...(p.filtre || p.filtres.length ? { filterConfig: { filters: [
+      ...(p.filtre ? [pageFilter(`acces_${p.name}`, 'Acteurs', 'page', [p.filtre])] : []),
+      ...p.filtres.map((f, i) => pageFilter(`filtre${i + 1}_${p.name}`, f.entity, f.prop, f.values)),
+    ] } } : {}),
     objects: { background: [{ properties: { color: color(C.bg), transparency: n(0) } }] },
   }, null, 2));
   const names = new Set();
@@ -520,6 +567,7 @@ const report = JSON.parse(readFileSync(reportPath, 'utf8'));
 report.themeCollection.customTheme = { name: themeName, reportVersionAtImport: report.themeCollection.baseTheme.reportVersionAtImport, type: 'RegisteredResources' };
 report.resourcePackages = report.resourcePackages.filter(r => r.name !== 'RegisteredResources');
 report.resourcePackages.push({ name: 'RegisteredResources', type: 'RegisteredResources', items: [{ name: themeName, path: themeName, type: 'CustomTheme' }] });
+report.publicCustomVisuals = [...new Set([...(report.publicCustomVisuals || []), SANKEY])];
 writeFileSync(reportPath, JSON.stringify(report, null, 2));
 
 console.log(pages.map(p => `${p.name} : ${p.visuals.length} visuels`).join('\n'));

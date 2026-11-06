@@ -1,19 +1,38 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.5.0/schema.json",
-  "name": "v22CanalParDep",
+  "name": "v23ProfilsDep",
   "position": {
-    "x": 646,
-    "y": 212,
-    "z": 1013,
-    "width": 618,
-    "height": 236,
-    "tabOrder": 14
+    "x": 728,
+    "y": 460,
+    "z": 1016,
+    "width": 536,
+    "height": 222,
+    "tabOrder": 17
   },
   "visual": {
     "visualType": "hundredPercentStackedBarChart",
     "query": {
       "queryState": {
         "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Profils"
+                    }
+                  },
+                  "Property": "profil"
+                }
+              },
+              "queryRef": "Profils.profil",
+              "nativeQueryRef": "profil",
+              "displayName": "Profil"
+            }
+          ]
+        },
+        "Series": {
           "projections": [
             {
               "field": {
@@ -29,25 +48,6 @@
               "queryRef": "dw dim_departement.departement_libelle",
               "nativeQueryRef": "departement_libelle",
               "displayName": "Département"
-            }
-          ]
-        },
-        "Series": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dw dim_canal_recrutement"
-                    }
-                  },
-                  "Property": "canal_libelle"
-                }
-              },
-              "queryRef": "dw dim_canal_recrutement.canal_libelle",
-              "nativeQueryRef": "canal_libelle",
-              "displayName": "Canal"
             }
           ]
         },
@@ -408,7 +408,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Canal de recrutement par département'"
+                  "Value": "'Composition des profils par département'"
                 }
               }
             },

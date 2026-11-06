@@ -70,6 +70,63 @@ const read = (f) => readFileSync(f, 'utf8').replace(/^﻿/, '');
   writeFileSync(file, L.join(NL), 'utf8');
 }
 
+// ---------- Tables calculées : profils (segmentation K-means, ml/) et parcours de recrutement (Sankey)
+const calcTable = (name, { description, hidden = false, cols, source }) => {
+  const file = join(DEF, 'tables', `${name}.tmdl`);
+  const old = existsSync(file) ? read(file) : '';
+  const tag = (key) => (old.match(new RegExp(`^\\t${key}\\r?\\n(?:\\t\\t.*\\r?\\n)*?\\t\\tlineageTag: (\\S+)`, 'm')) || [])[1] || randomUUID();
+  const tableTag = (old.match(new RegExp(`^table ${q(name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\r?\\n(?:\\t.*\\r?\\n)*?\\tlineageTag: (\\S+)`, 'm')) || [])[1] || randomUUID();
+  const L = [`/// ${description}`, `table ${q(name)}`, ...(hidden ? ['\tisHidden'] : []), `\tlineageTag: ${tableTag}`, ''];
+  for (const c of cols) {
+    L.push(`\tcolumn ${c.n}`, `\t\tdataType: ${c.t}`, ...((hidden || c.hidden) ? ['\t\tisHidden'] : []), ...(c.t === 'int64' ? ['\t\tformatString: 0'] : []),
+      `\t\tlineageTag: ${tag(`column ${c.n}`)}`, '\t\tsummarizeBy: none', '\t\tisNameInferred', `\t\tsourceColumn: [${c.n}]`,
+      ...(c.sortBy ? [`\t\tsortByColumn: ${c.sortBy}`] : []), '', '\t\tannotation SummarizationSetBy = Automatic', '');
+  }
+  L.push(`\tpartition ${q(name)} = calculated`, '\t\tmode: import', '\t\tsource =', ...source.split('\n').map(l => `\t\t\t\t${l}`), '', '');
+  writeFileSync(file, L.join(NL), 'utf8');
+};
+{
+  const ML = JSON.parse(read(join(DEF, '..', '..', 'ml', 'profils_resume.json')));
+  const lignes = read(join(DEF, '..', '..', 'ml', 'profils_employes.csv')).trim().split(/\r?\n/).slice(1).map(l => l.split(','));
+  calcTable('Profils', {
+    description: `Profils des collaborateurs : segmentation K-means (k = ${ML.k_retenu}, silhouette ${ML.silhouette}), voir ml/segmentation_employes.py`,
+    cols: [{ n: 'profil_ordre', t: 'int64', hidden: true }, { n: 'profil', t: 'string', sortBy: 'profil_ordre' }, { n: 'description', t: 'string' }],
+    source: ['DATATABLE(', '    "profil_ordre", INTEGER, "profil", STRING, "description", STRING,', '    {',
+      ...ML.profils.map((p, i) => `        { ${p.ordre}, ${str(p.profil)}, ${str(p.description)} }${i < ML.profils.length - 1 ? ',' : ''}`), '    }', ')'].join('\n'),
+  });
+  calcTable('Profils employés', {
+    description: 'Profil de chaque collaborateur (ml/profils_employes.csv) ; relié à dw dim_employe par employe_bk',
+    hidden: true,
+    cols: [{ n: 'employe_bk', t: 'string' }, { n: 'profil_ordre', t: 'int64' }],
+    source: ['DATATABLE(', '    "employe_bk", STRING, "profil_ordre", INTEGER,', '    {',
+      ...lignes.map(([bk, o], i) => `        { ${str(bk)}, ${o} }${i < lignes.length - 1 ? ',' : ''}`), '    }', ')'].join('\n'),
+  });
+  calcTable('Flux recrutement', {
+    description: 'Liens du parcours de recrutement pour le Sankey : étape 1 canal → département, étape 2 département → type de contrat',
+    hidden: true,
+    cols: [{ n: 'etape', t: 'int64' }, { n: 'source', t: 'string' }, { n: 'destination', t: 'string' }],
+    source: [
+      'UNION(',
+      '    SELECTCOLUMNS(',
+      "        CROSSJOIN(VALUES('dw dim_canal_recrutement'[canal_libelle]), VALUES('dw dim_departement'[departement_libelle])),",
+      `        "etape", 1, "source", 'dw dim_canal_recrutement'[canal_libelle], "destination", 'dw dim_departement'[departement_libelle]),`,
+      '    SELECTCOLUMNS(',
+      "        CROSSJOIN(VALUES('dw dim_departement'[departement_libelle]), VALUES('dw dim_contrat'[type_contrat])),",
+      `        "etape", 2, "source", 'dw dim_departement'[departement_libelle], "destination", 'dw dim_contrat'[type_contrat])`,
+      ')'].join('\n'),
+  });
+  // Relations : Profils → Profils employés → dw dim_employe (filtre à sens unique vers les faits)
+  const rf = join(DEF, 'relationships.tmdl');
+  let rel = read(rf).replace(/\r?\n/g, NL);
+  const ensure = (from, to) => {
+    if (rel.includes(`fromColumn: ${from}${NL}`)) return;
+    rel = rel.replace(/(\r\n)*$/, '') + `${NL}${NL}relationship ${randomUUID()}${NL}\tfromColumn: ${from}${NL}\ttoColumn: ${to}${NL}`;
+  };
+  ensure("'dw dim_employe'.employe_bk", "'Profils employés'.employe_bk");
+  ensure("'Profils employés'.profil_ordre", 'Profils.profil_ordre');
+  writeFileSync(rf, rel.replace(/(\r\n)*$/, '') + NL, 'utf8');
+}
+
 // ---------- Libellé lisible du département (colonne calculée : la source donne INFORMATIQUE, TELECOM, COMMUN, ADMINISTRATION)
 {
   const file = join(DEF, 'tables', 'dw dim_departement.tmdl');
@@ -127,7 +184,10 @@ const read = (f) => readFileSync(f, 'utf8').replace(/^﻿/, '');
   // model.tmdl : références de la table Acteurs et des rôles
   const mf = join(DEF, 'model.tmdl');
   let m = read(mf).replace(/^ref role .*\r?\n/gm, '');
-  if (!/^ref table Acteurs\r?$/m.test(m)) m = m.replace(/^(ref table Mesures\r?\n)/m, `$1ref table Acteurs${NL}`);
+  for (const t of ['Flux recrutement', 'Profils employés', 'Profils', 'Acteurs']) {
+    const ref = `ref table ${q(t)}`;
+    if (!m.split(/\r?\n/).includes(ref)) m = m.replace(/^(ref table Mesures\r?\n)/m, `$1${ref}${NL}`);
+  }
   m = m.replace(/^(ref cultureInfo)/m, names.map(n => `ref role ${q(n)}${NL}`).join('') + NL + '$1').replace(/(\r?\n){3,}ref role/, `${NL}${NL}ref role`);
   writeFileSync(mf, m, 'utf8');
   console.log(`${measures.length} mesures · ${ACTEURS.reduce((s, a) => s + a.pages.length, 0)} lignes Acteurs · ${names.length} rôles`);

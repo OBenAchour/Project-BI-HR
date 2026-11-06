@@ -4,10 +4,10 @@
   "position": {
     "x": 0,
     "y": 0,
-    "z": 1002,
+    "z": 1004,
     "width": 1280,
     "height": 56,
-    "tabOrder": 3
+    "tabOrder": 5
   },
   "visual": {
     "visualType": "textbox",
@@ -41,7 +41,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Décisions : fixer les priorités RH de l’entreprise  ·  Vue complète, sur deux pages",
+                    "value": "Décisions : fixer les priorités RH de l’entreprise  ·  Vue complète, sur trois pages",
                     "textStyle": {
                       "fontSize": "9pt",
                       "color": "#C9D6E3",
