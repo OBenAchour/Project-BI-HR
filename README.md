@@ -60,7 +60,8 @@ Open `RH_Report.pbip` in Power BI Desktop, sign in to `RH_Data_Warehouse` with t
 👉 **Roles, test steps and team split:** [docs/GUIDE_ROLES_POWERBI.md](docs/GUIDE_ROLES_POWERBI.md)
 
 - **One report, one view per actor** (presentation slides 20–22): each role only sees its own dashboard. The home page greets the role and has a single button that opens the role's page
-- **9 hidden actor pages:** *Direction générale*, *DRH* (three pages, the third one shows the employee profiles), *Contrôle de gestion et paie*, *Administration du personnel* (detail per employee ID), *Formation*, *Recrutement*, *Managers de département*. No department slicer: the role decides the scope
+- **9 hidden actor pages:** *Direction générale*, *DRH* (three pages, the third one shows the employee profiles), *Contrôle de gestion et paie*, *Administration du personnel* (detail per employee ID), *Formation*, *Recrutement*, *Managers de département*
+- **Filters on every page:** 2 or 3 dropdown slicers chosen for the actor (department, contract, status, gender, leave type, course level, university, hiring channel, profile). Managers have no department slicer: their role already limits them to one department
 - **10 roles:** `Direction générale`, `DRH`, `Contrôle de gestion et paie`, `Resp. administration du personnel`, `Resp. formation`, `Resp. recrutement`, and 4 manager roles (`Manager Informatique`, `Manager Télécom`, `Manager Communication`, `Manager Administration`) that also see their own department only (row-level security). Test them with *Modeling → View as*
 - **Page-level security:** a hidden `Acteurs` table (one row per actor page) is filtered by each role; each actor page has a locked page filter on itself. On another role's page every measure returns blank and an « Accès non autorisé » banner shows
 - **75 measures** in the `Mesures` table: 65 business measures (headcount and cost read the latest snapshot only) and 10 security / home page measures
@@ -68,7 +69,7 @@ Open `RH_Report.pbip` in Power BI Desktop, sign in to `RH_Data_Warehouse` with t
 - **Recruitment path:** Sankey diagram (certified Microsoft visual from AppSource) from hiring channel to department to contract type
 - **No personal data:** name, e-mail and addresses of `dim_employe` are removed in Power Query
 - **Model:** facts → `dim_employe` active, `dim_employe` → `dim_departement` inactive (avoids two paths), snapshot date active on `fact_effectif_snapshot`; readable department label computed in the model (`departement_libelle`)
-- **Tested:** `powerbi/scripts/test_report.mjs` replays every visual query for every role (1,947 queries, 0 failure)
+- **Tested:** `powerbi/scripts/test_report.mjs` replays every visual query for every role (2,222 queries, 0 failure)
 
 ## Tech stack
 
