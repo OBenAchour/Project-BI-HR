@@ -73,6 +73,9 @@ for (const role of roles) {
         const args = [...v.cols.map(([e, p]) => colRef(e, p)), ...(f ? [f] : []), ...v.meas.map((m, i) => `${dq('m' + i)}, ${meaRef(m)}`)];
         add(`v|${role.nom}|${page.id}|${v.name}`, role, `EVALUATE SUMMARIZECOLUMNS(${args.join(', ')})`, { kind: 'visual', role, page, v });
       }
+      if (v.type === 'slicer' && v.cols.length) {
+        add(`s|${role.nom}|${page.id}|${v.name}`, role, `EVALUATE VALUES(${colRef(...v.cols[0])})`, { kind: 'slicer', role, page, v });
+      }
       for (const m of v.fmt) {
         if (m === "Page de l'acteur") continue;
         const expr = f ? `CALCULATE(${meaRef(m)}, ${f})` : meaRef(m);
@@ -135,6 +138,8 @@ for (const t of tests) {
       if (other.length) fails.push(`${where} : départements hors périmètre visibles (${[...new Set(other.map(o => o[di]))].join(', ')})`);
     }
     if (r.ms > 5000) warns.push(`${where} : requête lente (${r.ms} ms)`);
+  } else if (m.kind === 'slicer') {
+    if (!r.rows.length) fails.push(`${who} · ${m.page.nom} · ${m.v.name} : filtre sans aucune valeur`);
   } else if (m.kind === 'fmt') {
     const ok = allowed(m.role, m.page), c = r.rows[0]?.[0];
     const where = `${who} · ${m.page.nom} · ${m.v.name} · ${m.m}`;

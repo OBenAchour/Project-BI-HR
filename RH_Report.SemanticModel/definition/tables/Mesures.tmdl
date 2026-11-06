@@ -540,8 +540,8 @@ table Mesures
 			    VAR _source = SELECTEDVALUE('Flux recrutement'[source])
 			    VAR _destination = SELECTEDVALUE('Flux recrutement'[destination])
 			    RETURN SWITCH(_etape,
-			        1, CALCULATE([Effectif], 'dw dim_canal_recrutement'[canal_libelle] = _source, 'dw dim_departement'[departement_libelle] = _destination),
-			        2, CALCULATE([Effectif], 'dw dim_departement'[departement_libelle] = _source, 'dw dim_contrat'[type_contrat] = _destination)))
+			        1, CALCULATE([Effectif], KEEPFILTERS('dw dim_canal_recrutement'[canal_libelle] = _source), KEEPFILTERS('dw dim_departement'[departement_libelle] = _destination)),
+			        2, CALCULATE([Effectif], KEEPFILTERS('dw dim_departement'[departement_libelle] = _source), KEEPFILTERS('dw dim_contrat'[type_contrat] = _destination))))
 		formatString: #,##0
 		displayFolder: OM1 Effectif
 		lineageTag: ec8475f2-70a7-49c1-a82d-b64d36376952
