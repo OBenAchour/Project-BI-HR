@@ -208,16 +208,52 @@ const pill = (name, pos, label, target, { bg = C.white, fg = C.navy, size = 10 }
   button(`${name}Lien`, pos, target),
 ];
 
+// Filtre déroulant posé dans le bandeau bleu : libellé clair au-dessus, liste sur fond blanc
+const filtre = (name, pos, [entity, prop, label]) => visual(name, pos, {
+  visualType: 'slicer',
+  query: { queryState: { Values: { projections: [col(entity, prop, label)] } } },
+  objects: {
+    data: [{ properties: { mode: s('Dropdown') } }],
+    header: [{ properties: { show: b(true), text: s(label), fontColor: color('#C9D6E3'), textSize: n(8) } }],
+    items: [{ properties: { textSize: n(9), fontColor: color(C.ink), background: color(C.white) } }],
+  },
+  visualContainerObjects: {
+    background: [{ properties: { show: b(false) } }],
+    border: [{ properties: { show: b(false) } }],
+    dropShadow: [{ properties: { show: b(false) } }],
+    title: [{ properties: { show: b(false) } }],
+    padding: [{ properties: { top: n(0), bottom: n(0), left: n(4), right: n(4) } }],
+  },
+});
+// Champs filtrables : [table, colonne, libellé]
+const F = {
+  dep: ['dw dim_departement', 'departement_libelle', 'Département'],
+  contrat: ['dw dim_contrat', 'type_contrat', 'Type de contrat'],
+  statut: ['dw dim_contrat', 'statut_emploi', 'Statut'],
+  genre: ['dw dim_employe', 'genre', 'Genre'],
+  conge: ['dw dim_type_conge', 'type_conge_libelle', 'Type de congé'],
+  dernierConge: ['dw dim_type_conge', 'type_conge_libelle', 'Dernier congé'],
+  niveau: ['dw dim_niveau_cours', 'niveau_libelle', 'Niveau de cours'],
+  universite: ['dw dim_universite', 'universite', 'Université'],
+  canal: ['dw dim_canal_recrutement', 'canal_libelle', 'Canal de recrutement'],
+  profil: ['Profils', 'profil', 'Profil'],
+};
+
 // ---------- gabarit commun des pages acteurs
 const W = 1280, H = 720, MX = 16, GAP = 12;
 const ACCUEIL = 'pg01Accueil';
 // Bandeau : acteur, ce qu'il peut décider, sa vue ; puis retour à l'accueil, périmètre et message d'accès
-const header = (a, { subtitle = null, extra = [] } = {}) => [
+// filtres : 2 ou 3 champs de F, alignés à droite dans le bandeau
+const header = (a, { subtitle = null, extra = [], filtres = [] } = {}) => [
   textbox('v00Entete', [0, 0, W, 56], [
     para(run(a.acteur, { size: 16, colorHex: C.white, bold: true }),
       ...(subtitle ? [run(`   ${subtitle}`, { size: 12, colorHex: '#C9D6E3', bold: true })] : [])),
     para(run(`Décisions : ${a.decide}  ·  ${a.vue}`, { size: 9, colorHex: '#C9D6E3' })),
   ], { bg: C.navy, radius: 0 }),
+  ...filtres.map((f, i) => {
+    const FW = 156, FG = 8, x0 = W - MX - filtres.length * FW - (filtres.length - 1) * FG;
+    return filtre(`v05Filtre${i + 1}`, [x0 + i * (FW + FG), 4, FW, 48], f);
+  }),
   ...pill('v01Accueil', [MX, 66, 120, 34], '←  Accueil', ACCUEIL),
   ...extra,
   ...(() => {
@@ -336,7 +372,7 @@ const pageOf = (a, i = 0) => a.pages[i];
   const a = acteur('Direction générale');
   const r1 = cols(2), r2 = cols(3, [400, 330, W - 2 * MX - 2 * GAP - 730]);
   page(pageOf(a).id, pageOf(a).nom, [
-    ...header(a),
+    ...header(a, { filtres: [F.dep, F.contrat] }),
     ...kpiRow([{ m: 'Effectif' }, { m: "Taux d'occupation", colorMeasure: 'Couleur occupation' }, { m: '% contrats courts' },
       { m: 'Coût total estimé', units: 0, precision: 1 }, { m: 'Écart H/F médian', colorMeasure: 'Couleur écart H/F' }, { m: 'Échéances à 90 jours', alert: true }]),
     V.effectifCapacite('v20EffectifCapacite', at(r1[0], ROW1)),
@@ -355,7 +391,7 @@ const pageOf = (a, i = 0) => a.pages[i];
   const a = acteur('DRH');
   const r1 = cols(3), r2 = cols(3);
   page(pageOf(a, 0).id, pageOf(a, 0).nom, [
-    ...header(a, { subtitle: 'Effectif · coûts · temps travaillé', extra: pill('v02Suite', [MX + 120 + GAP, 66, 160, 34], 'Page suivante  →', pageOf(a, 1).id) }),
+    ...header(a, { filtres: [F.dep, F.contrat, F.genre], subtitle: 'Effectif · coûts · temps travaillé', extra: pill('v02Suite', [MX + 120 + GAP, 66, 160, 34], 'Page suivante  →', pageOf(a, 1).id) }),
     ...kpiRow([{ m: 'Effectif' }, { m: "Taux d'occupation", colorMeasure: 'Couleur occupation' }, { m: '% contrats courts' },
       { m: 'Coût total estimé', units: 0, precision: 1 }, { m: 'Écart H/F médian', colorMeasure: 'Couleur écart H/F' }, { m: 'Heures par jour' }]),
     V.effectifCapacite('v20EffectifCapacite', at(r1[0], ROW1)),
@@ -375,7 +411,7 @@ const pageOf = (a, i = 0) => a.pages[i];
   const a = acteur('DRH');
   const r1 = cols(3), r2 = cols(3);
   page(pageOf(a, 1).id, pageOf(a, 1).nom, [
-    ...header(a, { subtitle: 'Formation · congés · échéances', extra: [
+    ...header(a, { filtres: [F.dep, F.conge, F.niveau], subtitle: 'Formation · congés · échéances', extra: [
       ...pill('v02Retour', [MX + 120 + GAP, 66, 160, 34], '←  Page précédente', pageOf(a, 0).id),
       ...pill('v02Suite', [MX + 120 + GAP + 160 + GAP, 66, 150, 34], 'Page suivante  →', pageOf(a, 2).id),
     ] }),
@@ -399,7 +435,7 @@ const pageOf = (a, i = 0) => a.pages[i];
   const r1 = cols(2, [470, W - 2 * MX - GAP - 470]), r2 = cols(2, [700, W - 2 * MX - GAP - 700]);
   const PROFIL = () => col('Profils', 'profil', 'Profil');
   page(pageOf(a, 2).id, pageOf(a, 2).nom, [
-    ...header(a, { subtitle: 'Profils des collaborateurs', extra: pill('v02Retour', [MX + 120 + GAP, 66, 160, 34], '←  Page précédente', pageOf(a, 1).id) }),
+    ...header(a, { filtres: [F.profil, F.dep], subtitle: 'Profils des collaborateurs', extra: pill('v02Retour', [MX + 120 + GAP, 66, 160, 34], '←  Page précédente', pageOf(a, 1).id) }),
     ...kpiRow([{ m: 'Nombre de profils' }, { m: 'Score de silhouette' }, { m: 'Effectif' },
       { m: 'Ancienneté moyenne (ans)' }, { m: 'Expérience moyenne (ans)' }, { m: 'Coût moyen par employé' }]),
     chart('v20Profils', at(r1[0], ROW1), 'clusteredBarChart', 'Effectif par profil',
@@ -420,7 +456,7 @@ const pageOf = (a, i = 0) => a.pages[i];
   const a = acteur('Contrôle de gestion et paie');
   const r1 = cols(2), r2 = cols(3, [290, 350, W - 2 * MX - 2 * GAP - 640]);
   page(pageOf(a).id, pageOf(a).nom, [
-    ...header(a),
+    ...header(a, { filtres: [F.dep, F.contrat, F.statut] }),
     ...kpiRow([{ m: 'Coût total estimé', units: 0, precision: 1 }, { m: 'Masse salariale', units: 0, precision: 1 }, { m: 'Coût vacataires', units: 0, precision: 1 },
       { m: 'Coût heures sup admin', units: 0, precision: 1 }, { m: 'Heures sup (h)', label: 'Heures sup pointées (h)' }, { m: 'Coût heures sup pointées', units: 0, precision: 1 }]),
     V.coutDepartement('v20CoutDepartement', at(r1[0], ROW1)),
@@ -440,7 +476,7 @@ const pageOf = (a, i = 0) => a.pages[i];
   const a = acteur('Resp. administration du personnel');
   const LW = 360, xT = MX + LW + GAP;
   page(pageOf(a).id, pageOf(a).nom, [
-    ...header(a),
+    ...header(a, { filtres: [F.dep, F.contrat, F.dernierConge] }),
     ...kpiRow([{ m: 'Employés avec anomalie de contrat', colorMeasure: 'Couleur anomalies', label: 'Employés en anomalie' },
       { m: "Taux d'anomalies contractuelles", colorMeasure: 'Couleur anomalies', label: "Taux d'anomalies" },
       { m: 'Échéances à 30 jours', alert: true }, { m: 'Échéances à 90 jours', alert: true }, { m: 'Solde moyen (jours)' }, { m: '% soldes élevés' }]),
@@ -461,7 +497,7 @@ const pageOf = (a, i = 0) => a.pages[i];
   const a = acteur('Resp. formation');
   const r1 = cols(3, [360, 360, W - 2 * MX - 2 * GAP - 720]), r2 = cols(2, [800, W - 2 * MX - GAP - 800]);
   page(pageOf(a).id, pageOf(a).nom, [
-    ...header(a),
+    ...header(a, { filtres: [F.dep, F.niveau, F.universite] }),
     ...kpiRow([{ m: 'Couverture formation', colorMeasure: 'Couleur couverture' }, { m: 'Employés formés' }, { m: 'Inscriptions' },
       { m: 'Formations par employé' }, { m: 'Cours suivis' }, { m: "Taux d'utilisation du catalogue" }]),
     V.niveaux('v20Niveaux', at(r1[0], ROW1)),
@@ -482,7 +518,7 @@ const pageOf = (a, i = 0) => a.pages[i];
   const a = acteur('Resp. recrutement');
   const r1 = cols(2), r2 = cols(3, [560, 330, W - 2 * MX - 2 * GAP - 890]);
   page(pageOf(a).id, pageOf(a).nom, [
-    ...header(a),
+    ...header(a, { filtres: [F.canal, F.dep, F.contrat] }),
     ...kpiRow([{ m: 'Effectif' }, { m: 'Capacité' }, { m: "Taux d'occupation", colorMeasure: 'Couleur occupation' },
       { m: '% contrats courts' }, { m: 'Ancienneté moyenne (ans)' }, { m: '% ancienneté < 1 an' }]),
     V.canal('v20Canal', at(r1[0], ROW1)),
@@ -501,7 +537,7 @@ const pageOf = (a, i = 0) => a.pages[i];
   const a = acteur('Managers de département');
   const r1 = cols(2, [800, W - 2 * MX - GAP - 800]), r2 = cols(3);
   page(pageOf(a).id, pageOf(a).nom, [
-    ...header(a),
+    ...header(a, { filtres: [F.contrat, F.statut, F.conge] }),
     ...kpiRow([{ m: 'Effectif' }, { m: "Taux d'occupation", colorMeasure: 'Couleur occupation' }, { m: 'Heures par jour' },
       { m: 'Taux de retard', alert: true }, { m: 'Taux de consommation des congés', label: 'Consommation des droits' }, { m: 'Échéances à 90 jours', alert: true }]),
     V.heuresMois('v20HeuresMois', at(r1[0], ROW1)),

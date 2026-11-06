@@ -120,7 +120,7 @@ const base = [
   { f: 'Profils', n: 'Expérience moyenne (ans)', fmt: DEC1, e: snap(`AVERAGE(${EFF}[annees_experience])`) },
   // ---------- Parcours de recrutement (Sankey : canal → département → contrat)
   { f: 'OM1 Effectif', n: 'Flux recrutement', fmt: INT, e:
-    `VAR _etape = SELECTEDVALUE('Flux recrutement'[etape])\nVAR _source = SELECTEDVALUE('Flux recrutement'[source])\nVAR _destination = SELECTEDVALUE('Flux recrutement'[destination])\nRETURN SWITCH(_etape,\n    1, CALCULATE([Effectif], 'dw dim_canal_recrutement'[canal_libelle] = _source, 'dw dim_departement'[departement_libelle] = _destination),\n    2, CALCULATE([Effectif], 'dw dim_departement'[departement_libelle] = _source, ${CTR}[type_contrat] = _destination))`,
+    `VAR _etape = SELECTEDVALUE('Flux recrutement'[etape])\nVAR _source = SELECTEDVALUE('Flux recrutement'[source])\nVAR _destination = SELECTEDVALUE('Flux recrutement'[destination])\nRETURN SWITCH(_etape,\n    1, CALCULATE([Effectif], KEEPFILTERS('dw dim_canal_recrutement'[canal_libelle] = _source), KEEPFILTERS('dw dim_departement'[departement_libelle] = _destination)),\n    2, CALCULATE([Effectif], KEEPFILTERS('dw dim_departement'[departement_libelle] = _source), KEEPFILTERS(${CTR}[type_contrat] = _destination)))`,
     d: 'Effectif par lien du parcours : canal de recrutement → département, puis département → type de contrat' },
   { f: 'OM6 Échéances', n: 'Date de fin de contrat', fmt: 'dd/mm/yyyy', e:
     `VAR _photo = MAX(${EFF}[date_snapshot_sk])\nVAR _fin = CALCULATE(MAX(${EFF}[date_fin_contrat_sk]), ${EFF}[date_snapshot_sk] = _photo)\nRETURN IF(HASONEVALUE('dw dim_employe'[employe_bk]) && NOT ISBLANK(_fin), ${skToDate('_fin')})`,

@@ -103,6 +103,7 @@ La somme des quatre effectifs fait 2 726 : chaque manager ne voit que son dépar
 - **Verrou des données** : toutes les mesures métier renvoient vide quand `[Accès page]` = 0 ; les cartes passent en blanc sur blanc et le bandeau d'accès s'affiche.
 - **Données personnelles** : nom, e-mail et adresses sont retirés dans Power Query ; le détail par employé n'affiche que l'identifiant.
 - **Profils (machine learning)** : K-means sur 4 variables standardisées, 4 profils (silhouette 0,29) ; tables `Profils` et `Profils employés` reliées à `dim_employe`. Méthode complète : [ml/README.md](../ml/README.md).
+- **Filtres de page** : 2 ou 3 filtres déroulants par page, dans le bandeau bleu (Direction générale : département, contrat · DRH 1/3 : département, contrat, genre · DRH 2/3 : département, type de congé, niveau de cours · DRH 3/3 : profil, département · Contrôle de gestion : département, contrat, statut · Administration du personnel : département, contrat, dernier congé · Formation : département, niveau, université · Recrutement : canal, département, contrat · Managers : contrat, statut, type de congé). Un filtre ne contourne jamais la sécurité : sur une page verrouillée, il ne fait apparaître aucune donnée.
 - **Sankey du recrutement** : visuel Microsoft certifié (AppSource), alimenté par la table `Flux recrutement` (canal → département, puis département → contrat) et la mesure `Flux recrutement`.
 
 ## 8. Régénérer et retester
