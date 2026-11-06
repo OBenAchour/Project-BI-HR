@@ -25,6 +25,7 @@
 | `RH_Report.pbip` | Power BI report (Power BI project format): a home page and one hidden page per actor; each of the 10 roles only sees its own page |
 | `powerbi/scripts/` | Scripts that generate the model and the report pages, and test every role |
 | `ml/` | Employee segmentation (K-means, scikit-learn): 4 profiles shown on the *DRH · 3/3* page |
+| `docs/Rapport_Projet_BI_RH.pdf` | Full project report (French, 67 pages): data, audit, DW, Power BI model, security, every report page, machine learning, tests, team guide |
 | `docs/CONCEPTION_DW.md` | DW design: model, bus matrix, every fact and dimension |
 | `docs/GUIDE_RECONSTRUCTION_DW.md` | Step-by-step guide to the DW load in SSDT (components, expressions, table fiches) |
 | `docs/` | Also: setup guide + team conventions |
