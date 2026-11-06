@@ -25,8 +25,14 @@ const meaRef = (p) => `[${p.replace(/]/g, ']]')}]`;
 const order = json(join(PAGES, 'pages.json')).pageOrder;
 const pages = order.map(id => {
   const pg = json(join(PAGES, id, 'page.json'));
-  const lit = pg.filterConfig?.filters?.[0]?.filter?.Where?.[0]?.Condition?.In?.Values?.[0]?.[0]?.Literal?.Value;
-  const filtre = lit ? lit.slice(1, -1).replace(/''/g, "'") : null;
+  const unq = (v) => v.slice(1, -1).replace(/''/g, "'");
+  const filters = (pg.filterConfig?.filters || []).map(f => ({
+    entity: f.field.Column.Expression.SourceRef.Entity, prop: f.field.Column.Property,
+    values: f.filter.Where[0].Condition.In.Values.map(v => unq(v[0].Literal.Value)),
+  }));
+  const acces = filters.find(f => f.entity === 'Acteurs' && f.prop === 'page');
+  const filtre = acces ? acces.values[0] : null;
+  const autres = filters.filter(f => f !== acces);
   const visuals = [];
   const vdir = join(PAGES, id, 'visuals');
   for (const name of readdirSync(vdir)) {
@@ -43,7 +49,7 @@ const pages = order.map(id => {
     walk(v.visual.objects); walk(v.visual.visualContainerObjects);
     visuals.push({ name, type: v.visual.visualType, cols, meas, fmt: [...fmt] });
   }
-  return { id, nom: pg.displayName, hidden: pg.visibility === 'HiddenInViewMode', filtre, visuals };
+  return { id, nom: pg.displayName, hidden: pg.visibility === 'HiddenInViewMode', filtre, autres, visuals };
 });
 
 // ---------- rôles
@@ -58,7 +64,10 @@ for (const role of roles) {
   add(`dept|${role.nom}`, role, `EVALUATE VALUES('dw dim_departement'[departement_libelle])`, { kind: 'dept', role });
   add(`accueil|${role.nom}`, role, `EVALUATE ROW("titre", [Accueil titre], "decision", [Accueil décision], "vue", [Accueil vue], "page", [Page de l'acteur], "acteur", [Acteur])`, { kind: 'accueil', role });
   for (const page of pages) {
-    const f = page.filtre ? `TREATAS({${dq(page.filtre)}}, Acteurs[page])` : null;
+    const f = [
+      ...(page.filtre ? [`TREATAS({${dq(page.filtre)}}, Acteurs[page])`] : []),
+      ...page.autres.map(o => `TREATAS({${o.values.map(dq).join(', ')}}, ${colRef(o.entity, o.prop)})`),
+    ].join(', ') || null;
     for (const v of page.visuals) {
       if (v.meas.length) {
         const args = [...v.cols.map(([e, p]) => colRef(e, p)), ...(f ? [f] : []), ...v.meas.map((m, i) => `${dq('m' + i)}, ${meaRef(m)}`)];

@@ -13,6 +13,9 @@ annotation PBI_QueryOrder = ["dw dim_canal_recrutement","dw dim_contrat","dw dim
 annotation PBI_ProTooling = ["DevMode"]
 
 ref table Mesures
+ref table Profils
+ref table 'Profils employés'
+ref table 'Flux recrutement'
 ref table Acteurs
 ref table 'dw dim_canal_recrutement'
 ref table 'dw dim_contrat'

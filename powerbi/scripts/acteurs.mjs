@@ -10,8 +10,8 @@ export const ACTEURS = [
   },
   {
     acteur: 'DRH', ordre: 2, couleur: '#1B998B',
-    decide: 'fixer les priorités RH de l’entreprise', vue: 'Vue complète, sur deux pages',
-    pages: [{ id: 'pg03DRH1', nom: 'DRH · 1/2' }, { id: 'pg04DRH2', nom: 'DRH · 2/2' }],
+    decide: 'fixer les priorités RH de l’entreprise', vue: 'Vue complète, sur trois pages',
+    pages: [{ id: 'pg03DRH1', nom: 'DRH · 1/3' }, { id: 'pg04DRH2', nom: 'DRH · 2/3' }, { id: 'pg04bDRH3', nom: 'DRH · 3/3' }],
     roles: [{ nom: 'DRH' }],
   },
   {

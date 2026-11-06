@@ -495,6 +495,57 @@ table Mesures
 		displayFolder: OM6 Échéances
 		lineageTag: d336d78d-0694-42e9-8b4a-b4d3b7b3b840
 
+	/// Nombre de profils retenus par la segmentation (K-means)
+	measure 'Nombre de profils' =
+			IF([Accès page] = 1,
+			    4)
+		formatString: #,##0
+		displayFolder: Profils
+		lineageTag: 326d1fab-a677-48a9-a9af-abedb82c1502
+
+	/// Qualité de la segmentation : de -1 à 1, au-dessus de 0,25 la structure est réelle mais modérée
+	measure 'Score de silhouette' =
+			IF([Accès page] = 1,
+			    0.288)
+		formatString: 0.00
+		displayFolder: Profils
+		lineageTag: 307c410f-9707-4307-b646-265e74d4e859
+
+	measure 'Part de l''effectif' =
+			IF([Accès page] = 1,
+			    DIVIDE([Effectif], CALCULATE([Effectif], ALL('Profils'))))
+		formatString: 0.0%
+		displayFolder: Profils
+		lineageTag: 88f286ec-1a36-45ee-9ee6-e7e9a7933d6b
+
+	measure 'Coût moyen par employé' =
+			IF([Accès page] = 1,
+			    DIVIDE([Coût total estimé], [Effectif]))
+		formatString: #,##0
+		displayFolder: Profils
+		lineageTag: f29e65d0-4616-409f-993c-7e92bf7c0a3e
+
+	measure 'Expérience moyenne (ans)' =
+			IF([Accès page] = 1,
+			    VAR _photo = MAX('dw fact_effectif_snapshot'[date_snapshot_sk])
+			    RETURN CALCULATE(AVERAGE('dw fact_effectif_snapshot'[annees_experience]), 'dw fact_effectif_snapshot'[date_snapshot_sk] = _photo))
+		formatString: #,##0.0
+		displayFolder: Profils
+		lineageTag: faca2e3f-483f-48e6-b9f8-1d14f81a0888
+
+	/// Effectif par lien du parcours : canal de recrutement → département, puis département → type de contrat
+	measure 'Flux recrutement' =
+			IF([Accès page] = 1,
+			    VAR _etape = SELECTEDVALUE('Flux recrutement'[etape])
+			    VAR _source = SELECTEDVALUE('Flux recrutement'[source])
+			    VAR _destination = SELECTEDVALUE('Flux recrutement'[destination])
+			    RETURN SWITCH(_etape,
+			        1, CALCULATE([Effectif], 'dw dim_canal_recrutement'[canal_libelle] = _source, 'dw dim_departement'[departement_libelle] = _destination),
+			        2, CALCULATE([Effectif], 'dw dim_departement'[departement_libelle] = _source, 'dw dim_contrat'[type_contrat] = _destination)))
+		formatString: #,##0
+		displayFolder: OM1 Effectif
+		lineageTag: ec8475f2-70a7-49c1-a82d-b64d36376952
+
 	/// Détail par employé (vide sur un total ou sans date de fin)
 	measure 'Date de fin de contrat' =
 			IF([Accès page] = 1,

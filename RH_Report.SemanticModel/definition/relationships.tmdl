@@ -184,3 +184,10 @@ relationship 7425312f-bbf9-4479-a7fa-c101720b5c45
 
 	annotation PBI_IsFromSource = FS
 
+relationship 1b61cdd0-cebe-4f60-9d0a-0b3c96a76bae
+	fromColumn: 'dw dim_employe'.employe_bk
+	toColumn: 'Profils employés'.employe_bk
+
+relationship b429a346-4197-49a9-b300-48c3c0f4dfa1
+	fromColumn: 'Profils employés'.profil_ordre
+	toColumn: Profils.profil_ordre

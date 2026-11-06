@@ -1,0 +1,47 @@
+/// Profils des collaborateurs : segmentation K-means (k = 4, silhouette 0.288), voir ml/segmentation_employes.py
+table Profils
+	lineageTag: 7682e072-7fb3-4775-a009-339bbbe641a0
+
+	column profil_ordre
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 8fdeb287-175b-4702-886a-5f872b162172
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [profil_ordre]
+
+		annotation SummarizationSetBy = Automatic
+
+	column profil
+		dataType: string
+		lineageTag: 3c1c68f7-459c-4fc7-9412-f215b62325b9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [profil]
+		sortByColumn: profil_ordre
+
+		annotation SummarizationSetBy = Automatic
+
+	column description
+		dataType: string
+		lineageTag: fd87857a-d686-4e06-a7a6-43e94d3c4f33
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [description]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Profils = calculated
+		mode: import
+		source =
+				DATATABLE(
+				    "profil_ordre", INTEGER, "profil", STRING, "description", STRING,
+				    {
+				        { 1, "Piliers expérimentés", "18 ans d'ancienneté, 16 ans d'expérience : la mémoire de l'entreprise, à fidéliser (tutorat)." },
+				        { 2, "Experts recrutés récemment", "22 ans d'expérience mais 7 ans d'ancienneté : des compétences venues d'ailleurs, à retenir." },
+				        { 3, "Profils juniors", "6 ans d'expérience, 7 ans d'ancienneté : des profils à faire monter en compétences." },
+				        { 4, "Administratifs à horaires longs", "Pôle administratif, 25 % de journées au-delà de 8 h, coût moyen de 5 491 : charge à surveiller." }
+				    }
+				)
+

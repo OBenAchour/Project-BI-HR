@@ -1,0 +1,67 @@
+{
+  "methode": "K-means (scikit-learn), variables standardisées",
+  "variables": [
+    "anciennete_ans",
+    "experience_ans",
+    "cout_mensuel",
+    "pct_jours_8h"
+  ],
+  "employes": 2726,
+  "k_retenu": 4,
+  "silhouette_par_k": {
+    "2": 0.324,
+    "3": 0.298,
+    "4": 0.288,
+    "5": 0.25,
+    "6": 0.247,
+    "7": 0.25
+  },
+  "silhouette": 0.288,
+  "graine": 42,
+  "profils": [
+    {
+      "ordre": 1,
+      "profil": "Piliers expérimentés",
+      "description": "18 ans d'ancienneté, 16 ans d'expérience : la mémoire de l'entreprise, à fidéliser (tutorat).",
+      "effectif": 529,
+      "anciennete_ans": 18.4,
+      "experience_ans": 15.9,
+      "cout_mensuel": 3199,
+      "pct_jours_8h": 0.024,
+      "part_administratif": 0.009
+    },
+    {
+      "ordre": 2,
+      "profil": "Experts recrutés récemment",
+      "description": "22 ans d'expérience mais 7 ans d'ancienneté : des compétences venues d'ailleurs, à retenir.",
+      "effectif": 528,
+      "anciennete_ans": 6.8,
+      "experience_ans": 22.1,
+      "cout_mensuel": 3193,
+      "pct_jours_8h": 0.034,
+      "part_administratif": 0.091
+    },
+    {
+      "ordre": 3,
+      "profil": "Profils juniors",
+      "description": "6 ans d'expérience, 7 ans d'ancienneté : des profils à faire monter en compétences.",
+      "effectif": 536,
+      "anciennete_ans": 7.3,
+      "experience_ans": 6.1,
+      "cout_mensuel": 3137,
+      "pct_jours_8h": 0.049,
+      "part_administratif": 0.188
+    },
+    {
+      "ordre": 4,
+      "profil": "Administratifs à horaires longs",
+      "description": "Pôle administratif, 25 % de journées au-delà de 8 h, coût moyen de 5 491 : charge à surveiller.",
+      "effectif": 1133,
+      "anciennete_ans": 7.0,
+      "experience_ans": 10.1,
+      "cout_mensuel": 5491,
+      "pct_jours_8h": 0.247,
+      "part_administratif": 0.993
+    }
+  ]
+}
