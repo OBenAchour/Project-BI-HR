@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  python-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install linters
+        run: pip install flake8
+      - name: Syntax check (compile all Python)
+        run: python -m compileall -q eda_audit_pipeline.py ml powerbi
+      - name: Lint (flake8, report only)
+        run: flake8 . --max-line-length=120 --extend-ignore=E203,W503 || true
